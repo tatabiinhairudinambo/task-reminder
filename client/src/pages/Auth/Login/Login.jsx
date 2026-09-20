@@ -5,14 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordInput } from '@/components/shared/PasswordInput';
-import { Card, CardContent } from '@/components/ui/card';
 import Silk from '@/components/backgrounds/Silk';
 import { authApi } from '@/api/authApi';
 import { validateRequired } from '@/lib/formUtils';
 import useSemesterStore from '@/store/useSemesterStore';
 
-const GLASS_CARD =
-    'w-full max-w-md border-white/15 bg-white/10 text-white shadow-2xl shadow-blue-950/40 backdrop-blur-xl';
 const GLASS_INPUT =
     'h-12 border-white/20 bg-white/10 pl-10 text-white placeholder:text-white/50 focus-visible:ring-white/60';
 const GLASS_PASSWORD =
@@ -167,75 +164,72 @@ const Login = () => {
                     </span>
                 </div>
 
-                {/* Headline — outside the card so it reads as page copy */}
+                {/* Headline */}
                 <h1 className="text-center text-3xl font-bold text-white">Selamat datang kembali!</h1>
                 <p className="mb-6 mt-2 text-center text-sm text-white/70">
                     Masuk untuk melanjutkan ke akun kamu.
                 </p>
 
-                <Card className={GLASS_CARD}>
-                    <CardContent className="pt-6">
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className={INPUT_WRAPPER}>
-                                <MailIcon />
-                                <Input
-                                    type="email"
-                                    placeholder="Masukkan email Anda"
-                                    value={email}
-                                    autoComplete="username"
-                                    required
-                                    onChange={(event) => setEmail(event.target.value)}
-                                    className={GLASS_INPUT}
-                                />
-                                {message.email ? (
-                                    <p className="mt-1 text-sm text-red-300">{message.email}</p>
-                                ) : null}
-                            </div>
+                {/* No card: the form sits directly on the animated backdrop */}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className={INPUT_WRAPPER}>
+                        <MailIcon />
+                        <Input
+                            type="email"
+                            placeholder="Masukkan email Anda"
+                            value={email}
+                            autoComplete="username"
+                            required
+                            onChange={(event) => setEmail(event.target.value)}
+                            className={GLASS_INPUT}
+                        />
+                        {message.email ? (
+                            <p className="mt-1 text-sm text-red-300">{message.email}</p>
+                        ) : null}
+                    </div>
 
-                            <div className={`${INPUT_WRAPPER} [&_button]:text-white/60 hover:[&_button]:text-white`}>
-                                <LockIcon />
-                                <PasswordInput
-                                    placeholder="Masukkan kata sandi Anda"
-                                    value={password}
-                                    onChange={setPassword}
-                                    autoComplete="current-password"
-                                    required
-                                    className={GLASS_PASSWORD}
-                                />
-                                {message.password ? (
-                                    <p className="mt-1 text-sm text-red-300">{message.password}</p>
-                                ) : null}
-                            </div>
+                    <div className={`${INPUT_WRAPPER} [&_button]:text-white/60 hover:[&_button]:text-white`}>
+                        <LockIcon />
+                        <PasswordInput
+                            placeholder="Masukkan kata sandi Anda"
+                            value={password}
+                            onChange={setPassword}
+                            autoComplete="current-password"
+                            required
+                            className={GLASS_PASSWORD}
+                        />
+                        {message.password ? (
+                            <p className="mt-1 text-sm text-red-300">{message.password}</p>
+                        ) : null}
+                    </div>
 
-                            <div className="flex items-center justify-between">
-                                <label className="flex cursor-pointer items-center gap-2">
-                                    <Checkbox
-                                        checked={rememberMe}
-                                        onCheckedChange={(checked) => setRememberMe(checked === true)}
-                                        className={GLASS_CHECKBOX}
-                                    />
-                                    <span className="text-sm text-white/80">Ingat saya</span>
-                                </label>
-                                <Link
-                                    to="/auth/forgot-password"
-                                    className="text-sm text-[#7db4ff] transition-colors hover:text-white hover:underline"
-                                >
-                                    Lupa kata sandi?
-                                </Link>
-                            </div>
+                    <div className="flex items-center justify-between">
+                        <label className="flex cursor-pointer items-center gap-2">
+                            <Checkbox
+                                checked={rememberMe}
+                                onCheckedChange={(checked) => setRememberMe(checked === true)}
+                                className={GLASS_CHECKBOX}
+                            />
+                            <span className="text-sm text-white/80">Ingat saya</span>
+                        </label>
+                        <Link
+                            to="/auth/forgot-password"
+                            className="text-sm text-[#7db4ff] transition-colors hover:text-white hover:underline"
+                        >
+                            Lupa kata sandi?
+                        </Link>
+                    </div>
 
-                            <Button
-                                type="submit"
-                                className="h-12 w-full bg-[#2f6fed] text-white shadow-lg shadow-blue-900/40 hover:bg-[#2a63d4]"
-                            >
-                                <LoginArrow />
-                                {loading ? 'Memproses...' : 'Masuk'}
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
+                    <Button
+                        type="submit"
+                        className="h-12 w-full bg-[#2f6fed] text-white shadow-lg shadow-blue-900/40 hover:bg-[#2a63d4]"
+                    >
+                        <LoginArrow />
+                        {loading ? 'Memproses...' : 'Masuk'}
+                    </Button>
+                </form>
 
-                {/* Footer — outside the card */}
+                {/* Footer */}
                 <p className="mt-6 text-center text-sm text-white/70">
                     Belum punya akun?{' '}
                     <Link to="/auth/register" className="font-medium text-[#7db4ff] hover:text-white hover:underline">
