@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordInput } from '@/components/shared/PasswordInput';
+import { AuthHero } from '@/components/auth/AuthHero';
 import Silk from '@/components/backgrounds/Silk';
 import { authApi } from '@/api/authApi';
 import { validateRequired } from '@/lib/formUtils';
@@ -139,7 +140,7 @@ const Login = () => {
     }, []);
 
     return (
-        <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0A0A1F] p-4">
+        <div className="relative min-h-screen overflow-hidden bg-[#0A0A1F]">
             <div className="absolute inset-0">
                 <Silk
                     speed={3.6}
@@ -150,26 +151,45 @@ const Login = () => {
                 />
             </div>
 
-            <div className="relative z-10 flex w-full max-w-md flex-col">
-                {/* Brand: the wordmark overlaps the bottom of the logo so the
-                    two read as one lockup. */}
-                <div className="mb-10 flex flex-col items-center">
-                    <img
-                        src="/logo.webp"
-                        className="h-44 w-44"
-                        alt="logo"
-                    />
-                    <span className="wordmark-3d -mt-4 text-4xl">
-                        <span className="wordmark-3d--white">Task</span>{' '}
-                        <span className="wordmark-3d--blue">Reminder</span>
-                    </span>
-                </div>
+            {/*
+              Lightens the left column without hiding the animation. `screen`
+              adds light to whatever is already painted underneath, so the Silk
+              texture still shows through instead of being covered. It must sit
+              outside the `z-10` wrapper below, because that wrapper forms its
+              own stacking context and would isolate the blend.
+            */}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-[1] mix-blend-screen"
+                style={{
+                    background:
+                        'radial-gradient(120% 90% at 0% 50%, rgba(125, 180, 255, 0.30) 0%, rgba(125, 180, 255, 0.12) 38%, rgba(125, 180, 255, 0) 68%)',
+                }}
+            />
 
-                {/* Headline */}
-                <h1 className="text-center text-3xl font-bold text-white">Selamat datang kembali!</h1>
-                <p className="mb-6 mt-2 text-center text-sm text-white/70">
-                    Masuk untuk melanjutkan ke akun kamu.
-                </p>
+            {/* Two columns on desktop: pitch on the left, sign-in on the right.
+                The hero is hidden below lg so the form keeps the full width. */}
+            <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
+                <AuthHero />
+
+                <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 lg:px-8">
+                    <div className="flex w-full max-w-md flex-col">
+                        {/* Brand */}
+                        <div className="mb-8 flex flex-col items-center">
+                            <img src="/logo.webp" className="h-32 w-32" alt="logo" />
+                            <span className="text-2xl font-bold tracking-tight">
+                                <span className="text-white">Task</span>{' '}
+                                <span className="text-[#7db4ff]">Reminder</span>
+                            </span>
+                        </div>
+
+                        {/* Headline */}
+                        <h1 className="text-center text-3xl font-bold text-white">
+                            Selamat datang kembali!
+                        </h1>
+                        <p className="mb-6 mt-2 text-center text-sm text-white/70">
+                            Masuk untuk melanjutkan ke akun kamu.
+                        </p>
 
                 {/* No card: the form sits directly on the animated backdrop */}
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -231,12 +251,14 @@ const Login = () => {
                 </form>
 
                 {/* Footer */}
-                <p className="mt-6 text-center text-sm text-white/70">
+                <p className="mt-6 text-center text-sm text-white/70 lg:text-left">
                     Belum punya akun?{' '}
                     <Link to="/auth/register" className="font-medium text-[#7db4ff] hover:text-white hover:underline">
                         Daftar di sini
                     </Link>
                 </p>
+                    </div>
+                </div>
             </div>
         </div>
     );
