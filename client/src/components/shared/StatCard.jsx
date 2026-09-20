@@ -8,9 +8,9 @@ export const StatCard = memo(({ title, value, subtitle, icon: Icon, iconColor, i
             <CardContent className="flex items-center justify-between gap-4 p-4">
                 <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">{title}</p>
-                    <p className="text-2xl font-bold text-foreground">
+                    <div className="text-2xl font-bold text-foreground">
                         {isLoading ? <Skeleton className="h-8 w-16" /> : value}
-                    </p>
+                    </div>
                     <p className="text-xs text-muted-foreground">{subtitle}</p>
                 </div>
                 {Icon ? (

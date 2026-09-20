@@ -13,14 +13,25 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
 {
     use Queueable, ResolvesNotificationChannels;
 
+    public $courseContent;
+
     public $task;
+
+    public $description;
 
     /**
      * Create a new notification instance.
+     *
+     * Scalars are stored instead of the Task model: this notification is
+     * queued, and Laravel re-fetches queued models when the worker runs. If
+     * the task is deleted first, an Eloquent model here would make the job
+     * fail with a ModelNotFoundException and the message would never send.
      */
-    public function __construct($task)
+    public function __construct(string $courseContent, string $task, ?string $description = null)
     {
+        $this->courseContent = $courseContent;
         $this->task = $task;
+        $this->description = $description;
     }
 
     /**
@@ -39,9 +50,9 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
     public function toTelegram(object $notifiable): string
     {
         return app(TelegramService::class)->buildTaskCompletedMessage(
-            $this->task->course_content->course_content,
-            $this->task->task,
-            $this->task->description
+            $this->courseContent,
+            $this->task,
+            $this->description
         );
     }
 
@@ -51,12 +62,12 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Task Completed Notification')
+            ->subject('Notifikasi Tugas Selesai')
             ->view('emails.task-completed', [
-                'subject' => 'Task Completed Notification',
+                'subject' => 'Notifikasi Tugas Selesai',
                 'userName' => $notifiable->name,
-                'courseContent' => $this->task->course_content->course_content,
-                'task' => $this->task->task,
+                'courseContent' => $this->courseContent,
+                'task' => $this->task,
                 'dashboardUrl' => config('app.frontend_url').'/dashboard',
             ]);
     }

@@ -81,7 +81,11 @@ class TaskService
         $newStatus = $task->status == 1 ? 0 : 1;
 
         if ($task->status == 0 && $newStatus == 1 && $settings && $settings->task_completed_notification === 1) {
-            $user->notify(new TaskCompletedNotification($task));
+            $user->notify(new TaskCompletedNotification(
+                $task->course_content->course_content,
+                $task->task,
+                $task->description
+            ));
         }
 
         $task->update(['status' => $newStatus]);
