@@ -22,6 +22,7 @@ import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
 
 export const CourseContentView = () => {
     const selectedSemester = useSemesterStore((state) => state.semester);
+    const setSemester = useSemesterStore((state) => state.setSemester);
     const { settings } = useSettings();
     const {
         courseContents,
@@ -144,7 +145,16 @@ export const CourseContentView = () => {
                 mode="create"
                 initialData={null}
                 isLoading={isMutating}
-                onSubmit={(payload) => createCourseContent(payload)}
+                onSubmit={async (payload) => {
+                    const result = await createCourseContent(payload);
+                    // The list is filtered by the semester shown in the header.
+                    // Follow the semester the course was saved into, otherwise
+                    // the new row would be invisible right after saving.
+                    if (result.success && payload.semester) {
+                        setSemester(payload.semester, payload.semester);
+                    }
+                    return result;
+                }}
             />
 
             <CourseContentFormDialog
@@ -159,7 +169,13 @@ export const CourseContentView = () => {
                 mode="edit"
                 initialData={editingContent}
                 isLoading={isMutating}
-                onSubmit={(payload, contentId) => updateCourseContent(contentId, payload)}
+                onSubmit={async (payload, contentId) => {
+                    const result = await updateCourseContent(contentId, payload);
+                    if (result.success && payload.semester) {
+                        setSemester(payload.semester, payload.semester);
+                    }
+                    return result;
+                }}
             />
 
             <DeleteConfirmDialog
