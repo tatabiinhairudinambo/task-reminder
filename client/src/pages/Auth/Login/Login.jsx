@@ -155,7 +155,7 @@ const Login = () => {
                 <div className="mb-8 flex flex-col items-center justify-center gap-4">
                     <img
                         src="/logo.webp"
-                        className="h-28 w-28 drop-shadow-[0_8px_28px_rgba(82,39,255,0.5)]"
+                        className="h-28 w-28"
                         alt="logo"
                     />
                     <span className="text-2xl font-bold tracking-tight">
