@@ -29,7 +29,8 @@ test('calculate endpoint returns course contents and gpa for authenticated user'
         ->assertJsonPath('code', 200)
         ->assertJsonPath('data.semester_gpa', '4.00')
         ->assertJsonPath('data.cumulative_gpa', '4.00')
-        ->assertJsonCount(1, 'data.course_contents');
+        ->assertJsonCount(1, 'data.course_contents')
+        ->assertJsonPath('data.course_contents.0.lecturer', 'A');
 });
 
 test('calculate endpoint rejects unauthenticated requests', function () {

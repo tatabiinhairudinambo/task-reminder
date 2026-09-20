@@ -23,14 +23,12 @@ const getSortValue = (row, key) => {
     switch (key) {
         case 'course_content':
             return row.course_content || '';
+        case 'lecturer':
+            return row.lecturer || '';
         case 'credits':
             return Number(row.credits || 0);
         case 'score':
             return Number(row.score || 0);
-        case 'grade':
-            return row.grade || '';
-        case 'grade_point':
-            return Number(row.grade_point || 0);
         default:
             return '';
     }
@@ -71,6 +69,11 @@ export const AssessmentTable = ({ rows, isLoading, onEdit }) => {
                                     Mata Kuliah <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
+                            <TableHead>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('lecturer')}>
+                                    Dosen <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                </Button>
+                            </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('credits')}>
                                     SKS <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
@@ -81,25 +84,15 @@ export const AssessmentTable = ({ rows, isLoading, onEdit }) => {
                                     Skor <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
-                            <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade')}>
-                                    Nilai <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
-                                </Button>
-                            </TableHead>
-                            <TableHead className="text-center">
-                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade_point')}>
-                                    Poin Nilai <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
-                                </Button>
-                            </TableHead>
                             <TableHead className="text-center">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? <LoadingTable rows={5} columns={7} /> : null}
+                        {isLoading ? <LoadingTable rows={5} columns={5} /> : null}
 
                         {!isLoading && rows.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center">
+                                <TableCell colSpan={5} className="text-center">
                                     Data mata kuliah tidak ditemukan
                                 </TableCell>
                             </TableRow>
@@ -110,10 +103,9 @@ export const AssessmentTable = ({ rows, isLoading, onEdit }) => {
                                 <TableRow key={content.id}>
                                     <TableCell className="text-center font-bold">{index + 1}</TableCell>
                                     <TableCell>{content.course_content}</TableCell>
+                                    <TableCell>{content.lecturer}</TableCell>
                                     <TableCell className="text-center">{content.credits}</TableCell>
                                     <TableCell className="text-center">{content.score}</TableCell>
-                                    <TableCell className="text-center">{content.grade}</TableCell>
-                                    <TableCell className="text-center">{content.grade_point}</TableCell>
                                     <TableCell className="text-center">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>

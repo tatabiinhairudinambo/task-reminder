@@ -35,6 +35,7 @@ class AssessmentService
             return [
                 'id' => $courseContent->id,
                 'course_content' => $courseContent->course_content,
+                'lecturer' => $courseContent->lecturer,
                 'score' => $courseContent->score !== null ? number_format($courseContent->score, 2) : null,
                 'credits' => $courseContent->credits,
                 'grade' => $grade?->grade,

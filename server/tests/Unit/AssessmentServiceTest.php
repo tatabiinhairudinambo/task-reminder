@@ -49,6 +49,14 @@ test('calculateGpa computes correct per-semester and cumulative gpa', function (
     expect($result['course_contents'])->toHaveCount(2);
 });
 
+test('calculateGpa exposes the lecturer for each course', function () {
+    CourseContent::create(['semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus I', 'credits' => 3, 'lecturer' => 'Dr. Alice', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'score' => 85, 'user_id' => $this->user->id]);
+
+    $result = $this->service->calculateGpa($this->user->id, '2024/2025 Ganjil');
+
+    expect($result['course_contents'][0]['lecturer'])->toBe('Dr. Alice');
+});
+
 test('calculateGpa excludes semesters with missing scores from cumulative', function () {
     Grade::insert([
         ['grade' => 'A', 'grade_point' => 4.00, 'minimal_score' => 80, 'maximal_score' => 100, 'user_id' => $this->user->id],
