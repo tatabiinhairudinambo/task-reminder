@@ -95,6 +95,12 @@ export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMo
             </CardHeader>
 
             <CardContent className="p-2 sm:p-4">
+                {!isLoading && tasks.length === 0 ? (
+                    <div className="mb-3 rounded-md border border-dashed p-3 text-center text-sm text-muted-foreground">
+                        Belum ada tugas. Klik <span className="font-medium text-foreground">Tugas Baru</span> untuk menambahkan.
+                    </div>
+                ) : null}
+
                 <div className="grid grid-cols-7 gap-px">
                     {WEEKDAYS.map((day) => (
                         <div key={day} className="py-2 text-center text-sm font-medium text-muted-foreground">
