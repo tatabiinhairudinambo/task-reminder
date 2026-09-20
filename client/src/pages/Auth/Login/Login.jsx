@@ -152,13 +152,13 @@ const Login = () => {
 
             <div className="relative z-10 flex w-full max-w-md flex-col">
                 {/* Brand */}
-                <div className="mb-8 flex items-center justify-center gap-3">
+                <div className="mb-8 flex flex-col items-center justify-center gap-4">
                     <img
                         src="/logo.webp"
-                        className="h-11 w-11 drop-shadow-[0_8px_24px_rgba(82,39,255,0.45)]"
+                        className="h-28 w-28 drop-shadow-[0_8px_28px_rgba(82,39,255,0.5)]"
                         alt="logo"
                     />
-                    <span className="text-xl font-bold tracking-tight">
+                    <span className="text-2xl font-bold tracking-tight">
                         <span className="text-white">Task</span>{' '}
                         <span className="text-[#7db4ff]">Reminder</span>
                     </span>
