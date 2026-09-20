@@ -32,6 +32,9 @@ export default defineConfig({
           if (id.includes('chart.js') || id.includes('react-chartjs-2')) return 'vendor-chart'
           if (id.includes('date-fns')) return 'vendor-date'
           if (id.includes('@radix-ui')) return 'vendor-radix'
+          // Silk (login background) pulls in three.js. Keep it in its own
+          // chunk so the auth page's code is cached independently.
+          if (id.includes('node_modules/three') || id.includes('@react-three')) return 'vendor-three'
         },
       },
     },
