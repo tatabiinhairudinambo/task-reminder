@@ -46,4 +46,23 @@ describe('TaskMonthCalendar', () => {
         );
         expect(screen.getByText('COURSE111')).toBeInTheDocument();
     });
+
+    it('explains the empty calendar when there are no tasks', () => {
+        render(<TaskMonthCalendar tasks={[]} selectedDate={new Date(2026, 8, 25)} />);
+
+        expect(screen.getByText(/Belum ada tugas/)).toBeInTheDocument();
+        expect(screen.getByText('Tugas Baru')).toBeInTheDocument();
+    });
+
+    it('hides the empty hint once a task exists', () => {
+        render(<TaskMonthCalendar tasks={tasks} selectedDate={new Date(2026, 8, 25)} />);
+
+        expect(screen.queryByText(/Belum ada tugas/)).not.toBeInTheDocument();
+    });
+
+    it('hides the empty hint while still loading', () => {
+        render(<TaskMonthCalendar tasks={[]} isLoading selectedDate={new Date(2026, 8, 25)} />);
+
+        expect(screen.queryByText(/Belum ada tugas/)).not.toBeInTheDocument();
+    });
 });
