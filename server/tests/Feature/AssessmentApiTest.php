@@ -50,7 +50,7 @@ test('update endpoint sets score on owned course content', function () {
 
     $response->assertOk()
         ->assertJsonPath('code', 200)
-        ->assertJsonPath('message', 'Score updated successfully');
+        ->assertJsonPath('message', 'Skor berhasil diperbarui');
 
     expect((float) $course->fresh()->score)->toBe(88.0);
 });
@@ -134,7 +134,7 @@ test('sync endpoint returns error when siakang credentials are missing', functio
     ]);
 
     $response->assertStatus(422)
-        ->assertJsonPath('message', 'Siakang credentials are not configured. Add them in Settings.');
+        ->assertJsonPath('message', 'Kredensial Siakang belum diatur. Tambahkan di Pengaturan.');
 });
 
 test('sync endpoint returns error when siakang login fails', function () {
@@ -177,5 +177,5 @@ test('sync endpoint returns 422 when no courses match the target semester', func
     ]);
 
     $response->assertStatus(422)
-        ->assertJsonPath('message', 'No matching scores found — 1 course(s) not found in Semester 4');
+        ->assertJsonPath('message', 'Tidak ada skor yang cocok — 1 mata kuliah tidak ditemukan di Semester 4');
 });

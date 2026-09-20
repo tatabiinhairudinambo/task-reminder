@@ -13,7 +13,7 @@ export const SemesterOverviewView = () => {
         return (
             <Card className="mt-4">
                 <CardContent className="p-6 text-sm text-muted-foreground">
-                    No semester data available to display.
+                    Belum ada data semester untuk ditampilkan.
                 </CardContent>
             </Card>
         );
@@ -23,33 +23,33 @@ export const SemesterOverviewView = () => {
         <div className="mt-4 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard
-                    title="Cumulative GPA"
+                    title="IPK Kumulatif"
                     value={Number(overviewData?.cumulative_gpa ?? 0).toFixed(2)}
-                    subtitle="All semesters"
+                    subtitle="Semua semester"
                     icon={GraduationCap}
                     iconColor="text-primary"
                     isLoading={isLoading}
                 />
                 <StatCard
-                    title="Total Tasks"
+                    title="Total Tugas"
                     value={overviewData?.total_task_all ?? 0}
-                    subtitle="All semesters"
+                    subtitle="Semua semester"
                     icon={ListChecks}
                     iconColor="text-primary"
                     isLoading={isLoading}
                 />
                 <StatCard
-                    title="Completed Tasks"
+                    title="Tugas Selesai"
                     value={overviewData?.completed_task_all ?? 0}
-                    subtitle="All semesters"
+                    subtitle="Semua semester"
                     icon={CheckCircle2}
                     iconColor="text-success"
                     isLoading={isLoading}
                 />
                 <StatCard
-                    title="Uncompleted Tasks"
+                    title="Tugas Belum Selesai"
                     value={overviewData?.uncompleted_task_all ?? 0}
-                    subtitle="All semesters"
+                    subtitle="Semua semester"
                     icon={Clock}
                     iconColor="text-warning"
                     isLoading={isLoading}

@@ -14,15 +14,15 @@ export const DiscardConfirmDialog = memo(({ open, onOpenChange, onConfirm }) => 
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Discard changes?</DialogTitle>
-                    <DialogDescription>You have unsaved changes. Discard them?</DialogDescription>
+                    <DialogTitle>Buang perubahan?</DialogTitle>
+                    <DialogDescription>Anda memiliki perubahan yang belum disimpan. Buang perubahan tersebut?</DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>
-                        Keep editing
+                        Lanjut Mengedit
                     </Button>
                     <Button variant="destructive" onClick={onConfirm}>
-                        Discard
+                        Buang
                     </Button>
                 </DialogFooter>
             </DialogContent>

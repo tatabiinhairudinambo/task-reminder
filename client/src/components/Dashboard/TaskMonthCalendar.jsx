@@ -19,10 +19,11 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { id as idLocale } from 'date-fns/locale';
 
-const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const WEEKDAYS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
-export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMonthChange, isLoading = false }) => {
+export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMonthChange, onTaskSelect, isLoading = false }) => {
     const [currentMonth, setCurrentMonth] = useState(() => new Date());
     const todayStart = startOfDay(new Date());
 
@@ -83,13 +84,13 @@ export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMo
                     <Button variant="outline" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <h3 className="text-lg font-semibold">{format(currentMonth, 'MMM yyyy')}</h3>
+                    <h3 className="text-lg font-semibold">{format(currentMonth, 'MMMM yyyy', { locale: idLocale })}</h3>
                     <Button variant="outline" size="icon" onClick={handleNextMonth} className="h-8 w-8">
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleToday}>
-                    Today
+                    Hari Ini
                 </Button>
             </CardHeader>
 
@@ -168,15 +169,20 @@ export const TaskMonthCalendar = ({ tasks = [], selectedDate, onDateSelect, onMo
                                                                     ? 'bg-warning text-warning-foreground hover:bg-warning/80'
                                                                     : 'bg-primary text-primary-foreground hover:bg-primary/80'
                                                     )}
+                                                    title={`${task.code || ''} ${task.task || ''}`.trim()}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        onTaskSelect?.(task);
+                                                    }}
                                                 >
                                                     {task.priority ? '⚑ ' : ''}
-                                                    {task.code || task.task}
+                                                    {task.task || task.code}
                                                 </Badge>
                                             );
                                         })}
                                         {!isLoading && dayTasks.length > 3 ? (
                                             <span className="px-1 text-[10px] text-muted-foreground">
-                                                +{dayTasks.length - 3} more
+                                                +{dayTasks.length - 3} lagi
                                             </span>
                                         ) : null}
                                     </div>

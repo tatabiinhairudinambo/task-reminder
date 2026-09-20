@@ -3,10 +3,10 @@ import { enUS, id as idLocale } from 'date-fns/locale';
 
 export const SCHEDULE_LABELS = {
     en: {
-        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-        prevWeekAriaLabel: 'Previous week',
-        nextWeekAriaLabel: 'Next week',
-        emptyState: 'No schedule found for this semester.',
+        days: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+        prevWeekAriaLabel: 'Minggu sebelumnya',
+        nextWeekAriaLabel: 'Minggu berikutnya',
+        emptyState: 'Jadwal belum tersedia untuk semester ini.',
     },
     id: {
         days: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],

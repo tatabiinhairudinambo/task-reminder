@@ -20,7 +20,7 @@ class UserController
     {
         $user = $this->userService->updateProfile($request->user(), $request->validated());
 
-        return $this->sendResponse($user, 'User updated successfully');
+        return $this->sendResponse($user, 'Profil berhasil diperbarui');
     }
 
     public function changePassword(ChangePasswordRequest $request)
@@ -31,13 +31,13 @@ class UserController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 401);
         }
 
-        return $this->sendResponse(null, 'Password updated successfully');
+        return $this->sendResponse(null, 'Kata sandi berhasil diperbarui');
     }
 
     public function getAuthenticatedUser(Request $request)
     {
         $data = $this->userService->getAuthenticatedUser($request->user());
 
-        return $this->sendResponse($data, 'User retrieved successfully');
+        return $this->sendResponse($data, 'Data pengguna berhasil diambil');
     }
 }

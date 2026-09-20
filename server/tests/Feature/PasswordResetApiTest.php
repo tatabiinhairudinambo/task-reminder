@@ -12,7 +12,7 @@ test('sendResetLink returns success message for known email', function () {
     ]);
 
     $response->assertOk()
-        ->assertJsonPath('message', 'If that email is registered, we have sent a password reset link.');
+        ->assertJsonPath('message', 'Jika email tersebut terdaftar, kami telah mengirim tautan reset kata sandi.');
 });
 
 test('sendResetLink returns same message for unknown email (prevent enumeration)', function () {
@@ -21,7 +21,7 @@ test('sendResetLink returns same message for unknown email (prevent enumeration)
     ]);
 
     $response->assertOk()
-        ->assertJsonPath('message', 'If that email is registered, we have sent a password reset link.');
+        ->assertJsonPath('message', 'Jika email tersebut terdaftar, kami telah mengirim tautan reset kata sandi.');
 });
 
 test('sendResetLink validates email format', function () {
@@ -58,7 +58,7 @@ test('resetPassword changes password with valid token', function () {
     ]);
 
     $response->assertOk()
-        ->assertJsonPath('message', 'Password has been reset successfully.');
+        ->assertJsonPath('message', 'Kata sandi berhasil direset.');
 
     expect(\Illuminate\Support\Facades\Hash::check('newpassword1', $user->fresh()->password))->toBeTrue();
 });

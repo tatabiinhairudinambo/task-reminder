@@ -8,11 +8,12 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->service = new AuthService();
+    $this->service = new AuthService;
 });
 
 // ─── login ───
@@ -31,11 +32,11 @@ test('login throws 401 with wrong password', function () {
     $user = User::factory()->create(['password' => 'password']);
 
     $this->service->login(['email' => $user->email, 'password' => 'wrongpass'], false);
-})->throws(\Exception::class, 'Email or password is incorrect', 401);
+})->throws(Exception::class, 'Email atau kata sandi salah', 401);
 
 test('login throws 401 with unknown email', function () {
     $this->service->login(['email' => 'nobody@example.com', 'password' => 'password'], false);
-})->throws(\Exception::class, 'Email or password is incorrect', 401);
+})->throws(Exception::class, 'Email atau kata sandi salah', 401);
 
 test('login with remember_me creates 30-day token', function () {
     $user = User::factory()->create(['password' => 'password']);
@@ -91,7 +92,7 @@ test('resendVerificationEmail throws when already verified', function () {
     $user = User::factory()->create(['email_verified_at' => now()]);
 
     $this->service->resendVerificationEmail($user);
-})->throws(\Exception::class, 'Email already verified');
+})->throws(Exception::class, 'Email sudah diverifikasi');
 
 // ─── verifyEmail ───
 
@@ -109,16 +110,45 @@ test('verifyEmail throws when already verified', function () {
     $user = User::factory()->create(['email_verified_at' => now()]);
 
     $this->service->verifyEmail($user->id);
-})->throws(\Exception::class, 'Email already verified');
+})->throws(Exception::class, 'Email sudah diverifikasi');
 
 // ─── checkToken ───
 
 test('checkToken returns true for valid non-expired token', function () {
     $user = User::factory()->create();
     $token = $user->createToken('test', ['*'], now()->addHour())->plainTextToken;
+
+    expect($this->service->checkToken($token))->toBeTrue();
+});
+
+test('checkToken returns false for a token id without its secret', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test', ['*'], now()->addHour())->plainTextToken;
     $tokenId = explode('|', $token)[0];
 
-    expect($this->service->checkToken($tokenId))->toBeTrue();
+    expect($this->service->checkToken($tokenId))->toBeFalse();
+});
+
+test('checkToken returns false when a valid id carries a wrong secret', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test', ['*'], now()->addHour())->plainTextToken;
+    $tokenId = explode('|', $token)[0];
+
+    expect($this->service->checkToken($tokenId.'|wrong-secret'))->toBeFalse();
+});
+
+test('checkToken returns false for an expired token', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test', ['*'], now()->subHour())->plainTextToken;
+
+    expect($this->service->checkToken($token))->toBeFalse();
+});
+
+test('checkToken returns true for a token without an expiry', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    expect($this->service->checkToken($token))->toBeTrue();
 });
 
 test('checkToken returns false for invalid token id', function () {

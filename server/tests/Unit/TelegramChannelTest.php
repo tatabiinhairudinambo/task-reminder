@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\CourseContent;
 use App\Models\Setting;
+use App\Models\Task;
 use App\Models\User;
 use App\Notifications\Channels\TelegramChannel;
 use App\Notifications\ReminderNotification;
@@ -41,7 +43,7 @@ test('telegram channel sends message when chat id is configured', function () {
 
     $this->telegram->shouldReceive('sendMessage')
         ->once()
-        ->with('12345', Mockery::on(fn ($text) => str_contains($text, 'Kalkulus') && str_contains($text, 'See full task details')))
+        ->with('12345', Mockery::on(fn ($text) => str_contains($text, 'Kalkulus') && str_contains($text, 'Lihat detail lengkap tugas di dashboard Anda')))
         ->andReturnTrue();
 
     $this->channel->send($this->user->fresh(), $notification);
@@ -137,30 +139,31 @@ test('task created telegram message contains course and task', function () {
 
     expect($message)->toContain('Kalkulus')
         ->and($message)->toContain('PR Bab 1')
-        ->and($message)->toContain('See full task details')
-        ->and($message)->not->toContain('Description:');
+        ->and($message)->toContain('Lihat detail lengkap tugas di dashboard Anda')
+        ->and($message)->not->toContain('Deskripsi:');
 });
 
 test('reminder telegram message summarizes notifications', function () {
     $message = (new ReminderNotification([
-        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '15 June 2025', 'deadline_label' => '3 days left', 'description' => 'Long details that must stay on the dashboard'],
+        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '15 June 2025', 'deadline_label' => '3 hari lagi', 'description' => 'Kerjakan bab 1'],
     ]))->toTelegram($this->user);
 
-    expect($message)->toContain('Reminder')
+    expect($message)->toContain('Pengingat')
         ->and($message)->toContain('Kalkulus')
-        ->and($message)->toContain('\\(3 days left\\)')
-        ->and($message)->not->toContain('Long details that must stay on the dashboard');
+        ->and($message)->toContain('\\(3 hari lagi\\)')
+        ->and($message)->toContain('Deskripsi:')
+        ->and($message)->toContain('Kerjakan bab 1');
 });
 
-test('task completed telegram message contains task', function () {
-    $course = \App\Models\CourseContent::create([
+test('task completed telegram message includes the description when present', function () {
+    $course = CourseContent::create([
         'semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Fisika',
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
     ]);
 
-    $task = \App\Models\Task::create([
-        'task' => 'Lab Report', 'description' => 'Details that must stay on the dashboard',
+    $task = Task::create([
+        'task' => 'Lab Report', 'description' => 'Laporan lengkap praktikum',
         'deadline' => '2025-01-01', 'status' => 0,
         'course_content_id' => $course->id, 'user_id' => $this->user->id,
     ]);
@@ -170,6 +173,7 @@ test('task completed telegram message contains task', function () {
 
     expect($message)->toContain('Lab Report')
         ->and($message)->toContain('Fisika')
-        ->and($message)->toContain('See full task details')
-        ->and($message)->not->toContain('Details that must stay on the dashboard');
+        ->and($message)->toContain('Lihat detail lengkap tugas di dashboard Anda')
+        ->and($message)->toContain('Deskripsi:')
+        ->and($message)->toContain('Laporan lengkap praktikum');
 });

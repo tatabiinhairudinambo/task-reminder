@@ -10,7 +10,7 @@ export const useAuth = () => {
             const response = await authApi.logout();
             toast.success(response.data.message);
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to logout.');
+            toast.error(error.response?.data?.message || 'Gagal keluar.');
         } finally {
             localStorage.clear();
             sessionStorage.clear();

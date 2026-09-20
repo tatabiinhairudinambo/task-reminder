@@ -40,7 +40,7 @@ export const GpaTrendChart = ({ semesters }) => {
         labels,
         datasets: [
             {
-                label: 'Semester GPA',
+                label: 'IPK Semester',
                 data: semesterGpaValues,
                 borderColor: 'rgba(59, 130, 246, 1)',
                 backgroundColor: 'rgba(59, 130, 246, 0.15)',
@@ -50,7 +50,7 @@ export const GpaTrendChart = ({ semesters }) => {
                 pointHoverRadius: 6,
             },
             {
-                label: 'Cumulative GPA',
+                label: 'IPK Kumulatif',
                 data: cumulativeGpaValues,
                 borderColor: 'rgba(22, 163, 74, 1)',
                 backgroundColor: 'rgba(22, 163, 74, 0.1)',
@@ -77,7 +77,7 @@ export const GpaTrendChart = ({ semesters }) => {
             },
             title: {
                 display: true,
-                text: 'GPA Trend',
+                text: 'Tren IPK',
                 font: { size: window.innerWidth < 640 ? 13 : 16 },
             },
             tooltip: {

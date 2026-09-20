@@ -3,11 +3,11 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Home' },
-    { to: '/course-contents', icon: Book, label: 'Courses' },
-    { to: '/schedule', icon: CalendarDays, label: 'Schedule' },
-    { to: '/assessments', icon: Trophy, label: 'Assess' },
-    { to: '/settings', icon: Settings, label: 'Settings' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Beranda' },
+    { to: '/course-contents', icon: Book, label: 'Mata Kuliah' },
+    { to: '/schedule', icon: CalendarDays, label: 'Jadwal' },
+    { to: '/assessments', icon: Trophy, label: 'Penilaian' },
+    { to: '/settings', icon: Settings, label: 'Pengaturan' },
 ];
 
 const BottomBar = () => {

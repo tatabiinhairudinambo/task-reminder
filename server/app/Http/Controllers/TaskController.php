@@ -21,10 +21,10 @@ class TaskController
         try {
             $task = $this->taskService->create($request->user(), $request->validated());
         } catch (\Exception) {
-            return $this->sendError('Course Content not found', 404);
+            return $this->sendError('Mata kuliah tidak ditemukan', 404);
         }
 
-        return $this->sendResponse($task, 'Task created successfully', 201);
+        return $this->sendResponse($task, 'Tugas berhasil dibuat', 201);
     }
 
     public function update(UpdateTaskRequest $request, $id)
@@ -32,10 +32,10 @@ class TaskController
         try {
             $task = $this->taskService->update($request->user()->id, (int) $id, $request->validated());
         } catch (\Exception) {
-            return $this->sendError('Task not found', 404);
+            return $this->sendError('Tugas tidak ditemukan', 404);
         }
 
-        return $this->sendResponse($task, 'Task updated successfully');
+        return $this->sendResponse($task, 'Tugas berhasil diperbarui');
     }
 
     public function destroy(Request $request, $id)
@@ -43,10 +43,10 @@ class TaskController
         try {
             $this->taskService->delete($request->user()->id, (int) $id);
         } catch (\Exception) {
-            return $this->sendError('Task not found', 404);
+            return $this->sendError('Tugas tidak ditemukan', 404);
         }
 
-        return $this->sendResponse(null, 'Task deleted successfully');
+        return $this->sendResponse(null, 'Tugas berhasil dihapus');
     }
 
     public function statusChanged(Request $request, $id)
@@ -54,9 +54,9 @@ class TaskController
         try {
             $task = $this->taskService->toggleStatus($request->user(), (int) $id);
         } catch (\Exception) {
-            return $this->sendError('Task not found', 404);
+            return $this->sendError('Tugas tidak ditemukan', 404);
         }
 
-        return $this->sendResponse($task, 'Task status changed successfully');
+        return $this->sendResponse($task, 'Status tugas berhasil diubah');
     }
 }

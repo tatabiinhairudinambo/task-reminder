@@ -20,7 +20,7 @@ class PasswordResetController
     {
         $this->passwordResetService->sendResetLink($request->validated()['email']);
 
-        return $this->sendResponse(null, 'If that email is registered, we have sent a password reset link.');
+        return $this->sendResponse(null, 'Jika email tersebut terdaftar, kami telah mengirim tautan reset kata sandi.');
     }
 
     public function resetPassword(ResetPasswordRequest $request)
@@ -28,9 +28,9 @@ class PasswordResetController
         $status = $this->passwordResetService->resetPassword($request->validated());
 
         if ($status === Password::PASSWORD_RESET) {
-            return $this->sendResponse(null, 'Password has been reset successfully.');
+            return $this->sendResponse(null, 'Kata sandi berhasil direset.');
         }
 
-        return $this->sendError('Unable to reset password. The token may be invalid or expired.', 400);
+        return $this->sendError('Tidak dapat mereset kata sandi. Token mungkin tidak valid atau sudah kedaluwarsa.', 400);
     }
 }

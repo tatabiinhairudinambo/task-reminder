@@ -11,7 +11,6 @@ use App\Notifications\TaskCreatedNotification;
 
 class TaskService
 {
-
     public function create(User $user, array $data): Task
     {
         $courseContent = CourseContent::where('id', $data['course_content_id'])
@@ -22,7 +21,7 @@ class TaskService
             'task' => $data['task'],
             'description' => $data['description'] ?? null,
             'deadline' => $data['deadline'],
-            'priority' => !empty($data['priority']) ? 1 : 0,
+            'priority' => ! empty($data['priority']) ? 1 : 0,
             'status' => 0,
             'user_id' => $user->id,
             'course_content_id' => $data['course_content_id'],
@@ -33,7 +32,8 @@ class TaskService
             $user->notify(new TaskCreatedNotification(
                 $courseContent->course_content,
                 $data['task'],
-                $data['deadline']
+                $data['deadline'],
+                $data['description'] ?? null
             ));
         }
 
@@ -54,7 +54,7 @@ class TaskService
             'task' => $data['task'],
             'description' => $data['description'] ?? null,
             'deadline' => $data['deadline'],
-            'priority' => !empty($data['priority']) ? 1 : 0,
+            'priority' => ! empty($data['priority']) ? 1 : 0,
             'course_content_id' => $data['course_content_id'],
         ]);
 

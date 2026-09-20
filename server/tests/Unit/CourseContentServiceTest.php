@@ -49,7 +49,7 @@ test('create throws 409 when code already exists in same semester', function () 
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00',
     ]);
-})->throws(Exception::class, 'Course Content Already Added', 409);
+})->throws(Exception::class, 'Mata kuliah sudah ditambahkan', 409);
 
 test('create throws 409 when course_content already exists in same semester', function () {
     CourseContent::create([
@@ -63,7 +63,7 @@ test('create throws 409 when course_content already exists in same semester', fu
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00',
     ]);
-})->throws(Exception::class, 'Course Content Already Added', 409);
+})->throws(Exception::class, 'Mata kuliah sudah ditambahkan', 409);
 
 test('create allows same code in different semester', function () {
     CourseContent::create([
@@ -118,7 +118,7 @@ test('update throws 409 on duplicate code in same semester', function () {
         'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
         'hour_start' => '08:00', 'hour_end' => '10:00',
     ]);
-})->throws(Exception::class, 'Code already exists', 409);
+})->throws(Exception::class, 'Kode sudah ada untuk pengguna ini', 409);
 
 test('update throws for another user course', function () {
     $otherUser = User::factory()->create();
@@ -185,6 +185,40 @@ test('filter returns empty for semester with no courses', function () {
     expect($result['course_contents'])->toBeEmpty();
 });
 
+test('filter includes tasks per course ordered by deadline', function () {
+    $course = CourseContent::create([
+        'semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
+    ]);
+    $otherUser = User::factory()->create();
+
+    Task::create([
+        'task' => 'Tugas Akhir', 'deadline' => '2025-01-20', 'status' => 0,
+        'user_id' => $this->user->id, 'course_content_id' => $course->id,
+    ]);
+    Task::create([
+        'task' => 'Kuis', 'deadline' => '2025-01-05', 'status' => 1, 'priority' => 1,
+        'user_id' => $this->user->id, 'course_content_id' => $course->id,
+    ]);
+    Task::create([
+        'task' => 'Tugas Orang Lain', 'deadline' => '2025-01-01', 'status' => 0,
+        'user_id' => $otherUser->id, 'course_content_id' => $course->id,
+    ]);
+
+    $result = $this->service->filter($this->user->id, '2024/2025 Ganjil');
+
+    expect($result['course_contents'])->toHaveCount(1);
+    $tasks = $result['course_contents'][0]['tasks'];
+    expect($tasks)->toHaveCount(2);
+    // Nearest deadline first
+    expect($tasks[0]['task'])->toBe('Kuis');
+    expect($tasks[1]['task'])->toBe('Tugas Akhir');
+    expect($tasks[0]['priority'])->toBe(1);
+    expect($tasks[0]['deadline_label'])->toBe('Selesai');
+    expect($tasks[1])->toHaveKeys(['id', 'task', 'description', 'deadline', 'priority', 'status', 'deadline_label']);
+});
+
 // ─── importFromExcel ───
 
 test('importFromExcel creates courses from valid Excel data', function () {
@@ -241,7 +275,7 @@ test('syncScheduleFromSiakang imports schedule rows into the target semester', f
     expect($course)->not->toBeNull();
     expect($course->code)->toBe('INF622208');
     expect($course->credits)->toBe(3);
-    expect($course->day)->toBe('Monday');
+    expect($course->day)->toBe('Senin');
     expect(substr($course->hour_start, 0, 5))->toBe('07:30');
     expect(substr($course->hour_end, 0, 5))->toBe('09:10');
     expect($course->lecturer)->toBe('Yulian Ansori, S.Kom., M.Kom');
@@ -252,7 +286,7 @@ test('syncScheduleFromSiakang requires siakang credentials', function () {
     $this->setting->update(['siakang_email' => null, 'siakang_password' => null]);
 
     $this->service->syncScheduleFromSiakang($this->user->id, 'Semester 2', '20252');
-})->throws(Exception::class, 'Siakang credentials are not configured', 422);
+})->throws(Exception::class, 'Kredensial Siakang belum diatur', 422);
 
 test('syncScheduleFromSiakang throws on non-200 response', function () {
     $this->siakangClient->shouldReceive('getSchedule')
@@ -291,7 +325,7 @@ test('syncScheduleFromSiakang throws 422 when target semester is missing', funct
     $this->siakangClient->shouldNotReceive('getSchedule');
 
     $this->service->syncScheduleFromSiakang($this->user->id, null, '20252');
-})->throws(Exception::class, 'Target semester is required', 422);
+})->throws(Exception::class, 'Semester wajib diisi.', 422);
 
 test('syncScheduleFromSiakang throws 409 and preserves data when target semester is filled', function () {
     $this->siakangClient->shouldNotReceive('getSchedule');

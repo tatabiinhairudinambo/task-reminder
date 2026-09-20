@@ -12,7 +12,9 @@ class DashboardService
     public function getDashboard(int $userId): array
     {
         $taskCounts = Task::where('user_id', $userId)
-            ->selectRaw('count(*) as totalTask, sum(status = 1) as completedTask, sum(status = 0) as uncompletedTask')
+            ->selectRaw('count(*) as total_task')
+            ->selectRaw('sum(case when status then 1 else 0 end) as completed_task')
+            ->selectRaw('sum(case when status then 0 else 1 end) as uncompleted_task')
             ->first();
 
         $tasks = Task::with(['course_content' => function ($query) {
@@ -39,9 +41,9 @@ class DashboardService
         });
 
         return [
-            'completed_task' => (int) $taskCounts->completedTask,
-            'uncompleted_task' => (int) $taskCounts->uncompletedTask,
-            'total_task' => $taskCounts->totalTask,
+            'completed_task' => (int) $taskCounts->completed_task,
+            'uncompleted_task' => (int) $taskCounts->uncompleted_task,
+            'total_task' => (int) $taskCounts->total_task,
             'tasks' => $formattedTasks,
         ];
     }
@@ -124,7 +126,7 @@ class DashboardService
 
         $groupedBySemester = $courseContents
             ->groupBy('semester')
-            ->sortBy(fn($_, $semester) => $this->extractSemesterNumber($semester));
+            ->sortBy(fn ($_, $semester) => $this->extractSemesterNumber($semester));
 
         $totalWeightedGradePointsAll = 0;
         $totalCreditsAll = 0;
@@ -136,15 +138,15 @@ class DashboardService
         foreach ($groupedBySemester as $semester => $contents) {
             $totalCredits = (int) $contents->sum('credits');
 
-            $completedTask = (int) $contents->sum(fn($content) => $content->tasks->where('status', 1)->count());
-            $uncompletedTask = (int) $contents->sum(fn($content) => $content->tasks->where('status', 0)->count());
+            $completedTask = (int) $contents->sum(fn ($content) => $content->tasks->where('status', 1)->count());
+            $uncompletedTask = (int) $contents->sum(fn ($content) => $content->tasks->where('status', 0)->count());
             $totalTask = $completedTask + $uncompletedTask;
 
             $mapped = $contents->map(function ($content) use ($grades) {
                 $grade = null;
 
                 if ($content->score !== null) {
-                    $grade = $grades->first(fn($g) => $content->score >= $g->minimal_score && $content->score <= $g->maximal_score);
+                    $grade = $grades->first(fn ($g) => $content->score >= $g->minimal_score && $content->score <= $g->maximal_score);
                 }
 
                 return [
@@ -155,10 +157,10 @@ class DashboardService
                 ];
             });
 
-            $hasIncompleteScores = $mapped->contains(fn($item) => $item['score'] === null || !$item['has_grade_mapping']);
+            $hasIncompleteScores = $mapped->contains(fn ($item) => $item['score'] === null || ! $item['has_grade_mapping']);
 
-            if (!$hasIncompleteScores && $mapped->isNotEmpty()) {
-                $weightedGradePoints = $mapped->sum(fn($item) => $item['grade_point'] * $item['credits']);
+            if (! $hasIncompleteScores && $mapped->isNotEmpty()) {
+                $weightedGradePoints = $mapped->sum(fn ($item) => $item['grade_point'] * $item['credits']);
                 $semesterGpa = $totalCredits > 0 ? $weightedGradePoints / $totalCredits : 0;
 
                 $totalWeightedGradePointsAll += $weightedGradePoints;
@@ -178,7 +180,7 @@ class DashboardService
                 'total_task' => $totalTask,
                 'completed_task' => $completedTask,
                 'uncompleted_task' => $uncompletedTask,
-                'has_complete_scores' => !$hasIncompleteScores,
+                'has_complete_scores' => ! $hasIncompleteScores,
             ];
         }
 

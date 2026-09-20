@@ -37,6 +37,8 @@ class Setting extends Model
     protected function casts(): array
     {
         return [
+            'task_created_notification' => 'integer',
+            'task_completed_notification' => 'integer',
             'siakang_email' => 'encrypted',
             'siakang_password' => 'encrypted',
         ];

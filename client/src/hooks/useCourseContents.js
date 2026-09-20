@@ -34,7 +34,7 @@ export const useCourseContents = (selectedSemester) => {
                 await fetchCourseContents(selectedSemester, false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to create course content.');
+                toast.error(error.response?.data?.message || 'Gagal membuat mata kuliah.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -52,7 +52,7 @@ export const useCourseContents = (selectedSemester) => {
                 await fetchCourseContents(selectedSemester, false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update course content.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui mata kuliah.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -66,11 +66,11 @@ export const useCourseContents = (selectedSemester) => {
             try {
                 setIsMutating(true);
                 await courseContentApi.delete(id);
-                toast.success('Course content deleted successfully.');
+                toast.success('Mata kuliah berhasil dihapus.');
                 await fetchCourseContents(selectedSemester, false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to delete course content.');
+                toast.error(error.response?.data?.message || 'Gagal menghapus mata kuliah.');
                 return { success: false };
             } finally {
                 setIsMutating(false);
@@ -90,9 +90,9 @@ export const useCourseContents = (selectedSemester) => {
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            toast.success('Template downloaded successfully.');
+            toast.success('Template berhasil diunduh.');
         } catch {
-            toast.error('Failed to download template.');
+            toast.error('Gagal mengunduh template.');
         }
     }, []);
 
@@ -103,11 +103,11 @@ export const useCourseContents = (selectedSemester) => {
                 const formData = new FormData();
                 formData.append('file', file);
                 const response = await courseContentApi.importFromExcel(formData, onProgress);
-                toast.success(response.data.message || 'Import successful.');
+                toast.success(response.data.message || 'Impor berhasil.');
                 await fetchCourseContents(selectedSemester, false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to import file.');
+                toast.error(error.response?.data?.message || 'Gagal mengimpor file.');
                 return { success: false };
             } finally {
                 setIsMutating(false);
@@ -121,7 +121,7 @@ export const useCourseContents = (selectedSemester) => {
             // Siakang sync is only allowed into an empty semester (backend
             // also enforces this with a 409) to protect tasks and scores.
             if (courseContents.length > 0) {
-                toast.error('Semester already has course data. Clear the semester first to sync again.');
+                toast.error('Semester sudah memiliki data mata kuliah. Bersihkan semester terlebih dahulu untuk sinkron ulang.');
                 return { success: false };
             }
             try {
@@ -131,7 +131,7 @@ export const useCourseContents = (selectedSemester) => {
                 await fetchCourseContents(selectedSemester, false);
                 return { success: true, data: response.data.data };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to sync schedule.');
+                toast.error(error.response?.data?.message || 'Gagal menyinkronkan jadwal.');
                 return { success: false };
             } finally {
                 setIsMutating(false);
@@ -148,7 +148,7 @@ export const useCourseContents = (selectedSemester) => {
             await fetchCourseContents(selectedSemester, false);
             return { success: true, data: response.data.data };
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to clear semester.');
+            toast.error(error.response?.data?.message || 'Gagal membersihkan semester.');
             return { success: false };
         } finally {
             setIsMutating(false);

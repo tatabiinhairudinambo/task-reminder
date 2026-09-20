@@ -31,24 +31,24 @@ export const SettingsView = () => {
     const { logout } = useAuth();
 
     useEffect(() => {
-        document.title = 'Settings - Task Reminder';
+        document.title = 'Pengaturan - Task Reminder';
     }, []);
 
     return (
         <div className="space-y-6">
             <Tabs defaultValue="notifications">
                 <TabsList>
-                    <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                    <TabsTrigger value="notifications">Notifikasi</TabsTrigger>
                     <TabsTrigger value="siakang">Siakang</TabsTrigger>
-                    <TabsTrigger value="grades">Grades</TabsTrigger>
-                    <TabsTrigger value="profile">Profile</TabsTrigger>
+                    <TabsTrigger value="grades">Nilai</TabsTrigger>
+                    <TabsTrigger value="profile">Profil</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="notifications">
                     <NotificationSettings
                         isLoading={isLoading}
                         isMutating={isMutating}
-                        notify={settings?.deadline_notification || '5 days left'}
+                        notify={settings?.deadline_notification || '5 hari lagi'}
                         notificationChannel={settings?.notification_channel || 'email'}
                         telegramChatId={settings?.telegram_chat_id || ''}
                         taskCreated={Number(settings?.task_created_notification || 0)}

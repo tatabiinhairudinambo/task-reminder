@@ -35,14 +35,14 @@ const ForgotPassword = () => {
         } catch (error) {
             const errors = error.response?.data?.errors || {};
             setMessage(errors);
-            toast.error(error.response?.data?.message || 'Failed to send reset email');
+            toast.error(error.response?.data?.message || 'Gagal mengirim email reset');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        document.title = 'Forgot Password - Task Reminder';
+        document.title = 'Lupa Kata Sandi - Task Reminder';
     }, []);
 
     return (
@@ -50,8 +50,8 @@ const ForgotPassword = () => {
             <img src='/logo.webp' className='mb-8 mt-4 w-32' alt='logo' />
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className='text-2xl'>Oh, You Lost Your Password?</CardTitle>
-                    <CardDescription>No worries, we’ll send you reset instructions.</CardDescription>
+                    <CardTitle className='text-2xl'>Lupa Kata Sandi Anda?</CardTitle>
+                    <CardDescription>Jangan khawatir, kami akan mengirimkan petunjuk reset.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className='space-y-4'>
@@ -67,14 +67,14 @@ const ForgotPassword = () => {
                         </FormField>
 
                         <Button type='submit' className='w-full'>
-                            {loading ? 'Sending Email...' : 'Reset Password'}
+                            {loading ? 'Mengirim Email...' : 'Reset Kata Sandi'}
                         </Button>
                     </form>
 
                     <p className='mt-6 text-sm text-center'>
                         <Link to='/auth/login' className='text-muted-foreground hover:text-foreground'>
                             <ArrowLeft className='w-3 inline-block align-middle mr-2' />
-                            Back to login
+                            Kembali ke login
                         </Link>
                     </p>
                 </CardContent>

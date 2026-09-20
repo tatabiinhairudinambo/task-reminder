@@ -27,7 +27,7 @@ class CourseContentController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 409);
         }
 
-        return $this->sendResponse($courseContent, 'Course Content created successfully', 201);
+        return $this->sendResponse($courseContent, 'Mata kuliah berhasil dibuat', 201);
     }
 
     public function update(UpdateCourseContentRequest $request, $id)
@@ -38,7 +38,7 @@ class CourseContentController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 404);
         }
 
-        return $this->sendResponse($courseContent, 'Course Content updated successfully');
+        return $this->sendResponse($courseContent, 'Mata kuliah berhasil diperbarui');
     }
 
     public function destroy(Request $request, $id)
@@ -46,17 +46,17 @@ class CourseContentController
         try {
             $this->courseContentService->delete($request->user()->id, (int) $id);
         } catch (\Exception $e) {
-            return $this->sendError('Course Content not found', 404);
+            return $this->sendError('Mata kuliah tidak ditemukan', 404);
         }
 
-        return $this->sendResponse(null, 'Course Content deleted successfully');
+        return $this->sendResponse(null, 'Mata kuliah berhasil dihapus');
     }
 
     public function filter(Request $request)
     {
         $data = $this->courseContentService->filter($request->user()->id, (string) $request->semester);
 
-        return $this->sendResponse($data, 'Course Contents retrieved successfully');
+        return $this->sendResponse($data, 'Data mata kuliah berhasil diambil');
     }
 
     public function syncSchedule(SyncScheduleRequest $request)
@@ -73,7 +73,7 @@ class CourseContentController
 
         return $this->sendResponse(
             $result,
-            "{$result['inserted']} schedules imported, ".count($result['skipped']).' skipped'
+            "{$result['inserted']} jadwal diimpor, ".count($result['skipped']).' dilewati'
         );
     }
 
@@ -86,7 +86,7 @@ class CourseContentController
 
         return $this->sendResponse(
             $result,
-            "{$result['deleted_courses']} courses and {$result['deleted_tasks']} tasks cleared from {$result['semester']}"
+            "{$result['deleted_courses']} mata kuliah dan {$result['deleted_tasks']} tugas dihapus dari {$result['semester']}"
         );
     }
 
@@ -95,7 +95,7 @@ class CourseContentController
         $filePath = public_path('templates/course_content_template.xlsx');
 
         if (! file_exists($filePath)) {
-            return $this->sendError('Template file not found', 404);
+            return $this->sendError('File template tidak ditemukan', 404);
         }
 
         return response()->download($filePath, 'course_content_template.xlsx');

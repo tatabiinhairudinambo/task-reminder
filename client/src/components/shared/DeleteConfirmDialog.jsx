@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button';
 export const DeleteConfirmDialog = memo(({
     open,
     onOpenChange,
-    title = 'Delete Confirmation',
-    description = 'Once data is deleted, it cannot be restored.',
+    title = 'Konfirmasi Hapus',
+    description = 'Data yang dihapus tidak dapat dikembalikan.',
     onConfirm,
     isLoading = false,
 }) => {
@@ -26,10 +26,10 @@ export const DeleteConfirmDialog = memo(({
                 </DialogHeader>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
-                        Cancel
+                        Batal
                     </Button>
                     <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
-                        {isLoading ? 'Deleting...' : 'Delete'}
+                        {isLoading ? 'Menghapus...' : 'Hapus'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

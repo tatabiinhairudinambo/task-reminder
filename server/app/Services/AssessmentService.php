@@ -105,7 +105,7 @@ class AssessmentService
         $setting = Setting::where('user_id', $userId)->first();
 
         if (! $setting?->hasSiakangCredentials()) {
-            throw new \Exception('Siakang credentials are not configured. Add them in Settings.', 422);
+            throw new \Exception('Kredensial Siakang belum diatur. Tambahkan di Pengaturan.', 422);
         }
 
         $response = $this->siakangClient->getGrades(
@@ -115,13 +115,13 @@ class AssessmentService
         );
 
         if (($response['code'] ?? 0) !== 200) {
-            throw new \Exception($response['message'] ?? 'Failed to fetch grades from Siakang.', (int) ($response['code'] ?: 502));
+            throw new \Exception($response['message'] ?? 'Gagal mengambil nilai dari Siakang.', (int) ($response['code'] ?: 502));
         }
 
         $data = $response['data'] ?? [];
 
         if (empty($data['courses']) || ! is_array($data['courses'])) {
-            throw new \Exception('No grade data found in Siakang response.', 422);
+            throw new \Exception('Tidak ada data nilai pada respons Siakang.', 422);
         }
 
         $userCourses = CourseContent::where('user_id', $userId)
@@ -139,7 +139,7 @@ class AssessmentService
             // Only sync published numeric scores
             if ($name === '' || $score === null || ! is_numeric($score)) {
                 if ($name !== '') {
-                    $noMatch[] = $name.' (score not yet released)';
+                    $noMatch[] = $name.' (nilai belum dirilis)';
                 }
 
                 continue;

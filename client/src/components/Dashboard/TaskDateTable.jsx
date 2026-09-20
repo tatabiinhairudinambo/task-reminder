@@ -71,17 +71,17 @@ export const TaskDateTable = ({ tasks, onStatusChange, onEdit, onDelete, isMutat
                             <TableHead className="text-center">No</TableHead>
                             <TableHead>
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('course_content')}>
-                                    Course Content <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Mata Kuliah <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead>
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('task')}>
-                                    Task <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Tugas <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('deadline')}>
-                                    Deadline <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Tenggat <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
@@ -89,7 +89,7 @@ export const TaskDateTable = ({ tasks, onStatusChange, onEdit, onDelete, isMutat
                                     Status <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
-                            <TableHead className="text-center">Options</TableHead>
+                            <TableHead className="text-center">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -98,7 +98,7 @@ export const TaskDateTable = ({ tasks, onStatusChange, onEdit, onDelete, isMutat
                         ) : sortedTasks.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={6} className="text-center">
-                                    No tasks for this date
+                                    Tidak ada tugas pada tanggal ini
                                 </TableCell>
                             </TableRow>
                         ) : sortedTasks.map((task, index) => (
@@ -114,7 +114,7 @@ export const TaskDateTable = ({ tasks, onStatusChange, onEdit, onDelete, isMutat
                                                     ? 'bg-success text-success-foreground hover:bg-success/80'
                                                     : 'bg-destructive text-destructive-foreground hover:bg-destructive/80'
                                             )}>
-                                                Priority
+                                                Prioritas
                                             </Badge>
                                         ) : null}
                                     </div>
@@ -141,8 +141,8 @@ export const TaskDateTable = ({ tasks, onStatusChange, onEdit, onDelete, isMutat
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => onEdit(task)}>Edit</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => onDelete(task.id)}>Delete</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => onEdit(task)}>Ubah</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => onDelete(task.id)}>Hapus</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>

@@ -21,7 +21,7 @@ const VerifyEmailSent = () => {
             const response = await authApi.resendVerificationEmail({ email });
             toast.success(response.data.message);
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to resend email');
+            toast.error(error.response?.data?.message || 'Gagal mengirim ulang email');
         } finally {
             setLoading(false);
         }
@@ -44,7 +44,7 @@ const VerifyEmailSent = () => {
     }, [navigate]);
 
     useEffect(() => {
-        document.title = 'Email Sent - Task Reminder';
+        document.title = 'Email Terkirim - Task Reminder';
     }, []);
 
     return (
@@ -52,21 +52,21 @@ const VerifyEmailSent = () => {
             <img src='/logo.webp' className='mb-8 mt-4 w-32' alt='logo' />
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className='text-2xl'>Email Sent</CardTitle>
+                    <CardTitle className='text-2xl'>Email Terkirim</CardTitle>
                     <CardDescription>
-                        We’ve sent a confirmation email to <span className='font-semibold text-foreground'>{email}.</span> Please check your inbox and click the link to verify your email.
+                        Kami telah mengirim email konfirmasi ke <span className='font-semibold text-foreground'>{email}.</span> Silakan periksa kotak masuk Anda dan klik tautan untuk memverifikasi email.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className='space-y-4'>
                         <Button type='submit' className='w-full' disabled={loading || !email.trim()}>
-                            {loading ? 'Resending...' : 'Resend Email'}
+                            {loading ? 'Mengirim ulang...' : 'Kirim Ulang Email'}
                         </Button>
                     </form>
                     <p className='mt-6 text-center text-sm'>
                         <Link to='/auth/login' className='text-muted-foreground hover:text-foreground'>
                             <ArrowLeft className='w-3 inline-block align-middle mr-2' />
-                            Back to login
+                            Kembali ke login
                         </Link>
                     </p>
                 </CardContent>

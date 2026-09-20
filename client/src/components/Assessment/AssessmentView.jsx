@@ -22,7 +22,7 @@ export const AssessmentView = () => {
     const [selectedContent, setSelectedContent] = useState(null);
 
     useEffect(() => {
-        document.title = 'Assessments - Task Reminder';
+        document.title = 'Penilaian - Task Reminder';
     }, []);
 
     // Assessments depend on course contents: with an empty semester there is
@@ -34,9 +34,9 @@ export const AssessmentView = () => {
                     <CardContent>
                         <EmptyState
                             icon={GraduationCap}
-                            title="No assessments yet"
-                            description="Add courses first to start tracking grades."
-                            actionLabel="Add Courses"
+                            title="Belum ada penilaian"
+                            description="Tambahkan mata kuliah terlebih dahulu untuk mulai melacak nilai."
+                            actionLabel="Tambah Mata Kuliah"
                             actionTo="/course-contents"
                         />
                     </CardContent>
@@ -50,7 +50,7 @@ export const AssessmentView = () => {
             {settings?.has_siakang_credentials ? (
                 <div className="flex justify-end gap-4 lg:justify-start">
                     <Button variant="outline" onClick={syncDialog.open}>
-                        <RefreshCw className="mr-2 h-4 w-4" /> Sync from Siakang
+                        <RefreshCw className="mr-2 h-4 w-4" /> Sinkron dari Siakang
                     </Button>
                 </div>
             ) : null}

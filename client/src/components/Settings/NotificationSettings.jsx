@@ -14,11 +14,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const DEADLINES = ['7 days left', '5 days left', '3 days left', '1 day left'];
+const DEADLINES = ['7 hari lagi', '5 hari lagi', '3 hari lagi', '1 hari lagi'];
 const CHANNEL_OPTIONS = [
     { value: 'email', label: 'Email' },
     { value: 'telegram', label: 'Telegram' },
-    { value: 'both', label: 'Both' },
+    { value: 'both', label: 'Keduanya' },
 ];
 
 export const NotificationSettings = ({
@@ -48,7 +48,7 @@ export const NotificationSettings = ({
 
     const handleChannelSave = async () => {
         if (needsTelegramChatId && chatIdInput.trim() === '') {
-            setChatIdError('Telegram Chat ID is required.');
+            setChatIdError('Telegram Chat ID wajib diisi.');
             return;
         }
         setChatIdError('');
@@ -69,7 +69,7 @@ export const NotificationSettings = ({
         // Flush a pending typed chat ID before switching, otherwise the
         // server rejects telegram/both with "Please set Telegram chat ID first".
         if ((value === 'telegram' || value === 'both') && chatIdInput.trim() === '') {
-            setChatIdError('Set Telegram chat ID first, then switch channel.');
+            setChatIdError('Atur Telegram Chat ID terlebih dahulu, lalu ganti channel.');
             return;
         }
         setChatIdError('');
@@ -89,9 +89,9 @@ export const NotificationSettings = ({
             <CardContent className="p-6">
                 <div className="flex flex-col gap-3">
                     <div>
-                        <p className="text-lg">Notification Channel</p>
+                        <p className="text-lg">Channel Notifikasi</p>
                         <span className="text-muted-foreground">
-                            Choose where reminders are sent.
+                            Pilih tujuan pengiriman pengingat.
                         </span>
                     </div>
 
@@ -130,14 +130,14 @@ export const NotificationSettings = ({
                                 onClick={() => handleChannelSave()}
                                 disabled={isMutating || isLoading}
                             >
-                                Save
+                                Simpan
                             </Button>
                         </div>
                         {chatIdError ? (
                             <p className="text-sm text-destructive">{chatIdError}</p>
                         ) : needsTelegramChatId && (telegramChatId?.trim() === '') ? (
                             <p className="text-sm text-muted-foreground">
-                                Set Telegram chat ID first, then switch channel to Telegram or Both.
+                                Atur Telegram Chat ID terlebih dahulu, lalu ganti channel ke Telegram atau Keduanya.
                             </p>
                         ) : null}
                     </div>
@@ -148,9 +148,9 @@ export const NotificationSettings = ({
                             variant="outline"
                             onClick={onTestNotification}
                             disabled={isTestDisabled}
-                            title="Sends a dummy message to your active channel selection."
+                            title="Mengirim pesan uji ke channel yang sedang aktif."
                         >
-                            <Send className="mr-2 h-4 w-4" /> Send Test Notification
+                            <Send className="mr-2 h-4 w-4" /> Kirim Notifikasi Uji
                         </Button>
                     </div>
                 </div>
@@ -159,9 +159,9 @@ export const NotificationSettings = ({
 
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-lg">Deadline Notification</p>
+                        <p className="text-lg">Notifikasi Tenggat</p>
                         <span className="text-muted-foreground">
-                            Display a notification when the task is approaching the due date.
+                            Tampilkan notifikasi saat tugas mendekati tenggat.
                         </span>
                     </div>
 
@@ -187,9 +187,9 @@ export const NotificationSettings = ({
 
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-lg">Task Created Notification</p>
+                        <p className="text-lg">Notifikasi Tugas Dibuat</p>
                         <span className="text-muted-foreground">
-                            Display a notification when the task is successfully created.
+                            Tampilkan notifikasi saat tugas berhasil dibuat.
                         </span>
                     </div>
                     <div className="w-[108px] text-center">
@@ -205,9 +205,9 @@ export const NotificationSettings = ({
 
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-lg">Task Completed Notification</p>
+                        <p className="text-lg">Notifikasi Tugas Selesai</p>
                         <span className="text-muted-foreground">
-                            Display a notification when the task is successfully completed.
+                            Tampilkan notifikasi saat tugas berhasil diselesaikan.
                         </span>
                     </div>
                     <div className="w-[108px] text-center">

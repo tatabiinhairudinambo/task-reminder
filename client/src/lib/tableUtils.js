@@ -17,10 +17,15 @@ export const compareValues = (a, b) => {
 
 export const getDeadlineBadgeClass = (label, status) => {
     const normalized = String(label || '').toLowerCase();
-    if (Number(status) === 1 || normalized.includes('completed')) {
+    if (Number(status) === 1 || normalized.includes('selesai') || normalized.includes('completed')) {
         return 'bg-success text-success-foreground hover:bg-success/80';
     }
-    if (normalized.includes('overdue') || normalized.includes('today')) {
+    if (
+        normalized.includes('terlambat') ||
+        normalized.includes('overdue') ||
+        normalized.includes('hari ini') ||
+        normalized.includes('today')
+    ) {
         return 'bg-destructive text-destructive-foreground hover:bg-destructive/80';
     }
     const days = parseInt(normalized, 10);

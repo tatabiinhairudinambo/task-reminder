@@ -18,9 +18,9 @@ export const PasswordForm = ({ onSubmit }) => {
         const clientErrors = validateRequired(
             { old_password: currentPassword, password: newPassword, password_confirmation: confirmPassword },
             [
-                { name: 'old_password', label: 'Current Password' },
-                { name: 'password', label: 'New Password' },
-                { name: 'password_confirmation', label: 'Confirm Password' },
+                { name: 'old_password', label: 'Kata Sandi Saat Ini' },
+                { name: 'password', label: 'Kata Sandi Baru' },
+                { name: 'password_confirmation', label: 'Konfirmasi Kata Sandi' },
             ]
         );
         if (Object.keys(clientErrors).length > 0) {
@@ -55,40 +55,40 @@ export const PasswordForm = ({ onSubmit }) => {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Update Password</CardTitle>
-                <CardDescription>Ensure your account uses a long and secure password.</CardDescription>
+                <CardTitle>Perbarui Kata Sandi</CardTitle>
+                <CardDescription>Pastikan akun Anda menggunakan kata sandi yang panjang dan aman.</CardDescription>
             </CardHeader>
             <CardContent>
                 <form className="space-y-4" onSubmit={handleSubmit}>
-                    <FormField label="Current Password" error={oldPasswordError}>
+                    <FormField label="Kata Sandi Saat Ini" error={oldPasswordError}>
                         <PasswordInput
                             value={currentPassword}
                             onChange={setCurrentPassword}
-                            placeholder="Enter your current password"
+                            placeholder="Masukkan kata sandi saat ini"
                             required
                         />
                     </FormField>
 
-                    <FormField label="New Password" error={getFieldError(errors, 'password')}>
+                    <FormField label="Kata Sandi Baru" error={getFieldError(errors, 'password')}>
                         <PasswordInput
                             value={newPassword}
                             onChange={setNewPassword}
-                            placeholder="Enter your new password"
+                            placeholder="Masukkan kata sandi baru"
                             required
                         />
                     </FormField>
 
-                    <FormField label="Confirm Password" error={getFieldError(errors, 'password_confirmation')}>
+                    <FormField label="Konfirmasi Kata Sandi" error={getFieldError(errors, 'password_confirmation')}>
                         <PasswordInput
                             value={confirmPassword}
                             onChange={setConfirmPassword}
-                            placeholder="Confirm your new password"
+                            placeholder="Konfirmasi kata sandi baru Anda"
                             required
                         />
                     </FormField>
 
                     <Button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? 'Saving...' : 'Save'}
+                        {isSubmitting ? 'Menyimpan...' : 'Simpan'}
                     </Button>
                 </form>
             </CardContent>

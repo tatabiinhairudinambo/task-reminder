@@ -3,7 +3,7 @@ import { SettingsView } from '@/components/Settings/SettingsView';
 
 const Settings = () => {
     return (
-        <AppLayout title="Settings">
+        <AppLayout title="Pengaturan">
             <SettingsView />
         </AppLayout>
     );

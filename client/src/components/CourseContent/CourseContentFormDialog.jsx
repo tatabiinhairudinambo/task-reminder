@@ -21,7 +21,7 @@ import { SEMESTERS } from '@/lib/constants';
 import { getFieldError, validateRequired } from '@/lib/formUtils';
 import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
 export const CourseContentFormDialog = ({
     open,
@@ -97,13 +97,13 @@ export const CourseContentFormDialog = ({
             { semester, code, course_content: courseContent, credits, lecturer, day, hour_start: hourStart, hour_end: hourEnd },
             [
                 { name: 'semester', label: 'Semester' },
-                { name: 'code', label: 'Code' },
-                { name: 'course_content', label: 'Course Content' },
-                { name: 'credits', label: 'Credits' },
-                { name: 'lecturer', label: 'Lecturer' },
-                { name: 'day', label: 'Day' },
-                { name: 'hour_start', label: 'Hour Start' },
-                { name: 'hour_end', label: 'Hour End' },
+                { name: 'code', label: 'Kode' },
+                { name: 'course_content', label: 'Mata Kuliah' },
+                { name: 'credits', label: 'SKS' },
+                { name: 'lecturer', label: 'Dosen' },
+                { name: 'day', label: 'Hari' },
+                { name: 'hour_start', label: 'Jam Mulai' },
+                { name: 'hour_end', label: 'Jam Selesai' },
             ]
         );
         if (Object.keys(clientErrors).length > 0) {
@@ -154,11 +154,11 @@ export const CourseContentFormDialog = ({
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-xl" persistent>
                 <DialogHeader>
-                    <DialogTitle>{mode === 'create' ? 'Add New Course Content' : 'Update Course Content'}</DialogTitle>
+                    <DialogTitle>{mode === 'create' ? 'Tambah Mata Kuliah Baru' : 'Ubah Mata Kuliah'}</DialogTitle>
                     <DialogDescription>
                         {mode === 'create'
-                            ? 'Enter the details of the courses attended.'
-                            : 'Update the details of the selected course content.'}
+                            ? 'Masukkan detail mata kuliah yang diambil.'
+                            : 'Perbarui detail mata kuliah yang dipilih.'}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -166,7 +166,7 @@ export const CourseContentFormDialog = ({
                     <FormField label="Semester" error={getFieldError(errors, 'semester')}>
                         <Select value={semester} onValueChange={setSemester}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select semester" />
+                                <SelectValue placeholder="Pilih semester" />
                             </SelectTrigger>
                             <SelectContent>
                                 {SEMESTERS.map((item) => (
@@ -178,43 +178,43 @@ export const CourseContentFormDialog = ({
                         </Select>
                     </FormField>
 
-                    <FormField label="Code" error={getFieldError(errors, 'code')}>
-                        <Input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Enter code" required />
+                    <FormField label="Kode" error={getFieldError(errors, 'code')}>
+                        <Input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Masukkan kode" required />
                     </FormField>
 
-                    <FormField label="Course Content" error={getFieldError(errors, 'course_content')}>
+                    <FormField label="Mata Kuliah" error={getFieldError(errors, 'course_content')}>
                         <Input
                             value={courseContent}
                             onChange={(event) => setCourseContent(event.target.value)}
-                            placeholder="Enter course content"
+                            placeholder="Masukkan nama mata kuliah"
                             required
                         />
                     </FormField>
 
-                    <FormField label="Credits" error={getFieldError(errors, 'credits')}>
+                    <FormField label="SKS" error={getFieldError(errors, 'credits')}>
                         <Input
                             type="number"
                             min={1}
                             value={credits}
                             onChange={(event) => setCredits(event.target.value)}
-                            placeholder="Enter credits"
+                            placeholder="Masukkan SKS"
                             required
                         />
                     </FormField>
 
-                    <FormField label="Lecturer" error={getFieldError(errors, 'lecturer')}>
+                    <FormField label="Dosen" error={getFieldError(errors, 'lecturer')}>
                         <Input
                             value={lecturer}
                             onChange={(event) => setLecturer(event.target.value)}
-                            placeholder="Enter lecturer"
+                            placeholder="Masukkan nama dosen"
                             required
                         />
                     </FormField>
 
-                    <FormField label="Day" error={getFieldError(errors, 'day')}>
+                    <FormField label="Hari" error={getFieldError(errors, 'day')}>
                         <Select value={day} onValueChange={setDay}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select day" />
+                                <SelectValue placeholder="Pilih hari" />
                             </SelectTrigger>
                             <SelectContent>
                                 {DAYS.map((item) => (
@@ -226,20 +226,20 @@ export const CourseContentFormDialog = ({
                         </Select>
                     </FormField>
 
-                    <FormField label="Hour Start" error={getFieldError(errors, 'hour_start')}>
+                    <FormField label="Jam Mulai" error={getFieldError(errors, 'hour_start')}>
                         <Input type="time" value={hourStart} onChange={(event) => setHourStart(event.target.value)} required />
                     </FormField>
 
-                    <FormField label="Hour End" error={getFieldError(errors, 'hour_end')}>
+                    <FormField label="Jam Selesai" error={getFieldError(errors, 'hour_end')}>
                         <Input type="time" value={hourEnd} onChange={(event) => setHourEnd(event.target.value)} required />
                     </FormField>
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={requestClose}>
-                            Cancel
+                            Batal
                         </Button>
                         <Button type="submit" disabled={isLoading}>
-                            {isLoading ? (mode === 'create' ? 'Adding...' : 'Updating...') : mode === 'create' ? 'Add' : 'Update'}
+                            {isLoading ? (mode === 'create' ? 'Menambahkan...' : 'Memperbarui...') : mode === 'create' ? 'Tambah' : 'Perbarui'}
                         </Button>
                     </DialogFooter>
                 </form>

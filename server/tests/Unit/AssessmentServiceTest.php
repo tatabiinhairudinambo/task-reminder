@@ -107,7 +107,7 @@ test('updateScore throws 404 for another users course', function () {
 
 test('syncScoresFromSiakang requires siakang credentials', function () {
     $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
-})->throws(Exception::class, 'Siakang credentials are not configured', 422);
+})->throws(Exception::class, 'Kredensial Siakang belum diatur', 422);
 
 test('syncScoresFromSiakang updates matching course scores from siakang data', function () {
     Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);
@@ -161,7 +161,7 @@ test('syncScoresFromSiakang skips courses with null scores', function () {
     $result = $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
 
     expect($result['updated'])->toBe(0);
-    expect($result['no_match'])->toContain('Kalkulus I (score not yet released)');
+    expect($result['no_match'])->toContain('Kalkulus I (nilai belum dirilis)');
 });
 
 test('syncScoresFromSiakang skips courses not found in user course_contents', function () {
@@ -228,7 +228,7 @@ test('syncScoresFromSiakang throws when response has no courses array', function
     ]);
 
     $this->service->syncScoresFromSiakang($this->user->id, 'Semester 2', '20251');
-})->throws(Exception::class, 'No grade data found');
+})->throws(Exception::class, 'Tidak ada data nilai pada respons Siakang.');
 
 test('syncScoresFromSiakang filters by mapped semester label', function () {
     Setting::factory()->withSiakangCredentials()->create(['user_id' => $this->user->id]);

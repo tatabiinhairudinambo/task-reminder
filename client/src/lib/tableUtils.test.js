@@ -33,39 +33,44 @@ describe('compareValues', () => {
 describe('getDeadlineBadgeClass', () => {
   it('returns success for completed status 1', () => {
     expect(getDeadlineBadgeClass('anything', 1)).toContain('bg-success');
-    expect(getDeadlineBadgeClass('5 days left', '1')).toContain('bg-success');
+    expect(getDeadlineBadgeClass('5 hari lagi', '1')).toContain('bg-success');
   });
 
   it('returns success for completed label', () => {
+    expect(getDeadlineBadgeClass('Selesai', 0)).toContain('bg-success');
+    expect(getDeadlineBadgeClass('selesai dikerjakan', 0)).toContain('bg-success');
     expect(getDeadlineBadgeClass('Completed', 0)).toContain('bg-success');
-    expect(getDeadlineBadgeClass('completed task', 0)).toContain('bg-success');
   });
 
   it('returns destructive for overdue', () => {
+    expect(getDeadlineBadgeClass('Terlambat', 0)).toContain('bg-destructive');
     expect(getDeadlineBadgeClass('Overdue', 0)).toContain('bg-destructive');
   });
 
   it('returns destructive for today', () => {
+    expect(getDeadlineBadgeClass('Jatuh tempo hari ini', 0)).toContain('bg-destructive');
+    expect(getDeadlineBadgeClass('Hari ini', 0)).toContain('bg-destructive');
     expect(getDeadlineBadgeClass('Due today', 0)).toContain('bg-destructive');
-    expect(getDeadlineBadgeClass('Hari ini', 0)).not.toContain('bg-destructive');
   });
 
   it('returns destructive for 0 and 1 day', () => {
-    expect(getDeadlineBadgeClass('0 days left', 0)).toContain('bg-destructive');
-    expect(getDeadlineBadgeClass('1 day left', 0)).toContain('bg-destructive');
+    expect(getDeadlineBadgeClass('0 hari lagi', 0)).toContain('bg-destructive');
+    expect(getDeadlineBadgeClass('1 hari lagi', 0)).toContain('bg-destructive');
     expect(getDeadlineBadgeClass('0 day', 0)).toContain('bg-destructive');
+    expect(getDeadlineBadgeClass('0 days left', 0)).toContain('bg-destructive');
   });
 
   it('returns warning for 2 to 5 days', () => {
-    expect(getDeadlineBadgeClass('2 days left', 0)).toContain('bg-warning');
-    expect(getDeadlineBadgeClass('3 days left', 0)).toContain('bg-warning');
-    expect(getDeadlineBadgeClass('5 days left', 0)).toContain('bg-warning');
+    expect(getDeadlineBadgeClass('2 hari lagi', 0)).toContain('bg-warning');
+    expect(getDeadlineBadgeClass('3 hari lagi', 0)).toContain('bg-warning');
+    expect(getDeadlineBadgeClass('5 hari lagi', 0)).toContain('bg-warning');
     expect(getDeadlineBadgeClass('5 day', 0)).toContain('bg-warning');
+    expect(getDeadlineBadgeClass('3 days left', 0)).toContain('bg-warning');
   });
 
   it('returns secondary for uncategorized', () => {
-    expect(getDeadlineBadgeClass('6 days left', 0)).toContain('bg-secondary');
-    expect(getDeadlineBadgeClass('10 days left', 0)).toContain('bg-secondary');
+    expect(getDeadlineBadgeClass('6 hari lagi', 0)).toContain('bg-secondary');
+    expect(getDeadlineBadgeClass('10 hari lagi', 0)).toContain('bg-secondary');
     expect(getDeadlineBadgeClass('Due in a week', 0)).toContain('bg-secondary');
     expect(getDeadlineBadgeClass('', 0)).toContain('bg-secondary');
     expect(getDeadlineBadgeClass(null, 0)).toContain('bg-secondary');
@@ -73,7 +78,7 @@ describe('getDeadlineBadgeClass', () => {
   });
 
   it('is case insensitive', () => {
-    expect(getDeadlineBadgeClass('OVERDUE', 0)).toContain('bg-destructive');
-    expect(getDeadlineBadgeClass('COMPLETED', 0)).toContain('bg-success');
+    expect(getDeadlineBadgeClass('TERLAMBAT', 0)).toContain('bg-destructive');
+    expect(getDeadlineBadgeClass('SELESAI', 0)).toContain('bg-success');
   });
 });

@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return 'Menyala abangkuh 🔥';
+    return redirect(config('app.frontend_url'));
 });

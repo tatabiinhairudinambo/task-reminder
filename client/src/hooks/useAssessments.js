@@ -36,7 +36,7 @@ export const useAssessments = (selectedSemester) => {
                 await fetchAssessments(selectedSemester, false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update score.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui skor.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -54,7 +54,7 @@ export const useAssessments = (selectedSemester) => {
                 await fetchAssessments(selectedSemester, false);
                 return { success: true, data: response.data.data };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to sync scores.');
+                toast.error(error.response?.data?.message || 'Gagal menyinkronkan nilai.');
                 return { success: false };
             } finally {
                 setIsMutating(false);

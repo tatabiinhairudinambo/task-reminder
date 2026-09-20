@@ -110,7 +110,7 @@ test('test notification sends email synchronously', function () {
     $response = $this->postJson('/api/settings/test-notification');
 
     $response->assertOk()
-        ->assertJsonPath('message', 'Test notification sent to Email');
+        ->assertJsonPath('message', 'Notifikasi uji terkirim ke Email');
 
     Notification::assertSentTo($this->user, TestNotification::class);
 });
@@ -130,12 +130,12 @@ test('test notification sends both channels synchronously', function () {
     $response = $this->postJson('/api/settings/test-notification');
 
     $response->assertOk()
-        ->assertJsonPath('message', 'Test notification sent to Email and Telegram');
+        ->assertJsonPath('message', 'Notifikasi uji terkirim ke Email dan Telegram');
 
     Notification::assertSentTo($this->user, TestNotification::class);
     Http::assertSent(function ($request) {
         return $request['chat_id'] === '12345'
-            && str_contains($request['text'], 'Test Notification');
+            && str_contains($request['text'], 'Notifikasi Uji');
     });
 });
 
@@ -204,7 +204,7 @@ test('test connection succeeds with stored credentials', function () {
     $response = $this->postJson('/api/settings/siakang-credentials/test');
 
     $response->assertOk()
-        ->assertJsonPath('message', 'Siakang connection successful')
+        ->assertJsonPath('message', 'Koneksi Siakang berhasil')
         ->assertJsonPath('data.email', 'student@student.untirta.ac.id')
         ->assertJsonMissingPath('data.siakang_password');
 });

@@ -48,10 +48,10 @@ describe('validateRequired', () => {
       { name: 'e', label: 'E' },
     ]);
     expect(errors).toEqual({
-      a: 'A is required.',
-      b: 'B is required.',
-      c: 'C is required.',
-      d: 'D is required.',
+      a: 'A wajib diisi.',
+      b: 'B wajib diisi.',
+      c: 'C wajib diisi.',
+      d: 'D wajib diisi.',
     });
   });
 });

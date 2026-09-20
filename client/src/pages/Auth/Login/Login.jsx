@@ -25,7 +25,7 @@ const Login = () => {
 
         const clientErrors = validateRequired({ email, password }, [
             { name: 'email', label: 'Email' },
-            { name: 'password', label: 'Password' },
+            { name: 'password', label: 'Kata Sandi' },
         ]);
         if (Object.keys(clientErrors).length > 0) {
             setMessage(clientErrors);
@@ -62,7 +62,7 @@ const Login = () => {
         } catch (error) {
             const errors = error.response?.data?.errors || {};
             setMessage(errors);
-            toast.error(error.response?.data?.message || 'Login failed');
+            toast.error(error.response?.data?.message || 'Gagal masuk');
         } finally {
             setLoading(false);
         }
@@ -78,7 +78,7 @@ const Login = () => {
     }, [navigate]);
 
     useEffect(() => {
-        document.title = 'Login - Task Reminder';
+        document.title = 'Masuk - Task Reminder';
     }, []);
 
     return (
@@ -86,14 +86,14 @@ const Login = () => {
             <img src="/logo.webp" className="mb-8 mt-4 w-32" alt="logo" />
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className="text-2xl">Get Started Now</CardTitle>
-                    <CardDescription>Enter your credentials to access your account.</CardDescription>
+                    <CardTitle className="text-2xl">Mulai Sekarang</CardTitle>
+                    <CardDescription>Masukkan kredensial Anda untuk mengakses akun.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <FormField label='Email' error={message.email}>
                             <Input
-                                placeholder='Enter your email'
+                                placeholder='Masukkan email Anda'
                                 value={email}
                                 autoComplete='username'
                                 required
@@ -101,9 +101,9 @@ const Login = () => {
                             />
                         </FormField>
 
-                        <FormField label='Password' error={message.password}>
+                        <FormField label='Kata Sandi' error={message.password}>
                             <PasswordInput
-                                placeholder='Enter your password'
+                                placeholder='Masukkan kata sandi Anda'
                                 value={password}
                                 onChange={setPassword}
                                 autoComplete='current-password'
@@ -118,23 +118,23 @@ const Login = () => {
                                         checked={rememberMe}
                                         onCheckedChange={(checked) => setRememberMe(checked === true)}
                                     />
-                                    <span className="text-sm">Remember me</span>
+                                    <span className="text-sm">Ingat saya</span>
                                 </label>
                             </div>
                             <Link to='/auth/forgot-password' className='mr-2 text-sm text-primary hover:text-primary/80'>
-                                Forgot password?
+                                Lupa kata sandi?
                             </Link>
                         </div>
 
                         <Button type='submit' className='w-full'>
-                            {loading ? 'Authenticating...' : 'Login'}
+                            {loading ? 'Memproses...' : 'Masuk'}
                         </Button>
                     </form>
 
                     <p className='mt-6 text-sm'>
-                        Don’t have an account?{' '}
+                        Belum punya akun?{' '}
                         <Link to='/auth/register' className='text-primary hover:text-primary/80'>
-                            Sign up
+                            Daftar
                         </Link>
                     </p>
                 </CardContent>

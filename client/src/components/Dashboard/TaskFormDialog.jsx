@@ -96,9 +96,9 @@ export const TaskFormDialog = ({
         const clientErrors = validateRequired(
             { course_content_id: course, task, deadline },
             [
-                { name: 'course_content_id', label: 'Course Content' },
-                { name: 'task', label: 'Task' },
-                { name: 'deadline', label: 'Deadline' },
+                { name: 'course_content_id', label: 'Mata Kuliah' },
+                { name: 'task', label: 'Tugas' },
+                { name: 'deadline', label: 'Tenggat' },
             ]
         );
         if (Object.keys(clientErrors).length > 0) {
@@ -149,8 +149,8 @@ export const TaskFormDialog = ({
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-xl" persistent>
                 <DialogHeader>
-                    <DialogTitle>{mode === 'create' ? 'Add New Task' : 'Edit Task'}</DialogTitle>
-                    <DialogDescription>Enter the details of the task you want to do.</DialogDescription>
+                    <DialogTitle>{mode === 'create' ? 'Tambah Tugas Baru' : 'Ubah Tugas'}</DialogTitle>
+                    <DialogDescription>Masukkan detail tugas yang ingin dikerjakan.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <FormField label="Semester" error={errors.semester}>
@@ -162,7 +162,7 @@ export const TaskFormDialog = ({
                             }}
                         >
                             <SelectTrigger>
-                                <SelectValue placeholder="Select semester" />
+                                <SelectValue placeholder="Pilih semester" />
                             </SelectTrigger>
                             <SelectContent>
                                 {SEMESTERS.map((item) => (
@@ -174,10 +174,10 @@ export const TaskFormDialog = ({
                         </Select>
                     </FormField>
 
-                    <FormField label="Course Content" error={errors.course_content}>
+                    <FormField label="Mata Kuliah" error={errors.course_content}>
                         <Select value={course} onValueChange={setCourse}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select course" />
+                                <SelectValue placeholder="Pilih mata kuliah" />
                             </SelectTrigger>
                             <SelectContent>
                                 {[...courseContents]
@@ -195,34 +195,34 @@ export const TaskFormDialog = ({
                         </Select>
                     </FormField>
 
-                    <FormField label="Task" error={errors.task}>
-                        <Input value={task} onChange={(e) => setTask(e.target.value)} placeholder="Enter task" required />
+                    <FormField label="Tugas" error={errors.task}>
+                        <Input value={task} onChange={(e) => setTask(e.target.value)} placeholder="Masukkan nama tugas" required />
                     </FormField>
 
-                    <FormField label="Description" error={errors.description}>
+                    <FormField label="Deskripsi" error={errors.description}>
                         <Textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Enter description"
+                            placeholder="Masukkan deskripsi"
                             rows={6}
                         />
                     </FormField>
 
-                    <FormField label="Deadline" error={errors.deadline}>
+                    <FormField label="Tenggat" error={errors.deadline}>
                         <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} required />
                     </FormField>
 
                     <div className="space-y-2">
                         <div className="flex items-center gap-2">
                             <label htmlFor="task-priority" className="cursor-pointer text-sm">
-                                Priority
+                                Prioritas
                             </label>
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Info className="h-3 w-3" />
                                     </TooltipTrigger>
-                                    <TooltipContent>This task will be notified every day.</TooltipContent>
+                                    <TooltipContent>Tugas ini akan dinotifikasi setiap hari.</TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
                         </div>
@@ -236,10 +236,10 @@ export const TaskFormDialog = ({
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={requestClose}>
-                            Cancel
+                            Batal
                         </Button>
                         <Button type="submit" disabled={isLoading}>
-                            {isLoading ? (mode === 'create' ? 'Adding...' : 'Updating...') : mode === 'create' ? 'Add' : 'Update'}
+                            {isLoading ? (mode === 'create' ? 'Menambahkan...' : 'Memperbarui...') : mode === 'create' ? 'Tambah' : 'Perbarui'}
                         </Button>
                     </DialogFooter>
                 </form>

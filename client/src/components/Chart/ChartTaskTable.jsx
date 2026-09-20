@@ -68,12 +68,12 @@ export const ChartTaskTable = ({ rows, onRowClick, isLoading = false }) => {
                             <TableHead className="text-center">No</TableHead>
                             <TableHead>
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('course_content')}>
-                                    Course Content <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Mata Kuliah <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead>
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('task')}>
-                                    Task <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Tugas <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
@@ -83,22 +83,22 @@ export const ChartTaskTable = ({ rows, onRowClick, isLoading = false }) => {
                             </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('created_at')}>
-                                    Created At <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Dibuat <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('updated_at')}>
-                                    Updated At <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Diperbarui <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('deadline')}>
-                                    Deadline <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Tenggat <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('deadline_label')}>
-                                    Deadline Label <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Label Tenggat <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                         </TableRow>
@@ -109,7 +109,7 @@ export const ChartTaskTable = ({ rows, onRowClick, isLoading = false }) => {
                         ) : sortedRows.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={8} className="text-center">
-                                    No task data is available.
+                                    Belum ada data tugas.
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -130,7 +130,7 @@ export const ChartTaskTable = ({ rows, onRowClick, isLoading = false }) => {
                                                     : 'bg-warning text-warning-foreground hover:bg-warning/80'
                                             )}
                                         >
-                                            {item.status === 1 ? 'Completed' : 'Uncompleted'}
+                                            {item.status === 1 ? 'Selesai' : 'Belum Selesai'}
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-center">{item.created_at}</TableCell>
