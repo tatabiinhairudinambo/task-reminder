@@ -151,16 +151,17 @@ const Login = () => {
             </div>
 
             <div className="relative z-10 flex w-full max-w-md flex-col">
-                {/* Brand */}
-                <div className="mb-8 flex flex-col items-center justify-center gap-4">
+                {/* Brand: the wordmark overlaps the bottom of the logo so the
+                    two read as one lockup. */}
+                <div className="mb-10 flex flex-col items-center">
                     <img
                         src="/logo.webp"
-                        className="h-28 w-28"
+                        className="h-44 w-44"
                         alt="logo"
                     />
-                    <span className="text-2xl font-bold tracking-tight">
-                        <span className="text-white">Task</span>{' '}
-                        <span className="text-[#7db4ff]">Reminder</span>
+                    <span className="wordmark-3d -mt-4 text-4xl">
+                        <span className="wordmark-3d--white">Task</span>{' '}
+                        <span className="wordmark-3d--blue">Reminder</span>
                     </span>
                 </div>
 
