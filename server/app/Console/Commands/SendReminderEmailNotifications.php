@@ -2,15 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
-use App\Models\Task;
 use App\Models\Setting;
+use App\Models\Task;
 use App\Notifications\ReminderNotification;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SendReminderEmailNotifications extends Command
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -56,6 +55,7 @@ class SendReminderEmailNotifications extends Command
                     $notifications[] = [
                         'course_content' => $task->course_content->course_content,
                         'task' => $task->task,
+                        'description' => $task->description,
                         'deadline' => $deadline,
                         'deadline_label' => $task->deadline_label,
                         'priority' => (bool) $task->priority,

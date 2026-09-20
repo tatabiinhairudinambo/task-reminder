@@ -19,7 +19,7 @@ export const useSettings = () => {
             setUserData(response.data.data.user);
             setSettings(response.data.data.settings);
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to load user data.');
+            toast.error(error.response?.data?.message || 'Gagal memuat data pengguna.');
         } finally {
             if (showLoading) {
                 setIsLoading(false);
@@ -37,7 +37,7 @@ export const useSettings = () => {
                 toast.success(response.data.message);
                 await fetchUserData(false);
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update deadline notification.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui notifikasi tenggat.');
             } finally {
                 setIsMutating(false);
             }
@@ -56,7 +56,7 @@ export const useSettings = () => {
                 await fetchUserData(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update notification channel.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui channel notifikasi.');
                 return { success: false };
             } finally {
                 setIsMutating(false);
@@ -76,7 +76,7 @@ export const useSettings = () => {
                 await fetchUserData(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update Telegram chat ID.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui Telegram Chat ID.');
                 return { success: false };
             } finally {
                 setIsMutating(false);
@@ -93,7 +93,7 @@ export const useSettings = () => {
                 toast.success(response.data.message);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to send test notification.');
+                toast.error(error.response?.data?.message || 'Gagal mengirim notifikasi uji.');
                 return { success: false };
             } finally {
                 setIsMutating(false);
@@ -112,7 +112,7 @@ export const useSettings = () => {
                 toast.success(response.data.message);
                 await fetchUserData(false);
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update task-created notification.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui notifikasi tugas dibuat.');
             } finally {
                 setIsMutating(false);
             }
@@ -130,7 +130,7 @@ export const useSettings = () => {
                 toast.success(response.data.message);
                 await fetchUserData(false);
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update task-completed notification.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui notifikasi tugas selesai.');
             } finally {
                 setIsMutating(false);
             }
@@ -150,13 +150,13 @@ export const useSettings = () => {
                 useSemesterStore.getState().setUserName(data.name);
                 if (previousEmail !== data.email) {
                     localStorage.setItem('isEmailVerified', false);
-                    toast.info('Verification email sent to your new address. Please verify to continue.');
+                    toast.info('Email verifikasi telah dikirim ke alamat baru Anda. Silakan verifikasi untuk melanjutkan.');
                     return { success: true, emailChanged: true };
                 }
                 await fetchUserData(false);
                 return { success: true, emailChanged: false };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update profile.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui profil.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -174,7 +174,7 @@ export const useSettings = () => {
                 await fetchUserData(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to change password.');
+                toast.error(error.response?.data?.message || 'Gagal mengubah kata sandi.');
                 return {
                     success: false,
                     errors: error.response?.data?.errors || {},
@@ -199,7 +199,7 @@ export const useSettings = () => {
                 await fetchUserData(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to save Siakang credentials.');
+                toast.error(error.response?.data?.message || 'Gagal menyimpan kredensial Siakang.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -217,7 +217,7 @@ export const useSettings = () => {
                 await fetchUserData(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to remove Siakang credentials.');
+                toast.error(error.response?.data?.message || 'Gagal menghapus kredensial Siakang.');
                 return { success: false };
             } finally {
                 setIsMutating(false);
@@ -233,7 +233,7 @@ export const useSettings = () => {
             toast.success(response.data.message);
             return { success: true, data: response.data.data };
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to test Siakang connection.');
+            toast.error(error.response?.data?.message || 'Gagal menguji koneksi Siakang.');
             return { success: false };
         } finally {
             setIsMutating(false);

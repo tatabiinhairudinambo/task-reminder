@@ -24,7 +24,7 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
         const clientErrors = validateRequired(
             { name, email },
             [
-                { name: 'name', label: 'Name' },
+                { name: 'name', label: 'Nama' },
                 { name: 'email', label: 'Email' },
             ]
         );
@@ -51,16 +51,16 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your account profile information and email address.</CardDescription>
+                <CardTitle>Informasi Profil</CardTitle>
+                <CardDescription>Perbarui informasi profil dan alamat email akun Anda.</CardDescription>
             </CardHeader>
             <CardContent>
                 <form className="space-y-4" onSubmit={handleSubmit}>
-                    <FormField label="Name" error={getFieldError(errors, 'name')}>
+                    <FormField label="Nama" error={getFieldError(errors, 'name')}>
                         {isLoading ? (
                             <Skeleton className="h-10 w-full" />
                         ) : (
-                            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Enter your name" required />
+                            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Masukkan nama Anda" required />
                         )}
                     </FormField>
 
@@ -68,12 +68,12 @@ export const ProfileForm = ({ userData, isLoading, onSubmit }) => {
                         {isLoading ? (
                             <Skeleton className="h-10 w-full" />
                         ) : (
-                            <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Enter your email" required />
+                            <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Masukkan email Anda" required />
                         )}
                     </FormField>
 
                     <Button type="submit" disabled={isSubmitting || isLoading}>
-                        {isSubmitting ? 'Saving...' : 'Save'}
+                        {isSubmitting ? 'Menyimpan...' : 'Simpan'}
                     </Button>
                 </form>
             </CardContent>

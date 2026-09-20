@@ -14,6 +14,7 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
     use Queueable, ResolvesNotificationChannels;
 
     public $task;
+
     /**
      * Create a new notification instance.
      */
@@ -39,7 +40,8 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
     {
         return app(TelegramService::class)->buildTaskCompletedMessage(
             $this->task->course_content->course_content,
-            $this->task->task
+            $this->task->task,
+            $this->task->description
         );
     }
 
@@ -55,7 +57,7 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
                 'userName' => $notifiable->name,
                 'courseContent' => $this->task->course_content->course_content,
                 'task' => $this->task->task,
-                'dashboardUrl' => config('app.frontend_url') . '/dashboard',
+                'dashboardUrl' => config('app.frontend_url').'/dashboard',
             ]);
     }
 

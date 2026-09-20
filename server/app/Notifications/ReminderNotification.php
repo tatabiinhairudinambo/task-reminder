@@ -2,10 +2,10 @@
 
 namespace App\Notifications;
 
-use Carbon\Carbon;
 use App\Models\Task;
 use App\Notifications\Concerns\ResolvesNotificationChannels;
 use App\Services\TelegramService;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -16,6 +16,7 @@ class ReminderNotification extends Notification implements ShouldQueue
     use Queueable, ResolvesNotificationChannels;
 
     public $notifications = [];
+
     /**
      * Create a new notification instance.
      */
@@ -45,7 +46,7 @@ class ReminderNotification extends Notification implements ShouldQueue
     /**
      * Sort reminders with priority tasks first, then by nearest deadline.
      *
-     * @param array<int, array<string, mixed>> $notifications
+     * @param  array<int, array<string, mixed>>  $notifications
      * @return array<int, array<string, mixed>>
      */
     public static function sortByPriorityAndDeadline(array $notifications): array
@@ -95,7 +96,7 @@ class ReminderNotification extends Notification implements ShouldQueue
                 'count' => $count,
                 'taskWord' => $taskWord,
                 'notifications' => $formattedNotifications,
-                'dashboardUrl' => config('app.frontend_url') . '/dashboard',
+                'dashboardUrl' => config('app.frontend_url').'/dashboard',
             ]);
     }
 

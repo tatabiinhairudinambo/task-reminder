@@ -4,11 +4,11 @@ import { DashboardView } from '@/components/Dashboard/DashboardView';
 
 const Dashboard = () => {
     useEffect(() => {
-        document.title = 'Dashboard - Task Reminder';
+        document.title = 'Beranda - Task Reminder';
     }, []);
 
     return (
-        <AppLayout title="Dashboard">
+        <AppLayout title="Beranda">
             <DashboardView />
         </AppLayout>
     );

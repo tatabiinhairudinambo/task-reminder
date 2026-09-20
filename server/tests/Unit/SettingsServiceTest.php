@@ -62,21 +62,21 @@ test('sendTestNotification throws when no channel enabled', function () {
     $setting->update(['notification_channel' => 'nonexistent']);
 
     $this->service->sendTestNotification($this->user->id);
-})->throws(Exception::class, 'No notification channel enabled');
+})->throws(Exception::class, 'Tidak ada channel notifikasi yang aktif');
 
 test('sendTestNotification throws when telegram selected but no chat id', function () {
     $setting = Setting::where('user_id', $this->user->id)->first();
     $setting->update(['notification_channel' => Setting::CHANNEL_TELEGRAM]);
 
     $this->service->sendTestNotification($this->user->id);
-})->throws(Exception::class, 'Please set Telegram chat ID first');
+})->throws(Exception::class, 'Atur Telegram Chat ID terlebih dahulu');
 
 // ─── updateDeadlineNotification ───
 
 test('updateDeadlineNotification changes the value', function () {
-    $setting = $this->service->updateDeadlineNotification($this->user->id, '3 days left');
+    $setting = $this->service->updateDeadlineNotification($this->user->id, '3 hari lagi');
 
-    expect($setting->deadline_notification)->toBe('3 days left');
+    expect($setting->deadline_notification)->toBe('3 hari lagi');
 });
 
 // ─── updateNotificationChannel ───
@@ -92,11 +92,11 @@ test('updateNotificationChannel sets valid channel', function () {
 
 test('updateNotificationChannel rejects invalid channel', function () {
     $this->service->updateNotificationChannel($this->user->id, 'invalid');
-})->throws(Exception::class, 'Invalid notification channel');
+})->throws(Exception::class, 'Channel notifikasi tidak valid');
 
 test('updateNotificationChannel requires chat id for telegram channel', function () {
     $this->service->updateNotificationChannel($this->user->id, Setting::CHANNEL_TELEGRAM);
-})->throws(Exception::class, 'Please set Telegram chat ID first');
+})->throws(Exception::class, 'Atur Telegram Chat ID terlebih dahulu');
 
 // ─── updateTelegramChatId ───
 
@@ -267,4 +267,4 @@ test('testSiakangConnection throws 422 when no credentials are stored', function
     $this->siakangClient->shouldNotReceive('verify');
 
     $this->service->testSiakangConnection($this->user->id);
-})->throws(Exception::class, 'not configured', 422);
+})->throws(Exception::class, 'Kredensial Siakang belum diatur', 422);

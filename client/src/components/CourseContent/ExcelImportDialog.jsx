@@ -74,22 +74,22 @@ export const ExcelImportDialog = ({
         <Dialog open={open} onOpenChange={closeDialog}>
             <DialogContent persistent>
                 <DialogHeader>
-                    <DialogTitle>Import Data From Excel</DialogTitle>
+                    <DialogTitle>Impor Data dari Excel</DialogTitle>
                     <DialogDescription>
-                        Download the template, fill it, then upload the Excel file (.xlsx / .xls).
+                        Unduh template, isi, lalu unggah file Excel (.xlsx / .xls).
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleImportSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground">1. Download the template.</p>
+                        <p className="text-sm text-muted-foreground">1. Unduh template.</p>
                         <Button type="button" onClick={onDownloadTemplate} disabled={isLoading}>
-                            Download Template
+                            Unduh Template
                         </Button>
                     </div>
 
                     <div className="space-y-2">
-                        <p className="text-sm text-muted-foreground">2. Upload the completed Excel file.</p>
+                        <p className="text-sm text-muted-foreground">2. Unggah file Excel yang sudah diisi.</p>
                         <div className="relative cursor-pointer rounded-md border border-dashed p-4 text-center transition hover:bg-muted/50">
                             <input
                                 type="file"
@@ -110,19 +110,19 @@ export const ExcelImportDialog = ({
                                     <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB</p>
                                 </div>
                             ) : (
-                                <p className="text-sm text-muted-foreground">Click or drag a file here to select</p>
+                                <p className="text-sm text-muted-foreground">Klik atau seret file ke sini untuk memilih</p>
                             )}
                         </div>
 
                         {uploadProgress !== null ? (
                             <div className="space-y-2 pt-2">
                                 <div className="space-y-1">
-                                    <p className="text-xs text-muted-foreground">Uploading: {uploadProgress}%</p>
+                                    <p className="text-xs text-muted-foreground">Mengunggah: {uploadProgress}%</p>
                                     <Progress value={uploadProgress} />
                                 </div>
                                 {isProcessingImport ? (
                                     <div className="space-y-1">
-                                        <p className="text-xs text-muted-foreground">Processing import...</p>
+                                        <p className="text-xs text-muted-foreground">Memproses impor...</p>
                                         <Progress value={100} />
                                     </div>
                                 ) : null}
@@ -132,10 +132,10 @@ export const ExcelImportDialog = ({
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => closeDialog(false)} disabled={isLoading}>
-                            Cancel
+                            Batal
                         </Button>
                         <Button type="submit" disabled={isLoading || !file}>
-                            {isLoading ? (isProcessingImport ? 'Processing...' : 'Uploading...') : 'Import'}
+                            {isLoading ? (isProcessingImport ? 'Memproses...' : 'Mengunggah...') : 'Impor'}
                         </Button>
                     </DialogFooter>
                 </form>

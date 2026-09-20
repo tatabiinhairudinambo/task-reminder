@@ -33,7 +33,7 @@ export const useDashboard = () => {
                 toast.success(response.data.message);
                 await fetchDashboard(false);
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update status.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui status.');
             } finally {
                 setIsMutating(false);
             }
@@ -50,7 +50,7 @@ export const useDashboard = () => {
                 await fetchDashboard(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to create task.');
+                toast.error(error.response?.data?.message || 'Gagal membuat tugas.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -68,7 +68,7 @@ export const useDashboard = () => {
                 await fetchDashboard(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update task.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui tugas.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -86,7 +86,7 @@ export const useDashboard = () => {
                 await fetchDashboard(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to delete task.');
+                toast.error(error.response?.data?.message || 'Gagal menghapus tugas.');
                 return { success: false };
             } finally {
                 setIsMutating(false);

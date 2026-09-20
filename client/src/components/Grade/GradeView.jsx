@@ -20,7 +20,7 @@ export const GradeView = () => {
         <>
             <div className="mt-4 flex justify-end lg:justify-start">
                 <Button onClick={createDialog.open}>
-                    <Plus className="mr-2 h-4 w-4" /> New Grade
+                    <Plus className="mr-2 h-4 w-4" /> Nilai Baru
                 </Button>
             </div>
 
@@ -76,8 +76,8 @@ export const GradeView = () => {
                         deleteDialog.close();
                     }
                 }}
-                title="Delete Grade"
-                description="Once data is deleted, it cannot be restored. Proceed with caution."
+                title="Hapus Nilai"
+                description="Data yang dihapus tidak dapat dikembalikan. Lanjutkan dengan hati-hati."
                 isLoading={isMutating}
                 onConfirm={async () => {
                     await deleteGrade(deleteGradeId);

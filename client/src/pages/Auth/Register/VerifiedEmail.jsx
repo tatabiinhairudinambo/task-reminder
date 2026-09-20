@@ -18,7 +18,7 @@ const VerifiedEmail = () => {
             const token = localStorage.getItem('token');
 
             if (!token) {
-                throw new Error('Token not found. Please log in first.');
+                throw new Error('Token tidak ditemukan. Silakan masuk terlebih dahulu.');
             }
 
             const expires = searchParams.get('expires') || '';
@@ -38,7 +38,7 @@ const VerifiedEmail = () => {
             console.error(error);
 
             setMessage(error.response.data.message);
-            setDescription('Email verification failed. Please try again.');
+            setDescription('Verifikasi email gagal. Silakan coba lagi.');
 
             localStorage.setItem('isEmailVerified', false);
 
@@ -66,7 +66,7 @@ const VerifiedEmail = () => {
     }, [navigate, verifyEmail]);
 
     useEffect(() => {
-        document.title = 'Email Verified - Task Reminder';
+        document.title = 'Email Terverifikasi - Task Reminder';
     }, []);
 
     return (
@@ -75,10 +75,10 @@ const VerifiedEmail = () => {
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle className="text-2xl">
-                        {loading ? 'Verifying...' : (message || 'Email Verified')}
+                        {loading ? 'Memverifikasi...' : (message || 'Email Terverifikasi')}
                     </CardTitle>
                     <CardDescription>
-                        {loading ? '' : (description || 'Your email address has been successfully verified. You will be redirected shortly.')}
+                        {loading ? '' : (description || 'Alamat email Anda berhasil diverifikasi. Anda akan segera dialihkan.')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent />

@@ -138,6 +138,26 @@ test('filter returns courses for semester ordered by day', function () {
         ->assertJsonPath('data.course_contents.0.course_content', 'Kalkulus');
 });
 
+test('filter returns each course with its tasks', function () {
+    $course = CourseContent::create([
+        'semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Kalkulus',
+        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
+        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
+    ]);
+    Task::create([
+        'task' => 'Kuis 1', 'deadline' => '2025-01-05', 'status' => 0,
+        'user_id' => $this->user->id, 'course_content_id' => $course->id,
+    ]);
+
+    $response = $this->getJson('/api/course-contents/filter?semester=2024/2025+Ganjil');
+
+    $response->assertOk()
+        ->assertJsonCount(1, 'data.course_contents.0.tasks')
+        ->assertJsonPath('data.course_contents.0.tasks.0.task', 'Kuis 1')
+        ->assertJsonPath('data.course_contents.0.tasks.0.status', 0)
+        ->assertJsonPath('data.course_contents.0.tasks.0.deadline_label', 'Terlambat');
+});
+
 // ─── POST /api/course-contents/clear ───
 
 test('clear semester removes courses and related tasks in that semester only', function () {

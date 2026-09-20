@@ -26,8 +26,8 @@ const ResetPassword = () => {
         const clientErrors = validateRequired(
             { password, password_confirmation: confirmPassword },
             [
-                { name: 'password', label: 'Password' },
-                { name: 'password_confirmation', label: 'Confirm Password' },
+                { name: 'password', label: 'Kata Sandi' },
+                { name: 'password_confirmation', label: 'Konfirmasi Kata Sandi' },
             ]
         );
         if (Object.keys(clientErrors).length > 0) {
@@ -44,14 +44,14 @@ const ResetPassword = () => {
         try {
             setLoading(true);
             const response = await passwordApi.resetPassword(formData);
-            toast.success(response?.data?.message || 'Password reset successful');
+            toast.success(response?.data?.message || 'Kata sandi berhasil direset');
 
             localStorage.removeItem('isPasswordReset');
             navigate('/auth/login');
         } catch (error) {
             const errors = error.response?.data?.errors || {};
             setMessage(errors);
-            toast.error(error.response?.data?.message || 'Failed to reset password');
+            toast.error(error.response?.data?.message || 'Gagal mereset kata sandi');
         } finally {
             setLoading(false);
         }
@@ -64,7 +64,7 @@ const ResetPassword = () => {
     }, [token, email, navigate]);
 
     useEffect(() => {
-        document.title = 'Reset Password - Task Reminder';
+        document.title = 'Reset Kata Sandi - Task Reminder';
     }, []);
 
     return (
@@ -72,14 +72,14 @@ const ResetPassword = () => {
             <img src='/logo.webp' className='mb-8 mt-4 w-32' alt='logo' />
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className='text-2xl'>Create a New Password</CardTitle>
-                    <CardDescription>Enter your new password and don’t forget it.</CardDescription>
+                    <CardTitle className='text-2xl'>Buat Kata Sandi Baru</CardTitle>
+                    <CardDescription>Masukkan kata sandi baru Anda dan jangan lupa.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className='space-y-4'>
-                        <FormField label='Password' error={message.password}>
+                        <FormField label='Kata Sandi' error={message.password}>
                             <PasswordInput
-                                placeholder='Password'
+                                placeholder='Kata Sandi'
                                 value={password}
                                 onChange={setPassword}
                                 autoComplete='new-password'
@@ -87,9 +87,9 @@ const ResetPassword = () => {
                             />
                         </FormField>
 
-                        <FormField label='Confirm Password' error={message.password_confirmation}>
+                        <FormField label='Konfirmasi Kata Sandi' error={message.password_confirmation}>
                             <PasswordInput
-                                placeholder='Confirm Password'
+                                placeholder='Konfirmasi Kata Sandi'
                                 value={confirmPassword}
                                 onChange={setConfirmPassword}
                                 autoComplete='new-password'
@@ -98,7 +98,7 @@ const ResetPassword = () => {
                         </FormField>
 
                         <Button type='submit' className='w-full'>
-                            {loading ? 'Resetting Password...' : 'Reset Password'}
+                            {loading ? 'Mereset Kata Sandi...' : 'Reset Kata Sandi'}
                         </Button>
                     </form>
                 </CardContent>

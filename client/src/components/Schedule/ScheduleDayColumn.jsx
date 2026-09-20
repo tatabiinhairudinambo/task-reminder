@@ -20,6 +20,7 @@ export const ScheduleDayColumn = ({
     slots,
     language,
     isLoading = false,
+    onCourseSelect,
 }) => {
     const totalHeight = (slots.length - 1) * rowHeight;
     const dateLocale = getDateLocale(language);
@@ -110,6 +111,7 @@ export const ScheduleDayColumn = ({
                         style={course.style}
                         overlapIndex={course.overlapIndex}
                         overlapTotal={course.overlapTotal}
+                        onSelect={onCourseSelect}
                     />
                 ))}
             </div>

@@ -7,6 +7,7 @@ import { TaskMonthCalendar } from '@/components/Dashboard/TaskMonthCalendar';
 import { TaskDateTable } from '@/components/Dashboard/TaskDateTable';
 import { TaskFormDialog } from '@/components/Dashboard/TaskFormDialog';
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog';
+import { TaskDetailDialog } from '@/components/shared/TaskDetailDialog';
 import { BarChartView } from '@/components/Chart/BarChartView';
 import { SemesterOverviewView } from '@/components/Chart/SemesterOverviewView';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -34,6 +35,7 @@ export const DashboardView = () => {
     const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
     const [editingTask, setEditingTask] = useState(null);
     const [deleteTaskId, setDeleteTaskId] = useState(null);
+    const [detailTask, setDetailTask] = useState(null);
     const [courseContents, setCourseContents] = useState([]);
 
     const tasks = useMemo(() => dashboardData?.tasks || [], [dashboardData]);
@@ -87,15 +89,15 @@ export const DashboardView = () => {
         <div className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList>
-                    <TabsTrigger value="tasks">Task Lists</TabsTrigger>
-                    <TabsTrigger value="chart">Bar Chart</TabsTrigger>
-                    <TabsTrigger value="semester-overview">Semester Overview</TabsTrigger>
+                    <TabsTrigger value="tasks">Daftar Tugas</TabsTrigger>
+                    <TabsTrigger value="chart">Diagram Batang</TabsTrigger>
+                    <TabsTrigger value="semester-overview">Ringkasan Semester</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="tasks">
                     <div className="mt-4 flex justify-end lg:justify-start">
                         <Button onClick={createModal.open}>
-                            <Plus className="mr-2 h-4 w-4" /> New Task
+                            <Plus className="mr-2 h-4 w-4" /> Tugas Baru
                         </Button>
                     </div>
 
@@ -115,6 +117,7 @@ export const DashboardView = () => {
                             setSelectedMonth(date.getMonth());
                             setSelectedYear(date.getFullYear());
                         }}
+                        onTaskSelect={setDetailTask}
                         onMonthChange={(month, year) => {
                             setSelectedMonth(month);
                             setSelectedYear(year);
@@ -194,13 +197,23 @@ export const DashboardView = () => {
                         deleteModal.close();
                     }
                 }}
-                title="Delete Task"
-                description="Once data is deleted, it cannot be restored."
+                title="Hapus Tugas"
+                description="Data yang dihapus tidak dapat dikembalikan."
                 onConfirm={async () => {
                     await deleteTask(deleteTaskId);
                     deleteModal.close();
                 }}
                 isLoading={isMutating}
+            />
+
+            <TaskDetailDialog
+                open={Boolean(detailTask)}
+                onOpenChange={(nextOpen) => {
+                    if (!nextOpen) {
+                        setDetailTask(null);
+                    }
+                }}
+                task={detailTask}
             />
         </div>
     );

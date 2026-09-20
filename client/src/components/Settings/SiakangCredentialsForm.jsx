@@ -36,8 +36,8 @@ export const SiakangCredentialsForm = ({
         const clientErrors = validateRequired(
             { siakang_email: email, siakang_password: password },
             [
-                { name: 'siakang_email', label: 'Siakang Email' },
-                { name: 'siakang_password', label: 'Siakang Password' },
+                { name: 'siakang_email', label: 'Email Siakang' },
+                { name: 'siakang_password', label: 'Kata Sandi Siakang' },
             ]
         );
         if (Object.keys(clientErrors).length > 0) {
@@ -76,17 +76,17 @@ export const SiakangCredentialsForm = ({
                 <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <p className="text-lg">Siakang Account</p>
+                            <p className="text-lg">Akun Siakang</p>
                             <Badge variant={hasCredentials ? 'default' : 'secondary'}>
-                                {hasCredentials ? 'Connected' : 'Not connected'}
+                                {hasCredentials ? 'Terhubung' : 'Belum terhubung'}
                             </Badge>
                             {hasCredentials ? (
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="icon"
-                                    aria-label="Test Siakang connection"
-                                    title="Test Siakang connection"
+                                    aria-label="Tes koneksi Siakang"
+                                    title="Tes koneksi Siakang"
                                     onClick={onTestConnection}
                                     disabled={isMutating}
                                 >
@@ -97,7 +97,7 @@ export const SiakangCredentialsForm = ({
                     </div>
 
                     <span className="text-muted-foreground">
-                        Credentials used to sync your schedule and grades.
+                        Kredensial yang digunakan untuk menyinkronkan jadwal dan nilai Anda.
                     </span>
 
                     {hasCredentials ? (
@@ -109,7 +109,7 @@ export const SiakangCredentialsForm = ({
                                 onClick={() => setShowForm((v) => !v)}
                                 disabled={isMutating}
                             >
-                                {showForm ? 'Cancel' : 'Update'}
+                                {showForm ? 'Batal' : 'Perbarui'}
                             </Button>
                             <Button
                                 type="button"
@@ -118,13 +118,13 @@ export const SiakangCredentialsForm = ({
                                 onClick={handleDelete}
                                 disabled={isMutating}
                             >
-                                Remove
+                                Hapus
                             </Button>
                         </div>
                     ) : (
                         <div className="w-fit">
                             <Button type="button" onClick={() => setShowForm((v) => !v)} disabled={isMutating}>
-                                {showForm ? 'Cancel' : 'Add Credentials'}
+                                {showForm ? 'Batal' : 'Tambah Kredensial'}
                             </Button>
                         </div>
                     )}
@@ -134,7 +134,7 @@ export const SiakangCredentialsForm = ({
                             <Separator className="my-2" />
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="siakang-email">Siakang Email</Label>
+                                    <Label htmlFor="siakang-email">Email Siakang</Label>
                                     <Input
                                         id="siakang-email"
                                         type="email"
@@ -150,12 +150,12 @@ export const SiakangCredentialsForm = ({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="siakang-password">Siakang Password</Label>
+                                    <Label htmlFor="siakang-password">Kata Sandi Siakang</Label>
                                     <PasswordInput
                                         id="siakang-password"
                                         value={password}
                                         onChange={setPassword}
-                                        placeholder="Enter your Siakang password"
+                                        placeholder="Masukkan kata sandi Siakang Anda"
                                         disabled={isMutating}
                                         required
                                     />
@@ -165,7 +165,7 @@ export const SiakangCredentialsForm = ({
                                 </div>
 
                                 <Button type="submit" disabled={isMutating}>
-                                    {isMutating ? 'Saving...' : 'Save Credentials'}
+                                    {isMutating ? 'Menyimpan...' : 'Simpan Kredensial'}
                                 </Button>
                             </form>
                         </>

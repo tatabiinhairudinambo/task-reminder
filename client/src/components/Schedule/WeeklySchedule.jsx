@@ -17,7 +17,7 @@ import {
 
 const ROW_HEIGHT = 52;
 
-export const WeeklySchedule = ({ courseContents = [], language = 'en', isLoading = false }) => {
+export const WeeklySchedule = ({ courseContents = [], language = 'id', isLoading = false, onCourseSelect }) => {
     const [weekOffset, setWeekOffset] = useState(0);
     const labels = useMemo(() => getScheduleLabels(language), [language]);
     const days = labels.days;
@@ -58,6 +58,7 @@ export const WeeklySchedule = ({ courseContents = [], language = 'en', isLoading
                                             end: GRID_END_MINUTES,
                                         }}
                                         isLoading={isLoading}
+                                        onCourseSelect={onCourseSelect}
                                     />
                                 ))}
                             </div>
@@ -69,9 +70,9 @@ export const WeeklySchedule = ({ courseContents = [], language = 'en', isLoading
                             <div className="w-full max-w-sm rounded-xl border border-border bg-card shadow-lg">
                                 <EmptyState
                                     icon={CalendarX}
-                                    title="No courses yet"
-                                    description="Add your courses to see your weekly schedule here."
-                                    actionLabel="Add Courses"
+                                    title="Belum ada mata kuliah"
+                                    description="Tambahkan mata kuliah Anda untuk melihat jadwal mingguan di sini."
+                                    actionLabel="Tambah Mata Kuliah"
                                     actionTo="/course-contents"
                                 />
                             </div>

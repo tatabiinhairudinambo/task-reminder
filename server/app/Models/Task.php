@@ -20,27 +20,39 @@ class Task extends Model
         'course_content_id',
     ];
 
+    /**
+     * Postgres returns native booleans while MySQL returns 0/1 for these
+     * columns. Casting to integer keeps the API contract identical on both.
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => 'integer',
+            'priority' => 'integer',
+        ];
+    }
+
     public function getDeadlineLabelAttribute()
     {
         $deadline = Carbon::parse($this->deadline)->startOfDay();
         $now = Carbon::now()->startOfDay();
 
         if ($this->status == 1) {
-            return 'Completed';
+            return 'Selesai';
         }
 
         if ($now->greaterThan($deadline)) {
-            return 'Overdue';
+            return 'Terlambat';
         }
 
         $diffInDays = (int) $now->diffInDays($deadline);
 
         if ($diffInDays == 0) {
-            return 'Due today';
+            return 'Jatuh tempo hari ini';
         } elseif ($diffInDays == 1) {
-            return '1 day left';
+            return '1 hari lagi';
         } else {
-            return $diffInDays . ' days left';
+            return $diffInDays.' hari lagi';
         }
     }
 
@@ -52,15 +64,20 @@ class Task extends Model
     {
         $normalized = strtolower(trim((string) $label));
 
-        if (str_contains($normalized, 'completed')) {
+        if (str_contains($normalized, 'selesai') || str_contains($normalized, 'completed')) {
             return '#16a34a';
         }
 
-        if (str_contains($normalized, 'overdue') || str_contains($normalized, 'today')) {
+        if (
+            str_contains($normalized, 'terlambat')
+            || str_contains($normalized, 'overdue')
+            || str_contains($normalized, 'hari ini')
+            || str_contains($normalized, 'today')
+        ) {
             return '#dc2626';
         }
 
-        if (preg_match('/^(\d+)\s*days?\b/', $normalized, $matches) === 1) {
+        if (preg_match('/^(\d+)\s*hari/', $normalized, $matches) === 1) {
             $days = (int) $matches[1];
 
             if ($days <= 1) {

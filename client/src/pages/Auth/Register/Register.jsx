@@ -32,10 +32,10 @@ const Register = () => {
         const clientErrors = validateRequired(
             { name, email, password, password_confirmation: confirmPassword },
             [
-                { name: 'name', label: 'Name' },
+                { name: 'name', label: 'Nama' },
                 { name: 'email', label: 'Email' },
-                { name: 'password', label: 'Password' },
-                { name: 'password_confirmation', label: 'Confirm Password' },
+                { name: 'password', label: 'Kata Sandi' },
+                { name: 'password_confirmation', label: 'Konfirmasi Kata Sandi' },
             ]
         );
         if (Object.keys(clientErrors).length > 0) {
@@ -62,7 +62,7 @@ const Register = () => {
         } catch (error) {
             const errors = error.response?.data?.errors || {};
             setMessage(errors);
-            toast.error(error.response?.data?.message || 'Registration failed');
+            toast.error(error.response?.data?.message || 'Pendaftaran gagal');
         } finally {
             setLoading(false);
         }
@@ -70,7 +70,7 @@ const Register = () => {
 
     useEffect(() => {
         localStorage.removeItem('isPasswordReset');
-        document.title = 'Register - Task Reminder';
+        document.title = 'Daftar - Task Reminder';
     }, []);
 
     return (
@@ -78,12 +78,12 @@ const Register = () => {
             <img src="/logo.webp" className="mb-8 mt-4 w-32" alt="logo" />
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className="text-2xl">Let’s Sign Up</CardTitle>
-                    <CardDescription>Enter your credentials to create your account.</CardDescription>
+                    <CardTitle className="text-2xl">Ayo Daftar</CardTitle>
+                    <CardDescription>Masukkan data untuk membuat akun Anda.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className='space-y-4'>
-                        <FormField label='Name' error={message.name}>
+                        <FormField label='Nama' error={message.name}>
                             <Input
                                 placeholder='John Doe'
                                 value={name}
@@ -102,7 +102,7 @@ const Register = () => {
                                             <TooltipTrigger asChild>
                                                 <Info className='h-3 w-3' />
                                             </TooltipTrigger>
-                                            <TooltipContent>Email is used to send notifications.</TooltipContent>
+                                            <TooltipContent>Email digunakan untuk mengirim notifikasi.</TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>
                                 </span>
@@ -119,7 +119,7 @@ const Register = () => {
                             />
                         </FormField>
 
-                        <FormField label='Password' error={message.password}>
+                        <FormField label='Kata Sandi' error={message.password}>
                             <PasswordInput
                                 placeholder='**********'
                                 value={password}
@@ -129,7 +129,7 @@ const Register = () => {
                             />
                         </FormField>
 
-                        <FormField label='Confirm Password' error={message.password_confirmation}>
+                        <FormField label='Konfirmasi Kata Sandi' error={message.password_confirmation}>
                             <PasswordInput
                                 placeholder='**********'
                                 value={confirmPassword}
@@ -140,14 +140,14 @@ const Register = () => {
                         </FormField>
 
                         <Button type='submit' className='w-full'>
-                            {loading ? 'Registering...' : 'Register'}
+                            {loading ? 'Mendaftar...' : 'Daftar'}
                         </Button>
                     </form>
 
                     <p className='mt-6 text-center text-sm'>
-                        Already have an account?{' '}
+                        Sudah punya akun?{' '}
                         <Link to='/auth/login' className='text-primary hover:text-primary/80'>
-                            Login
+                            Masuk
                         </Link>
                     </p>
                 </CardContent>

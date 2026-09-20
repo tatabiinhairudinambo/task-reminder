@@ -26,7 +26,7 @@ class SettingsService
         $user = $setting->user;
 
         if (! $user) {
-            throw new \Exception('User not found', 404);
+            throw new \Exception('Pengguna tidak ditemukan', 404);
         }
 
         $channels = [];
@@ -38,7 +38,7 @@ class SettingsService
 
         if ($setting->wantsTelegramChannel()) {
             if (! $setting->hasTelegramChatId()) {
-                throw new \Exception('Please set Telegram chat ID first', 422);
+                throw new \Exception('Atur Telegram Chat ID terlebih dahulu', 422);
             }
 
             $isSent = $this->telegramService->sendTestNotification(
@@ -47,14 +47,14 @@ class SettingsService
             );
 
             if (! $isSent) {
-                throw new \Exception('Failed to send Telegram test notification', 502);
+                throw new \Exception('Gagal mengirim notifikasi uji Telegram', 502);
             }
 
             $channels[] = Setting::CHANNEL_TELEGRAM;
         }
 
         if ($channels === []) {
-            throw new \Exception('No notification channel enabled', 422);
+            throw new \Exception('Tidak ada channel notifikasi yang aktif', 422);
         }
 
         return ['channels' => $channels];
@@ -77,14 +77,14 @@ class SettingsService
         $normalizedChannel = strtolower(trim($channel));
 
         if (! in_array($normalizedChannel, [Setting::CHANNEL_EMAIL, Setting::CHANNEL_TELEGRAM, Setting::CHANNEL_BOTH], true)) {
-            throw new \Exception('Invalid notification channel', 422);
+            throw new \Exception('Channel notifikasi tidak valid', 422);
         }
 
         if (
             in_array($normalizedChannel, [Setting::CHANNEL_TELEGRAM, Setting::CHANNEL_BOTH], true)
             && ! $setting->hasTelegramChatId()
         ) {
-            throw new \Exception('Please set Telegram chat ID first', 422);
+            throw new \Exception('Atur Telegram Chat ID terlebih dahulu', 422);
         }
 
         $setting->update([
@@ -142,7 +142,7 @@ class SettingsService
         $response = $this->siakangClient->verify(trim($email), $password);
 
         if (($response['code'] ?? 0) !== 200) {
-            throw new \Exception($response['message'] ?? 'Invalid Siakang credentials', (int) ($response['code'] ?: 401));
+            throw new \Exception($response['message'] ?? 'Kredensial Siakang tidak valid', (int) ($response['code'] ?: 401));
         }
 
         $setting->update([
@@ -176,14 +176,14 @@ class SettingsService
         $setting = $this->getOrFail($userId);
 
         if (! $setting->hasSiakangCredentials()) {
-            throw new \Exception('Siakang credentials are not configured. Add them in Settings.', 422);
+            throw new \Exception('Kredensial Siakang belum diatur. Tambahkan di Pengaturan.', 422);
         }
 
         $email = trim($setting->siakang_email);
         $response = $this->siakangClient->verify($email, trim($setting->siakang_password));
 
         if (($response['code'] ?? 0) !== 200) {
-            throw new \Exception($response['message'] ?? 'Invalid Siakang credentials', (int) ($response['code'] ?: 401));
+            throw new \Exception($response['message'] ?? 'Kredensial Siakang tidak valid', (int) ($response['code'] ?: 401));
         }
 
         return ['email' => $email];
@@ -194,7 +194,7 @@ class SettingsService
         $setting = Setting::where('user_id', $userId)->first();
 
         if (! $setting) {
-            throw new \Exception('Settings not found', 404);
+            throw new \Exception('Pengaturan tidak ditemukan', 404);
         }
 
         return $setting;

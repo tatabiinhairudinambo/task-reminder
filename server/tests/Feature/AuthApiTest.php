@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Hash;
 
 // Auth endpoint tests — no global actingAs since some endpoints are public
 
@@ -62,7 +62,7 @@ test('login returns token with valid credentials', function () {
     // Use hash so the password is stored correctly
     User::factory()->create([
         'email' => 'login@example.com',
-        'password' => \Illuminate\Support\Facades\Hash::make('password'),
+        'password' => Hash::make('password'),
     ]);
 
     $response = $this->postJson('/api/auth/login', [
@@ -78,7 +78,7 @@ test('login returns token with valid credentials', function () {
 test('login returns 401 with wrong credentials', function () {
     User::factory()->create([
         'email' => 'login@example.com',
-        'password' => \Illuminate\Support\Facades\Hash::make('password'),
+        'password' => Hash::make('password'),
     ]);
 
     $response = $this->postJson('/api/auth/login', [
@@ -96,7 +96,7 @@ test('checkToken returns valid for authenticated user', function () {
     $token = $user->createToken('test', ['*'], now()->addHour())->plainTextToken;
 
     $response = $this->getJson('/api/auth/check/token', [
-        'Authorization' => 'Bearer ' . $token,
+        'Authorization' => 'Bearer '.$token,
     ]);
 
     $response->assertOk()
@@ -108,7 +108,7 @@ test('checkEmail returns verified true for verified user', function () {
     $token = $user->createToken('test', ['*'], now()->addHour())->plainTextToken;
 
     $response = $this->getJson('/api/auth/check/email', [
-        'Authorization' => 'Bearer ' . $token,
+        'Authorization' => 'Bearer '.$token,
     ]);
 
     $response->assertOk()
@@ -120,7 +120,7 @@ test('checkEmail returns verified false for unverified user', function () {
     $token = $unverified->createToken('test', ['*'], now()->addHour())->plainTextToken;
 
     $response = $this->getJson('/api/auth/check/email', [
-        'Authorization' => 'Bearer ' . $token,
+        'Authorization' => 'Bearer '.$token,
     ]);
 
     $response->assertOk()
@@ -132,9 +132,9 @@ test('logout deletes current token', function () {
     $token = $user->createToken('test', ['*'], now()->addHour())->plainTextToken;
 
     $response = $this->postJson('/api/auth/logout', [], [
-        'Authorization' => 'Bearer ' . $token,
+        'Authorization' => 'Bearer '.$token,
     ]);
 
     $response->assertOk()
-        ->assertJsonPath('message', 'User logged out successfully');
+        ->assertJsonPath('message', 'Berhasil keluar');
 });

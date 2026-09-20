@@ -11,15 +11,15 @@ test('reminder toMail carries deadline label and badge color per item', function
     $user = User::factory()->create();
 
     $mail = (new ReminderNotification([
-        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 days left'],
-        ['task' => 'PR 2', 'course_content' => 'Fisika', 'deadline' => '2025-06-20', 'deadline_label' => '1 day left'],
+        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 hari lagi'],
+        ['task' => 'PR 2', 'course_content' => 'Fisika', 'deadline' => '2025-06-20', 'deadline_label' => '1 hari lagi'],
     ]))->toMail($user);
 
     $items = $mail->viewData['notifications'];
 
-    expect($items[0]['deadline_label'])->toBe('3 days left')
+    expect($items[0]['deadline_label'])->toBe('3 hari lagi')
         ->and($items[0]['deadline_color'])->toBe('#d97706')
-        ->and($items[1]['deadline_label'])->toBe('1 day left')
+        ->and($items[1]['deadline_label'])->toBe('1 hari lagi')
         ->and($items[1]['deadline_color'])->toBe('#dc2626');
 });
 
@@ -40,8 +40,8 @@ test('reminder toMail puts priority tasks first and flags them', function () {
     $user = User::factory()->create();
 
     $mail = (new ReminderNotification([
-        ['task' => 'Later normal', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 days left'],
-        ['task' => 'Urgent priority', 'course_content' => 'Fisika', 'deadline' => '2025-06-20', 'deadline_label' => '8 days left', 'priority' => true],
+        ['task' => 'Later normal', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 hari lagi'],
+        ['task' => 'Urgent priority', 'course_content' => 'Fisika', 'deadline' => '2025-06-20', 'deadline_label' => '8 hari lagi', 'priority' => true],
     ]))->toMail($user);
 
     $items = $mail->viewData['notifications'];
@@ -63,7 +63,7 @@ test('reminder email renders priority pill beside task', function () {
                 'course_content' => 'Kalkulus',
                 'task' => 'Urgent priority',
                 'deadline' => '20 June 2025',
-                'deadline_label' => '8 days left',
+                'deadline_label' => '8 hari lagi',
                 'deadline_color' => '#64748b',
                 'priority' => true,
             ],
@@ -73,5 +73,5 @@ test('reminder email renders priority pill beside task', function () {
 
     expect($html)->toContain('Priority')
         ->and($html)->toContain('#dc2626')
-        ->and($html)->toContain('8 days left');
+        ->and($html)->toContain('8 hari lagi');
 });

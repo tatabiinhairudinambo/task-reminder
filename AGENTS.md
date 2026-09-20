@@ -77,6 +77,17 @@ cd client && pnpm test                        # 103 tests Vitest + jsdom
 - `FRONTEND_URL` — CORS/origin for Sanctum (default `http://localhost:5173`)
 - `TELEGRAM_BOT_TOKEN` — required for Telegram notifications
 - `SIAKANG_UV` — optional absolute path to `uv` for the bridge; set on servers where Octane/FrankenPHP has a restricted PATH (defaults to `/root/.local/bin/uv`)
+- `DB_SSLMODE` — PostgreSQL TLS mode; set to `require` for Supabase (default `prefer`)
+
+## Database portability (MySQL / PostgreSQL)
+
+The app runs on both MySQL and PostgreSQL (Supabase). Keep these patterns when editing:
+
+- **Boolean columns** (`tasks.status`, `tasks.priority`, `settings.task_created_notification`, `settings.task_completed_notification`) are `boolean` in Postgres. They are cast to `integer` in `Task`/`Setting` models so the API always returns `0`/`1` — do not remove those casts, and never compare them with `=== 1` server-side without casting.
+- **No MySQL-only SQL.** `sum(status = 1)` fails on Postgres; use `case when` (`DashboardService::getDashboard`). Existing `CASE LOWER(day)` / `CASE grade` raw orderings are portable — keep them that way.
+- **Alias casing:** Postgres lowercases unquoted aliases (`totalTask` → `totaltask`). Use `snake_case` aliases.
+- **Sanctum tokens:** resolve with `PersonalAccessToken::findToken($plainTextToken)`, never by querying `id` with the raw `id|secret` string.
+- Tests pass on both: `php artisan test` (MySQL) and `DB_CONNECTION=pgsql DB_DATABASE=task_reminder_pg_test php artisan test`. Setup guide: `PANDUAN-SUPABASE.md`.
 
 ## Siakang sync (Python bridge)
 

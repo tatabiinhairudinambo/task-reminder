@@ -23,14 +23,14 @@ class AssessmentController
     {
         $data = $this->assessmentService->calculateGpa($request->user()->id, $request->semester);
 
-        return $this->sendResponse($data, 'Course contents, semester GPA, and cumulative GPA retrieved successfully');
+        return $this->sendResponse($data, 'Mata kuliah, IPK semester, dan IPK kumulatif berhasil diambil');
     }
 
     public function update(UpdateAssessmentRequest $request, $id)
     {
         $courseContent = $this->assessmentService->updateScore($request->user()->id, (int) $id, $request->validated()['score'] ?? null);
 
-        return $this->sendResponse($courseContent, 'Score updated successfully');
+        return $this->sendResponse($courseContent, 'Skor berhasil diperbarui');
     }
 
     public function sync(SyncAssessmentRequest $request)
@@ -52,17 +52,17 @@ class AssessmentController
         $parts = [];
 
         if ($updated > 0) {
-            $parts[] = "{$updated} score(s) updated";
+            $parts[] = "{$updated} skor diperbarui";
         }
 
         if ($unchanged > 0) {
-            $parts[] = "{$unchanged} already up to date";
+            $parts[] = "{$unchanged} sudah terbaru";
         }
 
-        $message = $parts === [] ? 'No matching scores found' : implode(', ', $parts);
+        $message = $parts === [] ? 'Tidak ada skor yang cocok' : implode(', ', $parts);
 
         if ($noMatchCount > 0) {
-            $message .= " — {$noMatchCount} course(s) not found in {$result['semester_label']}";
+            $message .= " — {$noMatchCount} mata kuliah tidak ditemukan di {$result['semester_label']}";
         }
 
         // Nothing was updated and nothing was already up to date → the source
@@ -81,7 +81,7 @@ class AssessmentController
         $setting = Setting::where('user_id', $user->id)->first();
 
         if (! $setting?->hasSiakangCredentials()) {
-            return $this->sendError('Siakang credentials are not configured. Add them in Settings.', 422);
+            return $this->sendError('Kredensial Siakang belum diatur. Tambahkan di Pengaturan.', 422);
         }
 
         try {
@@ -94,9 +94,9 @@ class AssessmentController
         }
 
         if (($response['code'] ?? 0) !== 200) {
-            return $this->sendError($response['message'] ?? 'Failed to fetch semesters from Siakang.', (int) ($response['code'] ?: 502));
+            return $this->sendError($response['message'] ?? 'Gagal mengambil semester dari Siakang.', (int) ($response['code'] ?: 502));
         }
 
-        return $this->sendResponse($response['data'] ?? [], 'Siakang semesters retrieved');
+        return $this->sendResponse($response['data'] ?? [], 'Semester Siakang berhasil diambil');
     }
 }

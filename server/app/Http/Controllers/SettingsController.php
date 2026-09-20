@@ -32,7 +32,7 @@ class SettingsController
             'notification_channel' => $settings?->notification_channel,
             'telegram_chat_id' => $settings?->telegram_chat_id,
             'has_siakang_credentials' => $hasSiakangCredentials,
-        ], 'Settings retrieved successfully');
+        ], 'Pengaturan berhasil diambil');
     }
 
     public function deadlineNotification(UpdateDeadlineNotificationRequest $request)
@@ -43,7 +43,7 @@ class SettingsController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 404);
         }
 
-        return $this->sendResponse($setting, 'Deadline notification updated successfully');
+        return $this->sendResponse($setting, 'Notifikasi tenggat berhasil diperbarui');
     }
 
     public function notificationChannel(UpdateNotificationChannelRequest $request)
@@ -54,7 +54,7 @@ class SettingsController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
         }
 
-        return $this->sendResponse($setting, 'Notification channel updated successfully');
+        return $this->sendResponse($setting, 'Channel notifikasi berhasil diperbarui');
     }
 
     public function telegramChatId(UpdateTelegramChatIdRequest $request)
@@ -65,7 +65,7 @@ class SettingsController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 422);
         }
 
-        return $this->sendResponse($setting, 'Telegram chat ID updated successfully');
+        return $this->sendResponse($setting, 'Telegram Chat ID berhasil diperbarui');
     }
 
     public function testNotification(Request $request)
@@ -77,7 +77,7 @@ class SettingsController
         }
 
         $channelNames = array_map('ucfirst', $result['channels']);
-        $message = 'Test notification sent to '.implode(' and ', $channelNames);
+        $message = 'Notifikasi uji terkirim ke '.implode(' dan ', $channelNames);
 
         return $this->sendResponse($result, $message);
     }
@@ -90,7 +90,7 @@ class SettingsController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 404);
         }
 
-        return $this->sendResponse($setting, 'Task created notification updated successfully');
+        return $this->sendResponse($setting, 'Notifikasi tugas dibuat berhasil diperbarui');
     }
 
     public function taskCompletedNotification(Request $request)
@@ -101,7 +101,7 @@ class SettingsController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 404);
         }
 
-        return $this->sendResponse($setting, 'Task completed notification updated successfully');
+        return $this->sendResponse($setting, 'Notifikasi tugas selesai berhasil diperbarui');
     }
 
     public function siakangCredentials(StoreSiakangCredentialsRequest $request)
@@ -118,7 +118,7 @@ class SettingsController
 
         return $this->sendResponse(
             ['has_siakang_credentials' => true],
-            'Siakang credentials saved successfully'
+            'Kredensial Siakang berhasil disimpan'
         );
     }
 
@@ -132,7 +132,7 @@ class SettingsController
 
         return $this->sendResponse(
             ['has_siakang_credentials' => false],
-            'Siakang credentials removed successfully'
+            'Kredensial Siakang berhasil dihapus'
         );
     }
 
@@ -144,6 +144,6 @@ class SettingsController
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 500);
         }
 
-        return $this->sendResponse($result, 'Siakang connection successful');
+        return $this->sendResponse($result, 'Koneksi Siakang berhasil');
     }
 }

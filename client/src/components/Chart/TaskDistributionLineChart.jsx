@@ -22,7 +22,7 @@ export const TaskDistributionLineChart = ({ semesters }) => {
         labels,
         datasets: [
             {
-                label: 'Total Tasks',
+                label: 'Total Tugas',
                 data: semesters.map((item) => item.total_task),
                 borderColor: 'rgba(59, 130, 246, 1)',
                 backgroundColor: 'rgba(59, 130, 246, 0.12)',
@@ -32,7 +32,7 @@ export const TaskDistributionLineChart = ({ semesters }) => {
                 pointHoverRadius: 6,
             },
             {
-                label: 'Completed Tasks',
+                label: 'Tugas Selesai',
                 data: semesters.map((item) => item.completed_task),
                 borderColor: 'rgba(16, 185, 129, 1)',
                 backgroundColor: 'rgba(16, 185, 129, 0.12)',
@@ -42,7 +42,7 @@ export const TaskDistributionLineChart = ({ semesters }) => {
                 pointHoverRadius: 6,
             },
             {
-                label: 'Uncompleted Tasks',
+                label: 'Tugas Belum Selesai',
                 data: semesters.map((item) => item.uncompleted_task),
                 borderColor: 'rgba(234, 179, 8, 1)',
                 backgroundColor: 'rgba(234, 179, 8, 0.12)',
@@ -68,7 +68,7 @@ export const TaskDistributionLineChart = ({ semesters }) => {
             },
             title: {
                 display: true,
-                text: 'Task Distribution per Semester',
+                text: 'Distribusi Tugas per Semester',
                 font: { size: window.innerWidth < 640 ? 13 : 16 },
             },
             tooltip: {

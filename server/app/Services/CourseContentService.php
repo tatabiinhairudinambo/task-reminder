@@ -22,13 +22,13 @@ class CourseContentService
         $semesterLabel = $targetSemester !== null ? trim($targetSemester) : '';
 
         if ($semesterLabel === '') {
-            throw new \Exception('Target semester is required for sync.', 422);
+            throw new \Exception('Semester wajib diisi.', 422);
         }
 
         $setting = Setting::where('user_id', $userId)->first();
 
         if (! $setting?->hasSiakangCredentials()) {
-            throw new \Exception('Siakang credentials are not configured. Add them in Settings.', 422);
+            throw new \Exception('Kredensial Siakang belum diatur. Tambahkan di Pengaturan.', 422);
         }
 
         return DB::transaction(function () use ($userId, $semesterLabel, $setting, $sourceSemester) {
@@ -41,7 +41,7 @@ class CourseContentService
                 ->exists();
 
             if ($alreadyExists) {
-                throw new \Exception('Semester already has course data. Clear the semester first to sync again.', 409);
+                throw new \Exception('Semester sudah memiliki data mata kuliah. Bersihkan terlebih dahulu untuk sinkron ulang.', 409);
             }
 
             return $this->importScheduleRows($userId, $semesterLabel, $setting, $sourceSemester);
@@ -57,13 +57,13 @@ class CourseContentService
         );
 
         if (($response['code'] ?? 0) !== 200) {
-            throw new \Exception($response['message'] ?? 'Failed to fetch schedule from Siakang.', (int) ($response['code'] ?: 502));
+            throw new \Exception($response['message'] ?? 'Gagal mengambil jadwal dari Siakang.', (int) ($response['code'] ?: 502));
         }
 
         $rows = $response['data'] ?? [];
 
         if (empty($rows) || ! is_array($rows)) {
-            throw new \Exception('No schedule data found in Siakang response.', 422);
+            throw new \Exception('Tidak ada data jadwal pada respons Siakang.', 422);
         }
 
         $inserted = 0;
@@ -159,13 +159,20 @@ class CourseContentService
         }
 
         $map = [
-            'senin' => 'Monday',
-            'selasa' => 'Tuesday',
-            'rabu' => 'Wednesday',
-            'kamis' => 'Thursday',
-            'jumat' => 'Friday',
-            'sabtu' => 'Saturday',
-            'minggu' => 'Sunday',
+            'senin' => 'Senin',
+            'monday' => 'Senin',
+            'selasa' => 'Selasa',
+            'tuesday' => 'Selasa',
+            'rabu' => 'Rabu',
+            'wednesday' => 'Rabu',
+            'kamis' => 'Kamis',
+            'thursday' => 'Kamis',
+            'jumat' => 'Jumat',
+            'friday' => 'Jumat',
+            'sabtu' => 'Sabtu',
+            'saturday' => 'Sabtu',
+            'minggu' => 'Minggu',
+            'sunday' => 'Minggu',
         ];
 
         return $map[strtolower(trim($day))] ?? null;
@@ -214,7 +221,7 @@ class CourseContentService
             ->exists();
 
         if ($codeExists || $contentExists) {
-            throw new \Exception('Course Content Already Added', 409);
+            throw new \Exception('Mata kuliah sudah ditambahkan', 409);
         }
 
         return CourseContent::create([
@@ -243,7 +250,7 @@ class CourseContentService
             ->exists();
 
         if ($existingCode) {
-            throw new \Exception('Code already exists for this user', 409);
+            throw new \Exception('Kode sudah ada untuk pengguna ini', 409);
         }
 
         $existingContent = CourseContent::where('user_id', $userId)
@@ -253,7 +260,7 @@ class CourseContentService
             ->exists();
 
         if ($existingContent) {
-            throw new \Exception('Course Content already exists for this user', 409);
+            throw new \Exception('Mata kuliah sudah ada untuk pengguna ini', 409);
         }
 
         $courseContent->update([
@@ -320,7 +327,12 @@ class CourseContentService
 
     public function filter(int $userId, string $semester): array
     {
-        $courseContents = CourseContent::where('user_id', $userId)
+        $courseContents = CourseContent::with(['tasks' => function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                ->select('id', 'course_content_id', 'task', 'description', 'deadline', 'priority', 'status')
+                ->orderBy('deadline', 'ASC');
+        }])
+            ->where('user_id', $userId)
             ->where('semester', $semester)
             ->orderByRaw(
                 "CASE LOWER(day)
@@ -355,6 +367,17 @@ class CourseContentService
                     'day' => $courseContent->day,
                     'hour_start' => date('H:i', strtotime((string) $courseContent->hour_start)),
                     'hour_end' => date('H:i', strtotime((string) $courseContent->hour_end)),
+                    'tasks' => $courseContent->tasks->map(function ($task) {
+                        return [
+                            'id' => $task->id,
+                            'task' => $task->task,
+                            'description' => $task->description,
+                            'deadline' => $task->deadline,
+                            'priority' => $task->priority,
+                            'status' => $task->status,
+                            'deadline_label' => $task->deadline_label,
+                        ];
+                    })->values(),
                 ];
             });
 
@@ -369,11 +392,11 @@ class CourseContentService
         try {
             $sheets = Excel::toArray(new CourseContentsImport, $file);
         } catch (\Throwable) {
-            throw new \Exception('Failed to read the Excel file. Ensure the file is not corrupted.', 422);
+            throw new \Exception('Gagal membaca file Excel. Pastikan file tidak rusak.', 422);
         }
 
         if (empty($sheets) || empty($sheets[0])) {
-            throw new \Exception('Uploaded file is empty.', 422);
+            throw new \Exception('File yang diunggah kosong.', 422);
         }
 
         $rows = $sheets[0];
@@ -400,7 +423,7 @@ class CourseContentService
         $missingHeadings = array_diff($expectedHeadings, $keysForCheck);
 
         if (! empty($missingHeadings)) {
-            throw new \RuntimeException('Template column format is incorrect.|Missing columns: '.implode(', ', $missingHeadings));
+            throw new \RuntimeException('Format kolom template tidak sesuai.|Kolom yang hilang: '.implode(', ', $missingHeadings));
         }
 
         $rowErrors = [];
@@ -464,8 +487,8 @@ class CourseContentService
                 $duplicateRows[] = array_merge($prepared, [
                     '_line' => $lineNumber,
                     '_duplicate_message' => $isDuplicateCode
-                        ? 'Code already used for that semester'
-                        : 'Course content already added',
+                        ? 'Kode sudah digunakan untuk semester tersebut'
+                        : 'Mata kuliah sudah ditambahkan',
                 ]);
 
                 continue;
@@ -480,7 +503,7 @@ class CourseContentService
         if (! empty($rowErrors)) {
             return [
                 'status' => 422,
-                'message' => 'Validation errors occurred in the uploaded file.',
+                'message' => 'Terjadi kesalahan validasi pada file yang diunggah.',
                 'data' => [
                     'row_errors' => $rowErrors,
                 ],
@@ -495,7 +518,7 @@ class CourseContentService
         });
 
         $status = empty($duplicateRows) ? 201 : 200;
-        $message = empty($duplicateRows) ? 'Import successful.' : 'Import finished with some duplicate rows.';
+        $message = empty($duplicateRows) ? 'Impor berhasil.' : 'Impor selesai dengan beberapa baris duplikat.';
 
         return [
             'status' => $status,

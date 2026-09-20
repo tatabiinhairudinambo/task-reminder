@@ -1,17 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import axios from 'axios';
 
 describe('axiosInstance', () => {
   let axiosInstance;
-  let clearSpy;
-  let sessionClearSpy;
 
   beforeEach(async () => {
     vi.resetModules();
     window.localStorage.clear();
     window.sessionStorage.clear();
-    clearSpy = vi.spyOn(window.localStorage, 'clear').mockImplementation(() => {});
-    sessionClearSpy = vi.spyOn(window.sessionStorage, 'clear').mockImplementation(() => {});
     delete window.location;
     window.location = { href: '' };
     vi.stubEnv('VITE_API_URL', 'http://localhost:8000/api');
@@ -81,7 +76,9 @@ describe('axiosInstance', () => {
       window.location.href = '';
       try {
         await interceptor.rejected(error);
-      } catch {}
+      } catch {
+        // interceptor is expected to re-reject
+      }
       expect(window.location.href).not.toBe('/auth/login');
     }
   });

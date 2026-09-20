@@ -2,52 +2,72 @@
 
 namespace App\Services;
 
-use Carbon\Carbon;
 use App\Notifications\ReminderNotification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class TelegramService
 {
-    public const DASHBOARD_HINT = 'See full task details on your dashboard.';
+    public const DASHBOARD_HINT = 'Lihat detail lengkap tugas di dashboard Anda.';
 
-    public function buildTaskCreatedMessage(string $courseContent, string $task, string $deadline): string
+    /**
+     * Telegram rejects messages longer than 4096 characters, so descriptions
+     * are collapsed to a single line and truncated before sending.
+     */
+    private const DESCRIPTION_LIMIT = 300;
+
+    public function buildTaskCreatedMessage(string $courseContent, string $task, string $deadline, ?string $description = null): string
     {
         $dashboardUrl = $this->getDashboardUrl();
         $message = [
-            '*Task Created Notification*',
+            '*Notifikasi Tugas Dibuat*',
             '',
-            '*Course:* ' . $this->escapeMarkdownV2($courseContent),
-            '*Task:* ' . $this->escapeMarkdownV2($task),
-            '*Deadline:* ' . $this->escapeMarkdownV2(Carbon::parse($deadline)->format('j F Y')),
-            '',
-            $this->escapeMarkdownV2(self::DASHBOARD_HINT),
-            '',
-            '[Open dashboard](' . $dashboardUrl . ')',
+            '*Mata Kuliah:* '.$this->escapeMarkdownV2($courseContent),
+            '*Tugas:* '.$this->escapeMarkdownV2($task),
+            '*Tenggat:* '.$this->escapeMarkdownV2(Carbon::parse($deadline)->format('j F Y')),
         ];
+
+        $descriptionLine = $this->descriptionText($description);
+
+        if ($descriptionLine !== null) {
+            $message[] = '*Deskripsi:* '.$this->escapeMarkdownV2($descriptionLine);
+        }
+
+        $message[] = '';
+        $message[] = $this->escapeMarkdownV2(self::DASHBOARD_HINT);
+        $message[] = '';
+        $message[] = '[Buka dashboard]('.$dashboardUrl.')';
 
         return implode("\n", $message);
     }
 
-    public function buildTaskCompletedMessage(string $courseContent, string $task): string
+    public function buildTaskCompletedMessage(string $courseContent, string $task, ?string $description = null): string
     {
         $dashboardUrl = $this->getDashboardUrl();
         $message = [
-            '*Task Completed Notification*',
+            '*Notifikasi Tugas Selesai*',
             '',
-            '*Course:* ' . $this->escapeMarkdownV2($courseContent),
-            '*Task:* ' . $this->escapeMarkdownV2($task),
-            '',
-            $this->escapeMarkdownV2(self::DASHBOARD_HINT),
-            '',
-            '[Open dashboard](' . $dashboardUrl . ')',
+            '*Mata Kuliah:* '.$this->escapeMarkdownV2($courseContent),
+            '*Tugas:* '.$this->escapeMarkdownV2($task),
         ];
+
+        $descriptionLine = $this->descriptionText($description);
+
+        if ($descriptionLine !== null) {
+            $message[] = '*Deskripsi:* '.$this->escapeMarkdownV2($descriptionLine);
+        }
+
+        $message[] = '';
+        $message[] = $this->escapeMarkdownV2(self::DASHBOARD_HINT);
+        $message[] = '';
+        $message[] = '[Buka dashboard]('.$dashboardUrl.')';
 
         return implode("\n", $message);
     }
 
     /**
-     * @param array<int, array<string, mixed>> $notifications
+     * @param  array<int, array<string, mixed>>  $notifications
      */
     public function buildReminderSummaryMessage(array $notifications): string
     {
@@ -56,43 +76,74 @@ class TelegramService
         $notifications = ReminderNotification::sortByPriorityAndDeadline($notifications);
 
         $count = count($notifications);
-        $taskWord = $count === 1 ? 'task' : 'tasks';
+        $taskWord = 'tugas';
         $message = [
-            '*Task Reminder Notification*',
+            '*Notifikasi Pengingat Tugas*',
             '',
-            'You have *' . $this->escapeMarkdownV2((string) $count) . '* pending ' . $this->escapeMarkdownV2($taskWord),
+            'Anda memiliki *'.$this->escapeMarkdownV2((string) $count).'* '.$this->escapeMarkdownV2($taskWord).' tertunda',
             '',
         ];
 
         foreach ($notifications as $index => $notification) {
-            $message[] = '*Reminder ' . $this->escapeMarkdownV2((string) ($index + 1)) . '*';
+            $message[] = '*Pengingat '.$this->escapeMarkdownV2((string) ($index + 1)).'*';
 
             if (! empty($notification['priority'])) {
-                $message[] = '*Priority*';
+                $message[] = '*Prioritas*';
             }
 
-            $message[] = '*Task:* ' . $this->escapeMarkdownV2((string) $notification['task']);
-            $message[] = '*Course:* ' . $this->escapeMarkdownV2((string) $notification['course_content']);
-            $message[] = '*Deadline:* ' . $this->escapeMarkdownV2($this->deadlineText($notification));
+            $message[] = '*Tugas:* '.$this->escapeMarkdownV2((string) $notification['task']);
+            $message[] = '*Mata Kuliah:* '.$this->escapeMarkdownV2((string) $notification['course_content']);
+            $message[] = '*Tenggat:* '.$this->escapeMarkdownV2($this->deadlineText($notification));
+
+            $descriptionLine = $this->descriptionText($notification['description'] ?? null);
+
+            if ($descriptionLine !== null) {
+                $message[] = '*Deskripsi:* '.$this->escapeMarkdownV2($descriptionLine);
+            }
+
             $message[] = '';
         }
 
         $message[] = $this->escapeMarkdownV2(self::DASHBOARD_HINT);
         $message[] = '';
-        $message[] = '[Open dashboard](' . $dashboardUrl . ')';
+        $message[] = '[Buka dashboard]('.$dashboardUrl.')';
 
         return implode("\n", $message);
     }
 
     /**
-     * @param array<string, mixed> $notification
+     * Collapse a description into a single printable line.
+     *
+     * Returns null for an empty description so the label is omitted entirely.
+     */
+    private function descriptionText(?string $description): ?string
+    {
+        if ($description === null) {
+            return null;
+        }
+
+        $collapsed = trim(preg_replace('/\s+/u', ' ', $description) ?? '');
+
+        if ($collapsed === '') {
+            return null;
+        }
+
+        if (mb_strlen($collapsed) > self::DESCRIPTION_LIMIT) {
+            $collapsed = mb_substr($collapsed, 0, self::DESCRIPTION_LIMIT).'…';
+        }
+
+        return $collapsed;
+    }
+
+    /**
+     * @param  array<string, mixed>  $notification
      */
     private function deadlineText(array $notification): string
     {
         $text = Carbon::parse((string) $notification['deadline'])->format('j F Y');
 
         if (! empty($notification['deadline_label'])) {
-            $text .= ' (' . $notification['deadline_label'] . ')';
+            $text .= ' ('.$notification['deadline_label'].')';
         }
 
         return $text;
@@ -102,13 +153,13 @@ class TelegramService
     {
         $dashboardUrl = $this->getDashboardUrl();
         $message = [
-            '*Test Notification*',
+            '*Notifikasi Uji*',
             '',
-            'This is a test notification from Task Reminder',
-            '*Channel:* ' . $this->escapeMarkdownV2($channel),
-            '*Status:* Telegram setup is working',
+            'Ini adalah notifikasi uji dari Task Reminder',
+            '*Channel:* '.$this->escapeMarkdownV2($channel),
+            '*Status:* Pengaturan Telegram berfungsi',
             '',
-            '[Open dashboard](' . $dashboardUrl . ')',
+            '[Buka dashboard]('.$dashboardUrl.')',
         ];
 
         return $this->sendMessage($chatId, implode("\n", $message));
@@ -120,6 +171,7 @@ class TelegramService
 
         if ($token === '') {
             Log::warning('Telegram notification skipped because TELEGRAM_BOT_TOKEN is not configured.');
+
             return false;
         }
 
@@ -140,6 +192,7 @@ class TelegramService
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
+
                 return false;
             }
 
@@ -161,7 +214,7 @@ class TelegramService
             $baseUrl = trim((string) config('app.url'));
         }
 
-        return rtrim($baseUrl, '/') . '/dashboard';
+        return rtrim($baseUrl, '/').'/dashboard';
     }
 
     private function escapeMarkdownV2(string $value): string

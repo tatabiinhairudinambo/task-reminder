@@ -10,19 +10,20 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthService
 {
     public function login(array $credentials, bool $rememberMe): array
     {
-        if (!Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $rememberMe)) {
-            throw new \Exception('Email or password is incorrect', 401);
+        if (! Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $rememberMe)) {
+            throw new \Exception('Email atau kata sandi salah', 401);
         }
 
         $user = Auth::user();
 
-        if (!$user instanceof User) {
-            throw new \Exception('User not found', 404);
+        if (! $user instanceof User) {
+            throw new \Exception('Pengguna tidak ditemukan', 404);
         }
 
         $expiration = $rememberMe ? now()->addDays(30) : now()->addHours(1);
@@ -45,7 +46,7 @@ class AuthService
             ]);
 
             Setting::create([
-                'deadline_notification' => '5 days left',
+                'deadline_notification' => '5 hari lagi',
                 'task_created_notification' => 1,
                 'task_completed_notification' => 1,
                 'notification_channel' => Setting::CHANNEL_EMAIL,
@@ -72,7 +73,7 @@ class AuthService
     public function resendVerificationEmail(User $user): void
     {
         if ($user->hasVerifiedEmail()) {
-            throw new \Exception('Email already verified', 200);
+            throw new \Exception('Email sudah diverifikasi', 200);
         }
 
         $user->sendEmailVerificationNotification();
@@ -83,7 +84,7 @@ class AuthService
         $user = User::findOrFail($userId);
 
         if ($user->hasVerifiedEmail()) {
-            throw new \Exception('Email already verified', 202);
+            throw new \Exception('Email sudah diverifikasi', 202);
         }
 
         if ($user->markEmailAsVerified()) {
@@ -93,13 +94,17 @@ class AuthService
 
     public function checkToken(string $token): bool
     {
-        $tokenRecord = DB::table('personal_access_tokens')->where('id', $token)->first();
+        $tokenRecord = PersonalAccessToken::findToken($token);
 
-        if (!$tokenRecord) {
+        if (! $tokenRecord) {
             return false;
         }
 
-        return !Carbon::now()->greaterThan(Carbon::parse($tokenRecord->expires_at));
+        if ($tokenRecord->expires_at === null) {
+            return true;
+        }
+
+        return ! Carbon::now()->greaterThan(Carbon::parse($tokenRecord->expires_at));
     }
 
     public function checkEmailVerified(User $user): bool

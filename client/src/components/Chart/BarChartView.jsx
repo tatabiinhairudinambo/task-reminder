@@ -38,19 +38,19 @@ export const BarChartView = ({ onNavigateToTaskDate }) => {
             labels: courseContents.map((content) => content.course_content),
             datasets: [
                 {
-                    label: 'Total Tasks',
+                    label: 'Total Tugas',
                     backgroundColor: 'rgba(59, 130, 246, 1)',
                     hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
                     data: courseContents.map((content) => content.total_task),
                 },
                 {
-                    label: 'Completed Tasks',
+                    label: 'Tugas Selesai',
                     backgroundColor: 'rgba(16, 185, 129, 1)',
                     hoverBackgroundColor: 'rgba(16, 185, 129, 1)',
                     data: courseContents.map((content) => content.completed_task),
                 },
                 {
-                    label: 'Uncompleted Tasks',
+                    label: 'Tugas Belum Selesai',
                     backgroundColor: 'rgba(234, 179, 8, 1)',
                     hoverBackgroundColor: 'rgba(234, 179, 8, 1)',
                     data: courseContents.map((content) => content.uncompleted_task),

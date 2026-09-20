@@ -18,20 +18,20 @@ class DashboardController
     {
         $data = $this->dashboardService->getDashboard($request->user()->id);
 
-        return $this->sendResponse($data, 'Dashboard retrieved successfully');
+        return $this->sendResponse($data, 'Data dashboard berhasil diambil');
     }
 
     public function chart(Request $request)
     {
         $data = $this->dashboardService->getChart($request->user()->id, (string) $request->semester);
 
-        return $this->sendResponse($data, 'Chart retrieved successfully');
+        return $this->sendResponse($data, 'Data grafik berhasil diambil');
     }
 
     public function semesterOverview(Request $request)
     {
         $data = $this->dashboardService->getSemesterOverview($request->user()->id);
 
-        return $this->sendResponse($data, 'Semester overview retrieved successfully');
+        return $this->sendResponse($data, 'Ringkasan semester berhasil diambil');
     }
 }

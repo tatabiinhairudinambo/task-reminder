@@ -20,7 +20,7 @@ const Header = ({ title }) => {
     const semesterLabel = useSemesterStore((state) => state.semesterLabel);
     const setSemester = useSemesterStore((state) => state.setSemester);
     const userName = useSemesterStore((state) => state.userName);
-    const displayName = userName || localStorage.getItem('name') || 'User';
+    const displayName = userName || localStorage.getItem('name') || 'Pengguna';
 
     useEffect(() => {
         localStorage.removeItem('isPasswordReset');
@@ -43,7 +43,7 @@ const Header = ({ title }) => {
                     {pathname !== '/settings' ? (
                         <Select value={semesterLabel} onValueChange={(value) => setSemester(value, value)}>
                             <SelectTrigger className="w-[140px] bg-background px-2 text-xs sm:w-[160px] sm:text-sm [&>span]:truncate">
-                                <SelectValue placeholder="Select semester" />
+                                <SelectValue placeholder="Pilih semester" />
                             </SelectTrigger>
                             <SelectContent>
                                 {SEMESTERS.map((semester) => (
@@ -60,10 +60,10 @@ const Header = ({ title }) => {
                     <Separator orientation="vertical" className="hidden h-6 lg:block" />
 
                     <div className="hidden items-center gap-3 lg:flex">
-                        <span className="text-sm font-medium text-foreground">Hi, {displayName}</span>
+                        <span className="text-sm font-medium text-foreground">Hai, {displayName}</span>
                         <Avatar className="h-8 w-8">
                             <AvatarFallback className="bg-primary text-sm text-primary-foreground">
-                                {displayName?.charAt(0)?.toUpperCase() || 'U'}
+                                {displayName?.charAt(0)?.toUpperCase() || 'P'}
                             </AvatarFallback>
                         </Avatar>
                     </div>

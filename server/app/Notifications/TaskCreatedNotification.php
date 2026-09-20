@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
-use Carbon\Carbon;
 use App\Notifications\Concerns\ResolvesNotificationChannels;
 use App\Services\TelegramService;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -15,16 +15,22 @@ class TaskCreatedNotification extends Notification implements ShouldQueue
     use Queueable, ResolvesNotificationChannels;
 
     public $courseContent;
+
     public $task;
+
     public $deadline;
+
+    public $description;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct($courseContent, $task, $deadline)
+    public function __construct($courseContent, $task, $deadline, $description = null)
     {
         $this->courseContent = $courseContent;
         $this->task = $task;
         $this->deadline = $deadline;
+        $this->description = $description;
     }
 
     /**
@@ -45,7 +51,8 @@ class TaskCreatedNotification extends Notification implements ShouldQueue
         return app(TelegramService::class)->buildTaskCreatedMessage(
             $this->courseContent,
             $this->task,
-            $this->deadline
+            $this->deadline,
+            $this->description
         );
     }
 
@@ -62,7 +69,7 @@ class TaskCreatedNotification extends Notification implements ShouldQueue
                 'courseContent' => $this->courseContent,
                 'task' => $this->task,
                 'deadline' => Carbon::parse($this->deadline)->format('j F Y'),
-                'dashboardUrl' => config('app.frontend_url') . '/dashboard',
+                'dashboardUrl' => config('app.frontend_url').'/dashboard',
             ]);
     }
 

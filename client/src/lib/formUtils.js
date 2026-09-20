@@ -11,7 +11,7 @@ export const validateRequired = (values, fields) => {
     for (const { name, label } of fields) {
         const value = values?.[name];
         if (value === undefined || value === null || String(value).trim() === '') {
-            errors[name] = `${label || name} is required.`;
+            errors[name] = `${label || name} wajib diisi.`;
         }
     }
     return errors;

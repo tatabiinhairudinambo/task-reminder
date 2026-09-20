@@ -48,7 +48,7 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
 
         const numeric = Number(trimmed.replace(',', '.'));
         if (!Number.isFinite(numeric) || numeric < 0 || numeric > 100) {
-            setErrors({ score: 'Score must be a number between 0 and 100.' });
+            setErrors({ score: 'Skor harus berupa angka antara 0 dan 100.' });
             return;
         }
 
@@ -83,25 +83,25 @@ export const ScoreUpdateDialog = ({ open, onOpenChange, initialData, isLoading, 
         <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent persistent>
                 <DialogHeader>
-                    <DialogTitle>Update Score</DialogTitle>
-                    <DialogDescription>Update the score of the selected course content.</DialogDescription>
+                    <DialogTitle>Perbarui Skor</DialogTitle>
+                    <DialogDescription>Perbarui skor mata kuliah yang dipilih.</DialogDescription>
                 </DialogHeader>
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
-                    <FormField label="Course Content">
+                    <FormField label="Mata Kuliah">
                         <Input value={course} disabled />
                     </FormField>
 
-                    <FormField label="Score" error={getFieldError(errors, 'score')}>
-                        <Input type="text" inputMode="decimal" value={score} onChange={(event) => setScore(event.target.value)} placeholder="Empty to clear the score" />
+                    <FormField label="Skor" error={getFieldError(errors, 'score')}>
+                        <Input type="text" inputMode="decimal" value={score} onChange={(event) => setScore(event.target.value)} placeholder="Kosongkan untuk menghapus skor" />
                     </FormField>
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={requestClose}>
-                            Cancel
+                            Batal
                         </Button>
                         <Button type="submit" disabled={isLoading}>
-                            {isLoading ? 'Updating...' : 'Update'}
+                            {isLoading ? 'Memperbarui...' : 'Perbarui'}
                         </Button>
                     </DialogFooter>
                 </form>

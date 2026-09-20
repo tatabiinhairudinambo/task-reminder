@@ -66,20 +66,20 @@ export const GradeTable = ({ rows, isLoading, onEdit, onDelete }) => {
                             <TableHead className="text-center">No</TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade')}>
-                                    Grade <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Nilai <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('grade_point')}>
-                                    Grade Points <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Poin Nilai <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
                             <TableHead className="text-center">
                                 <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('minimal_score')}>
-                                    Score <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                    Skor <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </TableHead>
-                            <TableHead className="text-center">Options</TableHead>
+                            <TableHead className="text-center">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -88,7 +88,7 @@ export const GradeTable = ({ rows, isLoading, onEdit, onDelete }) => {
                         {!isLoading && rows.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center">
-                                    No grade found
+                                    Data nilai tidak ditemukan
                                 </TableCell>
                             </TableRow>
                         ) : null}
@@ -110,8 +110,8 @@ export const GradeTable = ({ rows, isLoading, onEdit, onDelete }) => {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => onEdit(grade)}>Edit</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => onDelete(grade.id)}>Delete</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onEdit(grade)}>Ubah</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onDelete(grade.id)}>Hapus</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

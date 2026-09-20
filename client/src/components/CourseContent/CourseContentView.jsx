@@ -55,14 +55,14 @@ export const CourseContentView = () => {
     const [deleteContentId, setDeleteContentId] = useState(null);
 
     useEffect(() => {
-        document.title = 'Course Contents - Task Reminder';
+        document.title = 'Mata Kuliah - Task Reminder';
     }, []);
 
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap gap-2 sm:gap-4">
                 <Button className="flex-1 sm:flex-none" onClick={createDialog.open}>
-                    <Plus className="mr-2 h-4 w-4" /> New Course Content
+                    <Plus className="mr-2 h-4 w-4" /> Mata Kuliah Baru
                 </Button>
 
                 {settings?.has_siakang_credentials ? (
@@ -73,17 +73,17 @@ export const CourseContentView = () => {
                         disabled={!canSync}
                         title={
                             canSync
-                                ? 'Sync schedule from Siakang'
-                                : 'Sync is only available for an empty semester. Clear this semester to sync again.'
+                                ? 'Sinkron jadwal dari Siakang'
+                                : 'Sinkron hanya tersedia untuk semester kosong. Bersihkan semester ini untuk sinkron ulang.'
                         }
                     >
-                        <RefreshCw className="mr-2 h-4 w-4" /> Sync from Siakang
+                        <RefreshCw className="mr-2 h-4 w-4" /> Sinkron dari Siakang
                     </Button>
                 ) : null}
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon" aria-label="More actions">
+                        <Button variant="outline" size="icon" aria-label="Aksi lainnya">
                             <Ellipsis className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -96,7 +96,7 @@ export const CourseContentView = () => {
                                 onClick={clearDialog.open}
                                 className="text-destructive focus:text-destructive"
                             >
-                                <Trash2 /> Clear Semester
+                                <Trash2 /> Bersihkan Semester
                             </DropdownMenuItem>
                         ) : null}
                     </DropdownMenuContent>
@@ -108,8 +108,8 @@ export const CourseContentView = () => {
                     <CardContent>
                         <EmptyState
                             icon={BookOpen}
-                            title="No courses yet"
-                            description="Add your first course above or sync from Siakang."
+                            title="Belum ada mata kuliah"
+                            description="Tambahkan mata kuliah pertama Anda di atas atau sinkron dari Siakang."
                         />
                     </CardContent>
                 </Card>
@@ -171,8 +171,8 @@ export const CourseContentView = () => {
                         deleteDialog.close();
                     }
                 }}
-                title="Delete Course Content"
-                description="Once data is deleted, it cannot be restored. Deleting this data may also remove related data such as tasks."
+                title="Hapus Mata Kuliah"
+                description="Data yang dihapus tidak dapat dikembalikan. Menghapus data ini juga dapat menghapus data terkait seperti tugas."
                 isLoading={isMutating}
                 onConfirm={async () => {
                     await deleteCourseContent(deleteContentId);
@@ -218,8 +218,8 @@ export const CourseContentView = () => {
                         clearDialog.close();
                     }
                 }}
-                title={`Clear ${selectedSemester}`}
-                description={`${selectedSemester} contains ${courseContents.length} course(s). Clearing will also remove related tasks and scores. Once data is deleted, it cannot be restored.`}
+                title={`Bersihkan ${selectedSemester}`}
+                description={`${selectedSemester} berisi ${courseContents.length} mata kuliah. Membersihkan akan menghapus tugas dan nilai terkait. Data yang dihapus tidak dapat dikembalikan.`}
                 isLoading={isMutating}
                 onConfirm={async () => {
                     const result = await clearSemester();

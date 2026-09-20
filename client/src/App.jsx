@@ -17,7 +17,7 @@ const Settings = lazy(() => import('./pages/Settings/Settings'));
 
 const App = () => {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center">Memuat...</div>}>
       <Routes>
         {/* Auth */}
         <Route

@@ -1,9 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   SCHEDULE_LABELS,
-  GRID_START_MINUTES,
-  GRID_END_MINUTES,
-  GRID_STEP_MINUTES,
   getScheduleLanguage,
   getScheduleLabels,
   getDateLocale,

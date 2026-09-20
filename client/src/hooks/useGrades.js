@@ -32,7 +32,7 @@ export const useGrades = () => {
                 await fetchGrades(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to create grade.');
+                toast.error(error.response?.data?.message || 'Gagal membuat nilai.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -50,7 +50,7 @@ export const useGrades = () => {
                 await fetchGrades(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to update grade.');
+                toast.error(error.response?.data?.message || 'Gagal memperbarui nilai.');
                 return { success: false, errors: error.response?.data?.errors || {} };
             } finally {
                 setIsMutating(false);
@@ -64,11 +64,11 @@ export const useGrades = () => {
             try {
                 setIsMutating(true);
                 await gradeApi.delete(id);
-                toast.success('Grade deleted successfully.');
+                toast.success('Nilai berhasil dihapus.');
                 await fetchGrades(false);
                 return { success: true };
             } catch (error) {
-                toast.error(error.response?.data?.message || 'Failed to delete grade.');
+                toast.error(error.response?.data?.message || 'Gagal menghapus nilai.');
                 return { success: false };
             } finally {
                 setIsMutating(false);

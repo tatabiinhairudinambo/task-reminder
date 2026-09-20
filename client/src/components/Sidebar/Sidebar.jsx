@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/course-contents', icon: Book, label: 'Courses' },
-    { to: '/schedule', icon: CalendarDays, label: 'Schedule' },
-    { to: '/assessments', icon: Trophy, label: 'Assessments' },
-    { to: '/settings', icon: Settings, label: 'Settings' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Beranda' },
+    { to: '/course-contents', icon: Book, label: 'Mata Kuliah' },
+    { to: '/schedule', icon: CalendarDays, label: 'Jadwal' },
+    { to: '/assessments', icon: Trophy, label: 'Penilaian' },
+    { to: '/settings', icon: Settings, label: 'Pengaturan' },
 ];
 
 const Sidebar = () => {
@@ -56,7 +56,7 @@ const Sidebar = () => {
                     onClick={logout}
                 >
                     <LogOut className="h-5 w-5" />
-                    Logout
+                    Keluar
                 </Button>
             </div>
         </aside>

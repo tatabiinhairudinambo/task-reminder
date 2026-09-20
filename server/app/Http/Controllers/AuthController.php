@@ -26,7 +26,7 @@ class AuthController
                 $request->boolean('remember_me')
             );
 
-            return $this->sendResponse($data, 'User logged in successfully');
+            return $this->sendResponse($data, 'Berhasil masuk');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), (int) $e->getCode() ?: 401);
         }
@@ -42,7 +42,7 @@ class AuthController
             'password' => $validated['password'],
         ]);
 
-        return $this->sendResponse($data, 'User registered successfully', 201);
+        return $this->sendResponse($data, 'Pendaftaran berhasil', 201);
     }
 
     public function resendVerificationEmail(Request $request)
@@ -50,7 +50,7 @@ class AuthController
         try {
             $this->authService->resendVerificationEmail($request->user());
 
-            return $this->sendResponse(null, 'Verification email sent successfully');
+            return $this->sendResponse(null, 'Email verifikasi berhasil dikirim');
         } catch (\Exception $e) {
             return $this->sendResponse(null, $e->getMessage());
         }
@@ -59,13 +59,13 @@ class AuthController
     public function verifyEmail(Request $request)
     {
         if (! $request->hasValidSignature()) {
-            return $this->sendResponse(null, 'Invalid or expired verification link', 400);
+            return $this->sendResponse(null, 'Tautan verifikasi tidak valid atau sudah kedaluwarsa', 400);
         }
 
         try {
             $this->authService->verifyEmail((int) $request->route('id'));
 
-            return $this->sendResponse(null, 'Email verified successfully');
+            return $this->sendResponse(null, 'Email berhasil diverifikasi');
         } catch (\Exception $e) {
             return $this->sendResponse(null, $e->getMessage(), (int) $e->getCode() ?: 202);
         }
@@ -76,27 +76,27 @@ class AuthController
         $token = $request->bearerToken();
 
         if (! $token) {
-            return $this->sendError('Token not found', 401);
+            return $this->sendError('Token tidak ditemukan', 401);
         }
 
         if (! $this->authService->checkToken($token)) {
-            return $this->sendError('Token expired', 401);
+            return $this->sendError('Token kedaluwarsa', 401);
         }
 
-        return $this->sendResponse(['valid' => true], 'Token is valid');
+        return $this->sendResponse(['valid' => true], 'Token valid');
     }
 
     public function checkEmail(Request $request)
     {
         $verified = $this->authService->checkEmailVerified($request->user());
 
-        return $this->sendResponse(['verified' => $verified], $verified ? 'Email is verified' : 'Email is not verified');
+        return $this->sendResponse(['verified' => $verified], $verified ? 'Email sudah diverifikasi' : 'Email belum diverifikasi');
     }
 
     public function logout(Request $request)
     {
         $this->authService->logout($request->user());
 
-        return $this->sendResponse(null, 'User logged out successfully');
+        return $this->sendResponse(null, 'Berhasil keluar');
     }
 }

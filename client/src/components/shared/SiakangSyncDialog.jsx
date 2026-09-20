@@ -32,7 +32,7 @@ export const SiakangSyncDialog = ({
         setFetchError('');
 
         if (!hasCredentials) {
-            setFetchError('Add your Siakang credentials in Settings first.');
+            setFetchError('Tambahkan kredensial Siakang Anda di Pengaturan terlebih dahulu.');
             return;
         }
 
@@ -68,15 +68,15 @@ export const SiakangSyncDialog = ({
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     {isLoadingSemesters ? (
-                        <p className="text-sm text-muted-foreground">Loading semesters...</p>
+                        <p className="text-sm text-muted-foreground">Memuat semester...</p>
                     ) : fetchError ? (
                         <p className="text-sm text-destructive">{fetchError}</p>
                     ) : semesters.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No semesters found on your Siakang account.</p>
+                        <p className="text-sm text-muted-foreground">Tidak ada semester ditemukan di akun Siakang Anda.</p>
                     ) : (
                         <Select value={selectedSource} onValueChange={setSelectedSource}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a Siakang semester..." />
+                                <SelectValue placeholder="Pilih semester Siakang..." />
                             </SelectTrigger>
                             <SelectContent>
                                 {semesters.map((s) => (
@@ -90,10 +90,10 @@ export const SiakangSyncDialog = ({
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
+                            Batal
                         </Button>
                         <Button type="submit" disabled={isLoading || !selectedSource}>
-                            {isLoading ? 'Syncing...' : 'Sync'}
+                            {isLoading ? 'Mensinkronkan...' : 'Sinkron'}
                         </Button>
                     </DialogFooter>
                 </form>
