@@ -86,6 +86,25 @@ test('task deadline_label reflects status and dates', function () {
     expect($t5->fresh()->deadline_label)->toBe('5 hari lagi');
 });
 
+test('deadline label stays correct across the WIB/UTC day boundary', function () {
+    $user = User::factory()->create();
+    $course = CourseContent::create(['semester' => 'S1', 'code' => 'MK002', 'course_content' => 'Fisika', 'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin', 'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $user->id]);
+
+    // Simulate 00:30 WIB: UTC is still the previous calendar day, so a task
+    // due "today" in Jakarta must not be labelled as due tomorrow.
+    Carbon::setTestNow(Carbon::create(2026, 9, 21, 0, 30, 0, 'Asia/Jakarta'));
+
+    $today = Task::create(['task' => 'Hari ini', 'deadline' => '2026-09-21', 'status' => 0, 'priority' => 0, 'course_content_id' => $course->id, 'user_id' => $user->id]);
+    $tomorrow = Task::create(['task' => 'Besok', 'deadline' => '2026-09-22', 'status' => 0, 'priority' => 0, 'course_content_id' => $course->id, 'user_id' => $user->id]);
+    $yesterday = Task::create(['task' => 'Kemarin', 'deadline' => '2026-09-20', 'status' => 0, 'priority' => 0, 'course_content_id' => $course->id, 'user_id' => $user->id]);
+
+    expect($today->deadline_label)->toBe('Jatuh tempo hari ini')
+        ->and($tomorrow->deadline_label)->toBe('1 hari lagi')
+        ->and($yesterday->deadline_label)->toBe('Terlambat');
+
+    Carbon::setTestNow();
+});
+
 test('task deadlineBadgeColor mirrors frontend tiers', function () {
     expect(Task::deadlineBadgeColor('Selesai'))->toBe('#16a34a');
     expect(Task::deadlineBadgeColor('Completed'))->toBe('#16a34a');
