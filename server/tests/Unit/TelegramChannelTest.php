@@ -156,24 +156,32 @@ test('reminder telegram message summarizes notifications', function () {
 });
 
 test('task completed telegram message includes the description when present', function () {
-    $course = CourseContent::create([
-        'semester' => '2024/2025 Ganjil', 'code' => 'MK001', 'course_content' => 'Fisika',
-        'credits' => 3, 'lecturer' => 'A', 'day' => 'Senin',
-        'hour_start' => '08:00', 'hour_end' => '10:00', 'user_id' => $this->user->id,
-    ]);
-
-    $task = Task::create([
-        'task' => 'Lab Report', 'description' => 'Laporan lengkap praktikum',
-        'deadline' => '2025-01-01', 'status' => 0,
-        'course_content_id' => $course->id, 'user_id' => $this->user->id,
-    ]);
-    $task->load('course_content');
-
-    $message = (new TaskCompletedNotification($task))->toTelegram($this->user);
+    $message = (new TaskCompletedNotification('Fisika', 'Lab Report', 'Laporan lengkap praktikum'))
+        ->toTelegram($this->user);
 
     expect($message)->toContain('Lab Report')
         ->and($message)->toContain('Fisika')
         ->and($message)->toContain('Lihat detail lengkap tugas di dashboard Anda')
         ->and($message)->toContain('Deskripsi:')
         ->and($message)->toContain('Laporan lengkap praktikum');
+});
+
+test('task completed notification survives deletion of its task', function () {
+    $user = User::factory()->create();
+    Setting::where('user_id', $user->id)->update([
+        'notification_channel' => Setting::CHANNEL_TELEGRAM,
+        'telegram_chat_id' => '12345',
+    ]);
+
+    // Queued notifications built from scalars must not try to re-fetch a model.
+    $notification = new TaskCompletedNotification('Fisika', 'Lab Report', 'Laporan lengkap');
+    $serialized = serialize($notification);
+    $restored = unserialize($serialized);
+
+    $message = $restored->toTelegram($user->fresh());
+
+    expect($message)->toContain('Lab Report')
+        ->and($message)->toContain('Fisika')
+        ->and($restored->courseContent)->toBe('Fisika')
+        ->and($restored->task)->toBe('Lab Report');
 });
