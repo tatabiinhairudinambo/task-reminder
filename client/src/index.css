@@ -151,3 +151,42 @@ input[type="time"] {
 *::-webkit-scrollbar-thumb:hover {
   background-color: hsl(var(--muted-foreground) / 0.5);
 }
+
+/* 3D extruded wordmark for the auth pages. The stacked text-shadows build the
+   extrusion; the last two add the contact shadow and ambient occlusion. */
+.wordmark-3d {
+  display: inline-block;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  transform: perspective(700px) rotateX(10deg);
+  transform-origin: bottom center;
+}
+
+.wordmark-3d--white {
+  color: #ffffff;
+  text-shadow:
+    0 1px 0 #e2ebf9,
+    0 2px 0 #cbd9ef,
+    0 3px 0 #b3c8e6,
+    0 4px 0 #9bb6dc,
+    0 5px 0 #84a5d3,
+    0 6px 0 #6d93c9,
+    0 7px 0 #5782bf,
+    0 8px 2px rgba(8, 13, 30, 0.55),
+    0 13px 24px rgba(5, 9, 22, 0.65);
+}
+
+.wordmark-3d--blue {
+  color: #8ebcff;
+  text-shadow:
+    0 1px 0 #79a9f4,
+    0 2px 0 #6796e5,
+    0 3px 0 #5683d6,
+    0 4px 0 #4671c7,
+    0 5px 0 #375fb8,
+    0 6px 0 #2a4ea9,
+    0 7px 0 #1e3e9a,
+    0 8px 2px rgba(8, 13, 30, 0.55),
+    0 13px 24px rgba(5, 9, 22, 0.65);
+}
