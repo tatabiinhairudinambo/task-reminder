@@ -78,6 +78,7 @@ cd client && pnpm test                        # 103 tests Vitest + jsdom
 - `TELEGRAM_BOT_TOKEN` — required for Telegram notifications
 - `SIAKANG_UV` — optional absolute path to `uv` for the bridge; set on servers where Octane/FrankenPHP has a restricted PATH (defaults to `/root/.local/bin/uv`)
 - `DB_SSLMODE` — PostgreSQL TLS mode; set to `require` for Supabase (default `prefer`)
+- `APP_TIMEZONE` — set to `Asia/Jakarta`. The default `UTC` mislabels tasks due *today* as "1 hari lagi" between 00:00–07:00 WIB, because `Task::getDeadlineLabelAttribute` compares calendar days.
 
 ## Database portability (MySQL / PostgreSQL)
 

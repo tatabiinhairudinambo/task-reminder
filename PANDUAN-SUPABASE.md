@@ -38,11 +38,13 @@ DB_DATABASE=postgres
 DB_USERNAME=postgres.xxxxxxxx
 DB_PASSWORD=password-database-anda
 DB_SSLMODE=require
+APP_TIMEZONE=Asia/Jakarta
 ```
 
 Catatan:
 
 - `DB_SSLMODE=require` **wajib** untuk Supabase (koneksi dienkripsi). Variable ini dibaca dari `config/database.php`.
+- `APP_TIMEZONE=Asia/Jakarta` penting agar label tenggat benar. Server default `UTC`; jika user berada di WIB (UTC+7), tugas yang jatuh tempo **hari ini** akan salah dilabeli "1 hari lagi" pada dini hari (00:00–07:00 WIB).
 - **Jangan ubah `APP_KEY`.** Kredensial Siakang (`siakang_email` / `siakang_password`) dienkripsi dengan `APP_KEY`. Kalau `APP_KEY` berubah, kredensial itu tidak bisa dibaca lagi dan user harus mengisi ulang.
 
 ## 4. Buat Tabel
