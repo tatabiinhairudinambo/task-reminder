@@ -20,6 +20,7 @@ import { FormField } from '@/components/shared/FormField';
 import { SEMESTERS } from '@/lib/constants';
 import { getFieldError, validateRequired } from '@/lib/formUtils';
 import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
+import useSemesterStore from '@/store/useSemesterStore';
 
 const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
@@ -31,6 +32,7 @@ export const CourseContentFormDialog = ({
     isLoading,
     onSubmit,
 }) => {
+    const selectedSemester = useSemesterStore((state) => state.semester);
     const [semester, setSemester] = useState('');
     const [code, setCode] = useState('');
     const [courseContent, setCourseContent] = useState('');
@@ -79,7 +81,7 @@ export const CourseContentFormDialog = ({
             return;
         }
 
-        setSemester('');
+        setSemester(selectedSemester || 'Semester 1');
         setCode('');
         setCourseContent('');
         setCredits('');
@@ -88,7 +90,7 @@ export const CourseContentFormDialog = ({
         setHourStart('');
         setHourEnd('');
         setErrors({});
-    }, [open, mode, initialData]);
+    }, [open, mode, initialData, selectedSemester]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
