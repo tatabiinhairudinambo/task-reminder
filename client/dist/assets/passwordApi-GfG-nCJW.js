@@ -1,0 +1,1 @@
+import{r as e}from"./utils-CmzyH_s3.js";var t={sendResetLink:t=>e.post(`/password/email`,t),resetPassword:t=>e.post(`/password/reset`,t,{headers:{"Content-Type":`multipart/form-data`}})};export{t};
