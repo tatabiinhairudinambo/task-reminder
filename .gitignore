@@ -19,11 +19,18 @@
 **/.env.backup
 **/.env.production
 **/.env.local
+# Exception: the SPA's production config is public - Vite inlines it into the
+# bundle - and it must ship so every build resolves the same same-origin API
+# URL instead of the developer's localhost .env.
+!client/.env.production
 
 # Build and distribution
 **/dev-dist
 **/dist
 **/dist-ssr
+# Exception: the built SPA is committed so the single-domain server can serve
+# it without a build step. Regenerate with `cd client && pnpm build`.
+!client/dist/
 **/public/build
 **/public/hot
 **/public/storage
