@@ -12,7 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // In production the app sits behind Cloudflare Tunnel, which
+        // terminates TLS and forwards the request over plain HTTP. Trusting
+        // the proxy headers keeps generated URLs on https:// and stops
+        // redirect loops on the email verification and password reset links.
         //
+        // The container is not fully booted here, so read the environment
+        // directly instead of using app()->isProduction().
+        if (env('APP_ENV') === 'production') {
+            $middleware->trustProxies(at: '*');
+        }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

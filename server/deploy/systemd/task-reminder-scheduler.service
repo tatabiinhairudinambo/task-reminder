@@ -1,0 +1,26 @@
+[Unit]
+Description=Task Reminder - Laravel scheduler (daily 07:00 reminder)
+After=network.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_SERVER_DIR__
+
+# `schedule:work` runs the scheduler in the foreground and dispatches due
+# commands, so no cron entry is needed. This is what fires
+# `notifications:reminder` daily at 07:00 app time (Asia/Jakarta).
+ExecStart=/usr/bin/env php __APP_SERVER_DIR__/artisan schedule:work
+
+Restart=always
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=task-reminder-scheduler
+
+Environment=APP_ENV=production
+
+[Install]
+WantedBy=multi-user.target
