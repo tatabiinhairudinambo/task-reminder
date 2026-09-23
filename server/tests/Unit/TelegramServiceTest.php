@@ -118,3 +118,106 @@ test('sendMessage returns false when bot token not configured', function () {
 
     expect($result)->toBeFalse();
 });
+
+// ─── message splitting (Telegram 4096-character limit) ───
+
+test('buildReminderSummaryMessages returns a single message for a short digest', function () {
+    $notifications = [
+        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 hari lagi'],
+    ];
+
+    $messages = $this->service->buildReminderSummaryMessages($notifications);
+
+    expect($messages)->toHaveCount(1)
+        ->and($messages[0])->toContain('Notifikasi Pengingat Tugas')
+        ->and($messages[0])->not->toContain('Pesan 1 dari');
+});
+
+test('buildReminderSummaryMessages splits a digest above the telegram limit', function () {
+    $notifications = [];
+
+    for ($i = 1; $i <= 20; $i++) {
+        $notifications[] = [
+            'task' => 'Tugas Besar Bab '.$i,
+            'course_content' => 'Pemrograman Web Lanjut',
+            'deadline' => '2026-10-22',
+            'deadline_label' => '30 hari lagi',
+            'description' => str_repeat('Kerjakan analisis dan implementasi fitur pada bab ini. ', 6),
+            'priority' => $i % 3 === 0,
+        ];
+    }
+
+    $messages = $this->service->buildReminderSummaryMessages($notifications);
+
+    expect(count($messages))->toBeGreaterThan(1);
+
+    foreach ($messages as $message) {
+        expect(mb_strlen($message))->toBeLessThanOrEqual(4096)
+            ->and($message)->toContain('Notifikasi Pengingat Tugas')
+            ->and($message)->toContain('Lihat detail lengkap tugas di dashboard Anda');
+    }
+});
+
+test('buildReminderSummaryMessages numbers every chunk when split', function () {
+    $notifications = [];
+
+    for ($i = 1; $i <= 20; $i++) {
+        $notifications[] = [
+            'task' => 'Tugas '.$i,
+            'course_content' => 'Pemrograman Web Lanjut',
+            'deadline' => '2026-10-22',
+            'deadline_label' => '30 hari lagi',
+            'description' => str_repeat('Kerjakan analisis dan implementasi fitur pada bab ini. ', 6),
+        ];
+    }
+
+    $messages = $this->service->buildReminderSummaryMessages($notifications);
+    $total = count($messages);
+
+    expect($total)->toBeGreaterThan(1);
+
+    foreach ($messages as $index => $message) {
+        expect($message)->toContain('Pesan '.($index + 1).' dari '.$total);
+    }
+});
+
+test('buildReminderSummaryMessages keeps every task across the split', function () {
+    $notifications = [];
+
+    for ($i = 1; $i <= 20; $i++) {
+        $notifications[] = [
+            'task' => 'Tugas Unik '.$i,
+            'course_content' => 'Pemrograman Web Lanjut',
+            'deadline' => '2026-10-22',
+            'deadline_label' => '30 hari lagi',
+            'description' => str_repeat('Kerjakan analisis dan implementasi fitur pada bab ini. ', 6),
+        ];
+    }
+
+    $messages = $this->service->buildReminderSummaryMessages($notifications);
+    $combined = implode("\n", $messages);
+
+    for ($i = 1; $i <= 20; $i++) {
+        expect($combined)->toContain('Tugas Unik '.$i);
+    }
+});
+
+// ─── Indonesian dates ───
+
+test('reminder messages render deadlines in Indonesian', function () {
+    $notifications = [
+        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '2026-10-22', 'deadline_label' => '30 hari lagi'],
+    ];
+
+    $text = $this->service->buildReminderSummaryMessage($notifications);
+
+    expect($text)->toContain('22 Oktober 2026')
+        ->and($text)->not->toContain('October');
+});
+
+test('task created message renders the deadline in Indonesian', function () {
+    $text = $this->service->buildTaskCreatedMessage('Kalkulus', 'PR Bab 1', '2026-10-22');
+
+    expect($text)->toContain('22 Oktober 2026')
+        ->and($text)->not->toContain('October');
+});

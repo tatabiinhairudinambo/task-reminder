@@ -37,10 +37,15 @@ class ReminderNotification extends Notification implements ShouldQueue
 
     /**
      * Get the Telegram representation of the notification.
+     *
+     * Returns one message, or several when the digest exceeds Telegram's
+     * 4096-character limit.
+     *
+     * @return string|array<int, string>
      */
-    public function toTelegram(object $notifiable): string
+    public function toTelegram(object $notifiable): string|array
     {
-        return app(TelegramService::class)->buildReminderSummaryMessage($this->notifications);
+        return app(TelegramService::class)->buildReminderSummaryMessages($this->notifications);
     }
 
     /**
@@ -78,7 +83,7 @@ class ReminderNotification extends Notification implements ShouldQueue
             return [
                 'course_content' => $notification['course_content'],
                 'task' => $notification['task'],
-                'deadline' => Carbon::parse($notification['deadline'])->format('j F Y'),
+                'deadline' => Carbon::parse($notification['deadline'])->translatedFormat('j F Y'),
                 'deadline_label' => $label,
                 'deadline_color' => Task::deadlineBadgeColor($label),
                 'priority' => ! empty($notification['priority']),

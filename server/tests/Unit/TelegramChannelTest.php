@@ -1,8 +1,6 @@
 <?php
 
-use App\Models\CourseContent;
 use App\Models\Setting;
-use App\Models\Task;
 use App\Models\User;
 use App\Notifications\Channels\TelegramChannel;
 use App\Notifications\ReminderNotification;
@@ -53,6 +51,34 @@ test('telegram channel skips when user has no chat id', function () {
     $notification = new TaskCreatedNotification('Kalkulus', 'PR Bab 1', '2025-06-15');
 
     $this->telegram->shouldNotReceive('sendMessage');
+
+    $this->channel->send($this->user->fresh(), $notification);
+});
+
+test('telegram channel sends every chunk of a split reminder', function () {
+    Setting::where('user_id', $this->user->id)->update([
+        'notification_channel' => Setting::CHANNEL_TELEGRAM,
+        'telegram_chat_id' => '12345',
+    ]);
+
+    $notifications = [];
+
+    for ($i = 1; $i <= 20; $i++) {
+        $notifications[] = [
+            'task' => 'Tugas '.$i,
+            'course_content' => 'Pemrograman Web Lanjut',
+            'deadline' => '2026-10-22',
+            'deadline_label' => '30 hari lagi',
+            'description' => str_repeat('Kerjakan analisis dan implementasi fitur pada bab ini. ', 6),
+        ];
+    }
+
+    $notification = new ReminderNotification($notifications);
+
+    $this->telegram->shouldReceive('sendMessage')
+        ->atLeast()->times(2)
+        ->with('12345', Mockery::on(fn ($text) => mb_strlen($text) <= 4096))
+        ->andReturnTrue();
 
     $this->channel->send($this->user->fresh(), $notification);
 });
@@ -144,11 +170,14 @@ test('task created telegram message contains course and task', function () {
 });
 
 test('reminder telegram message summarizes notifications', function () {
-    $message = (new ReminderNotification([
-        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '15 June 2025', 'deadline_label' => '3 hari lagi', 'description' => 'Kerjakan bab 1'],
+    $messages = (new ReminderNotification([
+        ['task' => 'PR 1', 'course_content' => 'Kalkulus', 'deadline' => '2025-06-15', 'deadline_label' => '3 hari lagi', 'description' => 'Kerjakan bab 1'],
     ]))->toTelegram($this->user);
 
-    expect($message)->toContain('Pengingat')
+    $message = implode("\n", $messages);
+
+    expect($messages)->toHaveCount(1)
+        ->and($message)->toContain('Pengingat')
         ->and($message)->toContain('Kalkulus')
         ->and($message)->toContain('\\(3 hari lagi\\)')
         ->and($message)->toContain('Deskripsi:')
