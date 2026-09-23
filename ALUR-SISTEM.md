@@ -210,4 +210,4 @@ flowchart TD
 | Tombol "Sinkron dari Siakang" mati | Semester belum kosong | Bersihkan Semester dahulu (permanen!) |
 | Ingin memastikan reminder berjalan tanpa menunggu | — | `cd server && php artisan notifications:reminder` |
 
-> **Catatan teknis:** perintah `notifications:reminder` saat ini belum terpasang di scheduler (`server/routes/console.php`). Untuk pengiriman otomatis harian, tambahkan penjadwalannya, atau jalankan manual seperti di atas.
+> **Catatan teknis:** perintah `notifications:reminder` dijadwalkan otomatis setiap hari pukul **07:00 WIB** (`server/routes/console.php`). Scheduler harus berjalan agar ini aktif — di server produksi tambahkan cron `php artisan schedule:run` setiap menit, atau jalankan `php artisan schedule:work`. Untuk pengujian manual, jalankan perintahnya langsung seperti di atas.
