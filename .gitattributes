@@ -1,0 +1,6 @@
+# The built SPA is checked in as-is. Without this, core.autocrlf on Windows
+# rewrites LF to CRLF on checkout - and because the bundle is minified
+# JavaScript, that rewrites string literals such as split("\n") into
+# split("\r\n"), silently changing behaviour.
+client/dist/** -text
+client/.env.production text eol=lf
