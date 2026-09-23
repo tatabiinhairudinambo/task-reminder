@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { AuthHero } from '@/components/auth/AuthHero';
-import Silk from '@/components/backgrounds/Silk';
+import { WebGLBackground } from '@/components/backgrounds/WebGLBackground';
 import { authApi } from '@/api/authApi';
 import { validateRequired } from '@/lib/formUtils';
 import useSemesterStore from '@/store/useSemesterStore';
@@ -140,32 +140,23 @@ const Login = () => {
     }, []);
 
     return (
-        <div className="relative min-h-screen overflow-hidden bg-[#0A0A1F]">
-            <div className="absolute inset-0">
-                <Silk
-                    speed={3.6}
-                    scale={0.4}
-                    color="#31405b"
-                    noiseIntensity={0.2}
-                    rotation={0}
-                />
-            </div>
-
+        <div className="relative isolate min-h-screen overflow-hidden bg-[#05070d]">
             {/*
-              Lightens the left column without hiding the animation. `screen`
-              adds light to whatever is already painted underneath, so the Silk
-              texture still shows through instead of being covered. It must sit
-              outside the `z-10` wrapper below, because that wrapper forms its
-              own stacking context and would isolate the blend.
+              Full-viewport WebGL scene: starfield, planet, city skyline,
+              light beams and nebula, all rendered behind the login UI.
+
+              It is a fixed canvas at the bottom of the stacking order with
+              `pointer-events: none`, so it never intercepts a click or a key
+              press meant for the form above it. The `isolate` on this wrapper
+              is what keeps the canvas's negative z-index inside the page
+              instead of dropping it behind the document background.
+
+              The scene is composed to stay legible under the UI: its calm
+              left/centre carries the hero copy, the planet is cropped into
+              the right edge, and the city beams rise only from the right of
+              the skyline, so no extra scrim is needed over the text.
             */}
-            <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-[1] mix-blend-screen"
-                style={{
-                    background:
-                        'radial-gradient(120% 90% at 0% 50%, rgba(125, 180, 255, 0.30) 0%, rgba(125, 180, 255, 0.12) 38%, rgba(125, 180, 255, 0) 68%)',
-                }}
-            />
+            <WebGLBackground />
 
             {/* Two columns on desktop: pitch on the left, sign-in on the right.
                 The hero is hidden below lg so the form keeps the full width. */}
