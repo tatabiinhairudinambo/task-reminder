@@ -51,12 +51,11 @@ class SendReminderEmailNotifications extends Command
                 $user = $setting->user;
 
                 foreach ($tasks as $task) {
-                    $deadline = Carbon::parse($task->deadline)->format('d F Y');
                     $notifications[] = [
                         'course_content' => $task->course_content->course_content,
                         'task' => $task->task,
                         'description' => $task->description,
-                        'deadline' => $deadline,
+                        'deadline' => Carbon::parse($task->deadline)->toDateString(),
                         'deadline_label' => $task->deadline_label,
                         'priority' => (bool) $task->priority,
                     ];

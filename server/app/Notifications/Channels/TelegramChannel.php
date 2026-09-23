@@ -13,6 +13,9 @@ class TelegramChannel
 
     /**
      * Send the given notification.
+     *
+     * A notification may return a single message or several when the content
+     * exceeds Telegram's 4096-character limit; each is delivered in order.
      */
     public function send(object $notifiable, Notification $notification): void
     {
@@ -26,12 +29,22 @@ class TelegramChannel
             return;
         }
 
-        $message = $notification->toTelegram($notifiable);
+        $messages = $notification->toTelegram($notifiable);
 
-        if (! is_string($message) || $message === '') {
+        if (is_string($messages)) {
+            $messages = [$messages];
+        }
+
+        if (! is_array($messages)) {
             return;
         }
 
-        $this->telegram->sendMessage($chatId, $message);
+        foreach ($messages as $message) {
+            if (! is_string($message) || $message === '') {
+                continue;
+            }
+
+            $this->telegram->sendMessage($chatId, $message);
+        }
     }
 }
