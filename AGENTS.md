@@ -42,16 +42,18 @@ cd server && php artisan queue:listen --tries=1
 - **Email change reverification**: `UserService::updateProfile` clears `email_verified_at` and resends verification when the email changes; same-email updates keep the verified flag.
 - **Sanctum SPA auth**: Most API routes require `auth:sanctum` + `verified` middleware (`server/routes/api.php:32`). Auth routes are rate-limited (`throttle:10,1`).
 - **Queue**: Database driver. Non-test notifications (email + Telegram) use `ShouldQueue`. Must run a queue worker for delivery; test notifications are synchronous and need no worker.
+- **Reminder schedule**: `notifications:reminder` runs daily at 07:00 app time (`server/routes/console.php`) with `withoutOverlapping`. `php artisan schedule:run` (cron) or `schedule:work` must be running for automatic delivery.
+- **Telegram message limit**: `TelegramService::buildReminderSummaryMessages()` splits a digest into ≤4096-character messages (Telegram rejects longer ones); `TelegramChannel` sends each chunk in order and `ReminderNotification::toTelegram()` returns `string|array`. Deadlines must stay ISO (`toDateString()`) in the queued payload — `translatedFormat('j F Y')` is applied at render time, since Carbon cannot parse an Indonesian month name.
 - **Notifications**: non-test notifications (`TaskCreatedNotification`, `TaskCompletedNotification`, `ReminderNotification`) are `ShouldQueue` and send via `mail` + custom `TelegramChannel` (MarkdownV2). Channels resolve per user `Setting` via `ResolvesNotificationChannels::channelsFor()` and chat ID via `User::routeNotificationForTelegram()`. Test notification (`TestNotification`, sync mail + sync Telegram via `TelegramService`) gives immediate success/failure feedback via `SettingsController::testNotification`.
 
 ## Testing
 
 ```bash
-cd server && php artisan test                 # 259 tests (Feature + Unit)
-cd client && pnpm test                        # 103 tests Vitest + jsdom
+cd server && php artisan test                 # 286 tests (Feature + Unit)
+cd client && pnpm test                        # 123 tests Vitest + jsdom
 ```
 
-- **Server**: **Pest** (not bare PHPUnit), 259 tests. All `Feature` tests automatically use `RefreshDatabase` trait (`server/tests/Pest.php:14`). Testing DB connection is `mysql` → database `task_reminder_test` (`server/phpunit.xml:27`). A MySQL server with that database must exist before running tests. Test env sets `QUEUE_CONNECTION=sync` and `MAIL_MAILER=array`. Feature tests match API route groups: Auth, Task, CourseContent, Assessment, Dashboard, Grade, Settings, PasswordReset, User. Unit tests cover services one-to-one plus `RequestValidationTest` (20 Form Requests), `ModelTest` (Setting, Task deadline_label/deadlineBadgeColor, relations), `TelegramChannelTest`, and `ReminderNotificationTest`. Cross-owner regression coverage: task update rejects a foreign `course_content_id` (Unit + Feature), profile email change clears `email_verified_at` and resends verification (Unit + Feature).
+- **Server**: **Pest** (not bare PHPUnit), 286 tests. All `Feature` tests automatically use `RefreshDatabase` trait (`server/tests/Pest.php:14`). Testing DB defaults to PostgreSQL/Supabase — database `task_reminder_pg_test`, host/credentials inherited from `.env` (`server/phpunit.xml:27`). That database must exist before running tests; create it once with `CREATE DATABASE task_reminder_pg_test` (Supabase role has `CREATEDB`). To run against MySQL instead: `DB_CONNECTION=mysql DB_DATABASE=task_reminder_test php artisan test`. Test env sets `QUEUE_CONNECTION=sync` and `MAIL_MAILER=array`. Feature tests match API route groups: Auth, Task, CourseContent, Assessment, Dashboard, Grade, Settings, PasswordReset, User. Unit tests cover services one-to-one plus `RequestValidationTest` (20 Form Requests), `ModelTest` (Setting, Task deadline_label/deadlineBadgeColor, relations), `TelegramChannelTest`, and `ReminderNotificationTest`. Cross-owner regression coverage: task update rejects a foreign `course_content_id` (Unit + Feature), profile email change clears `email_verified_at` and resends verification (Unit + Feature).
 - **Client**: **Vitest** 4 + `jsdom` + `@testing-library/react` + `jest-dom`. Config in `client/vite.config.js:13` (`environment: jsdom`, `setupFiles: src/test/setup.js`). Tests cover `src/lib/` (utils, constants, formUtils, tableUtils, scheduleUtils), `src/store/useSemesterStore`, `src/api/` (axiosInstance interceptors + 9 api modules), `src/hooks/` (useModal, useAuth, useChartData, useSemesterOverview, useGrades, useCourseContents, useDashboard, useAssessments, useSettings).
 
 ## Client conventions
@@ -88,7 +90,23 @@ The app runs on both MySQL and PostgreSQL (Supabase). Keep these patterns when e
 - **No MySQL-only SQL.** `sum(status = 1)` fails on Postgres; use `case when` (`DashboardService::getDashboard`). Existing `CASE LOWER(day)` / `CASE grade` raw orderings are portable — keep them that way.
 - **Alias casing:** Postgres lowercases unquoted aliases (`totalTask` → `totaltask`). Use `snake_case` aliases.
 - **Sanctum tokens:** resolve with `PersonalAccessToken::findToken($plainTextToken)`, never by querying `id` with the raw `id|secret` string.
-- Tests pass on both: `php artisan test` (MySQL) and `DB_CONNECTION=pgsql DB_DATABASE=task_reminder_pg_test php artisan test`. Setup guide: `PANDUAN-SUPABASE.md`.
+- Tests default to Supabase/Postgres: `php artisan test` (uses `task_reminder_pg_test`). MySQL still works: `DB_CONNECTION=mysql DB_DATABASE=task_reminder_test php artisan test`. Setup guide: `PANDUAN-SUPABASE.md`.
+
+## Deployment (single domain)
+
+Production runs on **one domain** (`task.attaambo.dev`) from a single Oracle Cloud VM: Octane/FrankenPHP serves `/api/*` via Laravel and everything else from the pre-built SPA in `server/public/`. No CORS setup, no separate frontend host. Cloudflare Tunnel exposes it (TLS terminated by Cloudflare), so `trustProxies` is enabled when `APP_ENV=production` (`server/bootstrap/app.php`).
+
+```bash
+sudo bash server/deploy/setup-oracle.sh      # once: PHP, Node, uv, FrankenPHP, cloudflared
+bash server/deploy/deploy.sh                 # build SPA + migrate + caches + restart
+sudo bash server/deploy/install-services.sh  # systemd: octane, queue, scheduler
+```
+
+- **`server/deploy/Caddyfile`** — SPA + API in one server. The `@laravel` matcher (`/api/* /up /sanctum/* /storage/*`) goes to the Octane worker; every other path falls back to `index.html` so SPA deep links do not 404. Do not replace it with Octane's default stub.
+- **`deploy/deploy.sh`** copies `client/dist` into `server/public/` but must **not** overwrite `public/.htaccess` (Laravel's front controller) with the SPA's Apache file.
+- **Systemd services must stay enabled**: `task-reminder-queue` delivers notifications (they are queued) and `task-reminder-scheduler` fires the 07:00 reminder. Without them the app works but sends nothing.
+- **FrankPHP ships every extension the app needs** (`pdo_pgsql`, `intl`, `gd`, `zip` for Excel, `mbstring`, `bcmath`), so the API does not depend on the system PHP build.
+- Full guide: `server/deploy/README.md`.
 
 ## Siakang sync (Python bridge)
 
