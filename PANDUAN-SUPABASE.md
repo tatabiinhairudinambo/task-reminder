@@ -99,13 +99,19 @@ Tabel yang perlu dibawa: `users`, `course_contents`, `tasks`, `settings`, `grade
 
 ## Untuk Testing
 
-`server/phpunit.xml` sudah dikonfigurasi untuk MySQL (`task_reminder_test`). Untuk menjalankan tes terhadap PostgreSQL, timpa lewat environment variable:
+`server/phpunit.xml` sudah dikonfigurasi untuk PostgreSQL/Supabase (`task_reminder_pg_test`); host dan kredensial diwarisi dari `server/.env`. Buat database test-nya sekali:
 
 ```bash
 cd server
-DB_CONNECTION=pgsql DB_HOST=127.0.0.1 DB_PORT=5432 \
-DB_DATABASE=task_reminder_pg_test DB_USERNAME=postgres DB_PASSWORD= \
+php artisan tinker --execute="DB::statement('CREATE DATABASE task_reminder_pg_test')"
 php artisan test
+```
+
+Untuk menjalankan tes terhadap MySQL, timpa lewat environment variable:
+
+```bash
+cd server
+DB_CONNECTION=mysql DB_DATABASE=task_reminder_test php artisan test
 ```
 
 ## Perbedaan Perilaku MySQL vs PostgreSQL
