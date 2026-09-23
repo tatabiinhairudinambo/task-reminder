@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Fall back to a same-origin "/api" when no VITE_API_URL is provided.
+//
+// The .env files are gitignored, so a fresh clone (CI, a new machine, the
+// production server) has none: without this fallback the bundle would be
+// built with `baseURL: undefined` and every request would hit the static
+// host instead of the API. In production the SPA and the API share one
+// domain, so a relative URL is correct there.
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const axiosInstance = axios.create({
     baseURL: API_URL,
