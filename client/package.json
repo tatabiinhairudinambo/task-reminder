@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node -e \"import('node:fs').then(fs=>fs.copyFileSync('public/.htaccess','dist/.htaccess'))\"",
+    "build": "vite build && node scripts/copy-htaccess.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
