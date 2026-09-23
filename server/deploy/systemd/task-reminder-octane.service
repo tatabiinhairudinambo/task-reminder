@@ -1,0 +1,34 @@
+[Unit]
+Description=Task Reminder - Octane (FrankenPHP) API + SPA
+Documentation=https://laravel.com/docs/octane
+After=network.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_SERVER_DIR__
+
+# Octane owns the HTTP server for the single domain: it serves the API under
+# /api and the pre-built SPA for everything else.
+ExecStart=/usr/bin/env php __APP_SERVER_DIR__/artisan octane:start \
+    --server=frankenphp \
+    --host=127.0.0.1 \
+    --port=8000 \
+    --caddyfile=__APP_SERVER_DIR__/deploy/Caddyfile \
+    --workers=auto \
+    --max-requests=500
+
+ExecReload=/usr/bin/env php __APP_SERVER_DIR__/artisan octane:reload
+Restart=always
+RestartSec=3
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=task-reminder-octane
+
+# Only Cloudflare Tunnel talks to this port.
+Environment=APP_ENV=production
+
+[Install]
+WantedBy=multi-user.target

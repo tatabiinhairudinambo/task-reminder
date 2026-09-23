@@ -1,0 +1,31 @@
+[Unit]
+Description=Task Reminder - queue worker (email + Telegram notifications)
+After=network.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_SERVER_DIR__
+
+# Non-test notifications are queued, so this worker is what actually
+# delivers email and Telegram messages.
+# --max-time keeps memory leaks in check; systemd restarts it immediately.
+ExecStart=/usr/bin/env php __APP_SERVER_DIR__/artisan queue:work \
+    --queue=default \
+    --sleep=3 \
+    --tries=3 \
+    --max-time=3600 \
+    --max-jobs=1000
+
+Restart=always
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=task-reminder-queue
+
+Environment=APP_ENV=production
+
+[Install]
+WantedBy=multi-user.target

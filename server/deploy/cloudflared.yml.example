@@ -1,0 +1,26 @@
+# Cloudflare Tunnel configuration for Task Reminder.
+#
+# Setup (once):
+#   cloudflared tunnel login
+#   cloudflared tunnel create task-reminder
+#     -> prints the tunnel UUID, e.g. 6ff42ae2-765d-4adf-8112-31c55c1551ef
+#   cloudflared tunnel route dns task-reminder task.attaambo.dev
+#
+# Then copy this file to ~/.cloudflared/config.yml, replace <TUNNEL-UUID>
+# with the UUID printed above, and run it as a service:
+#   sudo cloudflared service install
+#   sudo systemctl enable --now cloudflared
+#
+# Result: https://task.attaambo.dev -> http://127.0.0.1:8000
+# The API and the SPA share this one hostname, so no CORS setup is needed.
+
+tunnel: <TUNNEL-UUID>
+credentials-file: /root/.cloudflared/<TUNNEL-UUID>.json
+
+ingress:
+  # Single domain: Octane serves /api/* and the SPA shell for everything else.
+  - hostname: task.attaambo.dev
+    service: http://127.0.0.1:8000
+
+  # Required catch-all rule.
+  - service: http_status:404
