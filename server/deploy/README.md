@@ -105,9 +105,14 @@ cd ~/task-reminder
 sudo bash server/deploy/setup-oracle.sh
 ```
 
-Script setup memasang: PHP 8.3 + ekstensi (pdo_pgsql, intl, gd, zip, mbstring),
-Composer, Node.js 20, `uv` + Python (bridge Siakang), binary FrankenPHP, dan
+Script setup memasang: PHP 8.4 + ekstensi (pdo_pgsql, intl, gd, zip, mbstring),
+Composer, Node.js 22, `uv` + Python (bridge Siakang), binary FrankenPHP, dan
 `cloudflared`.
+
+> **Versi minimum.** `composer.lock` mengunci Symfony 8, yang butuh
+> **PHP >= 8.4.1** (dicek otomatis di `vendor/composer/platform_check.php`).
+> Node juga harus **>= 22.13** karena pnpm 11 dan Vite 8 menolak Node 20.
+> Script setup sudah memakai versi yang benar — jangan diturunkan.
 
 > Binary FrankenPHP sudah membawa semua ekstensi yang dibutuhkan aplikasi
 > (termasuk `pdo_pgsql` untuk Supabase dan `zip`/`gd` untuk import Excel),
@@ -117,8 +122,11 @@ Composer, Node.js 20, `uv` + Python (bridge Siakang), binary FrankenPHP, dan
 
 ## 2. Konfigurasi environment
 
+Install dependensi dulu — `php artisan` belum bisa jalan sebelum `vendor/` ada:
+
 ```bash
 cd ~/task-reminder/server
+composer install --no-dev --optimize-autoloader
 cp deploy/.env.production.example .env
 php artisan key:generate
 ```
@@ -131,9 +139,19 @@ Edit `.env` dan isi bagian yang bertanda kosong:
 | `DB_USERNAME` | user pooler Supabase (`postgres.xxxx`) |
 | `TELEGRAM_BOT_TOKEN` | token bot Telegram |
 | `MAIL_*` | kredensial SMTP (kalau notifikasi email dipakai) |
+| `SIAKANG_UV` | path `uv`; default `/home/ubuntu/.local/bin/uv`. Ganti kalau user aplikasi bukan `ubuntu`. |
 
 Nilai `APP_URL` dan `FRONTEND_URL` **sudah** diisi `https://task.attaambo.dev`.
 Jangan diganti — link verifikasi email dan reset password memakai keduanya.
+
+Siapkan environment Python untuk bridge Siakang:
+
+```bash
+cd siakang-sync && uv sync --locked && cd ..
+```
+
+> `--locked` memakai `uv.lock` yang sudah di-commit, jadi versi
+> `siakang-scrapling` di server persis sama dengan yang diuji di lokal.
 
 > `APP_KEY` berbeda dengan yang di lokal itu **tidak masalah** untuk data di
 > Supabase, **kecuali** kredensial Siakang yang tersimpan (`siakang_email` /
@@ -141,12 +159,9 @@ Jangan diganti — link verifikasi email dan reset password memakai keduanya.
 > user perlu mengisi ulang kredensial Siakang di Pengaturan. Untuk
 > menghindarinya, salin `APP_KEY` dari `.env` lokal ke `.env` server.
 
-Install dependensi:
-
-```bash
-composer install --no-dev --optimize-autoloader
-(cd siakang-sync && uv sync)
-```
+> `sudo bash deploy/setup-oracle.sh` sudah menambahkan sudoers drop-in yang
+> mengizinkan user aplikasi me-restart ketiga service. Tanpa itu
+> `deploy.sh` akan berhenti di `systemctl restart` dengan prompt password.
 
 ---
 
@@ -239,12 +254,31 @@ Buka `https://task.attaambo.dev` di browser, login, dan cek aplikasi.
 
 ## 7. Update aplikasi di kemudian hari
 
+Kalau di VM ada clone git (Cara B/C), cukup:
+
 ```bash
 cd ~/task-reminder
 git pull
 cd server
 bash deploy/deploy.sh
 ```
+
+Kalau project dikirim dengan `upload-to-server.ps1` / `.sh`, folder `.git`
+**tidak ikut terkirim**, jadi `git pull` tidak bisa dipakai. Upload ulang dari
+komputer Anda (isi lama ditimpa, `.env` dan `vendor/` tetap aman):
+
+```powershell
+.\server\deploy\upload-to-server.ps1 -Target ubuntu@<vm-ip>
+```
+
+```bash
+# lalu di VM
+cd ~/task-reminder/server && bash deploy/deploy.sh
+```
+
+`deploy.sh` sudah menjalankan `composer install`, `uv sync --locked`,
+`migrate --force`, rebuild cache, dan restart service. Jalankan juga saat
+pertama kali selesai konfigurasi `.env`.
 
 ---
 
@@ -277,7 +311,11 @@ cd ~/task-reminder/server && php artisan schedule:list
 | Login sukses tapi link email salah | `APP_URL` belum domain | Perbaiki `.env`, lalu `php artisan config:cache` |
 | Notifikasi tidak terkirim | Queue worker mati | `sudo systemctl status task-reminder-queue` |
 | Reminder 07:00 tidak jalan | Scheduler mati | `sudo systemctl status task-reminder-scheduler` |
-| Sinkron Siakang gagal | `uv` tidak ketemu | Set `SIAKANG_UV` di `.env`, lihat `journalctl` |
+| Sinkron Siakang gagal | `uv` tidak ketemu | Set `SIAKANG_UV` di `.env` (default `/home/ubuntu/.local/bin/uv`), lalu `php artisan config:cache`, lihat `journalctl` |
+| Deploy berhenti: "APP_KEY is empty" | `.env` belum di-generate | `php artisan key:generate` (setelah `composer install`) |
+| Deploy berhenti di `systemctl restart` (prompt password) | sudoers drop-in belum ada | `sudo bash deploy/setup-oracle.sh` (pasang `/etc/sudoers.d/task-reminder-deploy`) |
+| `composer install` gagal: "requires PHP >= 8.4.1" | PHP sistem terlalu tua | Pakai PHP 8.4 dari `setup-oracle.sh` |
+| Build SPA gagal: pnpm butuh Node >= 22.13 | Node 20 | Pasang Node 22 (`NODE_MAJOR="22"` di `setup-oracle.sh`) |
 | "Out of capacity" saat buat VM | Kapasitas ARM penuh | Ganti region atau coba lagi nanti |
 | Import Excel gagal | ekstensi zip/gd hilang | Pakai binary FrankenPHP dari script setup |
 

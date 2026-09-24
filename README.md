@@ -5,7 +5,7 @@
 <h1 align="center">Task Reminder</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/PHP-^8.3-777BB4?style=flat&logo=php" alt="PHP">
+  <img src="https://img.shields.io/badge/PHP-^8.4-777BB4?style=flat&logo=php" alt="PHP">
   <img src="https://img.shields.io/badge/Laravel-13.30-F9322C?style=flat&logo=laravel" alt="Laravel">
   <img src="https://img.shields.io/badge/React-19.2-61DAFB?style=flat&logo=react" alt="React">
   <img src="https://img.shields.io/badge/Vite-8.2-B73BFE?style=flat&logo=vite" alt="Vite">
@@ -35,12 +35,12 @@
 ## Tech Stack
 
 - **Frontend**: React 19, Vite 8, Tailwind 4, shadcn/ui, React Router 7, Zustand, Chart.js
-- **Backend**: Laravel 13 (PHP 8.3), Sanctum, Octane, Excel 4.0, Pest 5
+- **Backend**: Laravel 13 (PHP 8.4), Sanctum, Octane, Excel 4.0, Pest 5
 - **Bridge**: Python 3.11 + `uv` + `siakang-scrapling`
 
 ## Setup
 
-**Prerequisites:** PHP 8.3+, Composer, Node 20+, pnpm 11+, Python 3.11 + uv, MySQL
+**Prerequisites:** PHP 8.4.1+, Composer, Node 22.13+, pnpm 11+, Python 3.11 + uv, MySQL
 
 ```bash
 # Backend
@@ -49,7 +49,7 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
-cd siakang-sync && uv sync && cd ..
+cd siakang-sync && uv sync --locked && cd ..
 
 # Frontend
 cd client
@@ -67,6 +67,12 @@ cd server && composer run dev
 # Terminal 2 — SPA :5173
 cd client && pnpm dev
 ```
+
+## Deploy
+
+Production runs on a single Oracle Cloud VM behind a Cloudflare Tunnel
+(one domain, Octane/FrankenPHP serves both the SPA and `/api`).
+See [`server/deploy/README.md`](server/deploy/README.md).
 
 ## Commands
 

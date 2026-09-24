@@ -103,7 +103,10 @@ sudo bash server/deploy/install-services.sh  # systemd: octane, queue, scheduler
 ```
 
 - **`server/deploy/Caddyfile`** — SPA + API in one server. The `@laravel` matcher (`/api/* /up /sanctum/* /storage/*`) goes to the Octane worker; every other path falls back to `index.html` so SPA deep links do not 404. Do not replace it with Octane's default stub.
-- **`deploy/deploy.sh`** copies `client/dist` into `server/public/` but must **not** overwrite `public/.htaccess` (Laravel's front controller) with the SPA's Apache file.
+- **`deploy/deploy.sh`** copies `client/dist` into `server/public/` but must **not** overwrite `public/.htaccess` (Laravel's front controller) with the SPA's Apache file. It refuses to run without an `APP_KEY`, skips units that `install-services.sh` has not created yet, and resolves `uv` from `SIAKANG_UV`/`~/.local/bin` instead of assuming it is on PATH.
+- **Versions are load-bearing**: `composer.lock` pins Symfony 8 → **PHP >= 8.4.1** (enforced by `vendor/composer/platform_check.php`), and pnpm 11 / Vite 8 need **Node >= 22.13**. `setup-oracle.sh` installs PHP 8.4 + Node 22; do not lower `PHP_VERSION` or `NODE_MAJOR` there.
+- **`uv` path**: `setup-oracle.sh` writes `/etc/sudoers.d/task-reminder-deploy` so the app user can restart the three units without a password (otherwise `deploy.sh` hangs on a sudo prompt). `SIAKANG_UV` in `.env` must point at the app user's uv (`/home/ubuntu/.local/bin/uv`), not root's.
+- **`SIAKANG_UV` is read via `config('services.siakang.uv')`**, never `env()` — after `config:cache` (the production deploy always caches) Laravel stops loading `.env`, so a bare `env()` call silently returns null.
 - **Systemd services must stay enabled**: `task-reminder-queue` delivers notifications (they are queued) and `task-reminder-scheduler` fires the 07:00 reminder. Without them the app works but sends nothing.
 - **FrankPHP ships every extension the app needs** (`pdo_pgsql`, `intl`, `gd`, `zip` for Excel, `mbstring`, `bcmath`), so the API does not depend on the system PHP build.
 - Full guide: `server/deploy/README.md`.
@@ -114,7 +117,7 @@ Laravel shells out to a small Python CLI at `server/siakang-sync/run.py` to pull
 
 - **Bridge**: `server/siakang-sync/run.py` — reads a JSON command from stdin, writes `{code, message, data}` to stdout. Always exits `0` for valid commands (HTTP-like status rides in `code`); non-zero only for hard process failures.
 - **Invoker**: `app/Services/SiakangClient.php` — `Process` facade, sends payload via `->input()`. Prefers `.venv/bin/python` (no runtime `uv` dependency), falls back to `uv run`.
-- **Setup**: `cd server/siakang-sync && uv sync` (Python 3.11+). `.venv`, `uv.lock`, and `.siakang_session_*.json` are gitignored.
+- **Setup**: `cd server/siakang-sync && uv sync --locked` (Python 3.11+). `uv.lock` is committed so the pinned `siakang-scrapling` revision is reproducible on the VM; only `.venv/` and `.siakang_session_*.json` are gitignored.
 - **Session cache**: `session_file=True` everywhere except `verify`, which forces a fresh login so a wrong password isn't masked by a cached session.
 - **Details**: the schedule bridge uses `get_detail(schedule_id, tab_keys=[])` (header-only) fetched in parallel — only `kelas` + `dosen` are needed, not all tabs.
 - **Credentials**: stored encrypted in `settings.siakang_email`/`settings.siakang_password` (`encrypted` cast, hidden from JSON). `SettingsService::updateSiakangCredentials` validates via Siakang before persisting; a 401 here must NOT be treated as an app-logout.

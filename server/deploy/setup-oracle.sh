@@ -4,8 +4,8 @@
 # "Always Free" ARM (Ampere A1) instance running Ubuntu 22.04 / 24.04.
 #
 # What it installs:
-#   - PHP 8.3 CLI + extensions (Composer, artisan, tests, queue, scheduler)
-#   - Node.js 20 (to build the React SPA)
+#   - PHP 8.4 CLI + extensions (Composer, artisan, tests, queue, scheduler)
+#   - Node.js 22 (to build the React SPA)
 #   - uv + Python 3.12 (for the Siakang bridge)
 #   - FrankenPHP binary, which also ships its own embedded PHP runtime
 #   - cloudflared (Cloudflare Tunnel client)
@@ -22,9 +22,9 @@ set -euo pipefail
 APP_USER="${SUDO_USER:-ubuntu}"
 APP_HOME="$(getent passwd "$APP_USER" | cut -d: -f6)"
 APP_DIR="${APP_HOME}/task-reminder"
-PHP_VERSION="8.3"
+PHP_VERSION="8.4"
 FRANKENPHP_VERSION="v1.12.7"
-NODE_MAJOR="20"
+NODE_MAJOR="22"
 
 echo "==> Task Reminder setup for Oracle Cloud (user: ${APP_USER})"
 echo "==> App directory will be: ${APP_DIR}"
@@ -108,6 +108,23 @@ echo "==> Creating app directory ${APP_DIR}"
 mkdir -p "$APP_DIR"
 chown -R "${APP_USER}:${APP_USER}" "$APP_DIR"
 
+# `deploy.sh` runs as the app user but restarts the systemd units (owned by
+# root). Without this drop-in it would stop at the first `sudo systemctl`
+# with a password prompt. Only the three units from this project are
+# allowed - no wildcards, so nothing else on the box is reachable through it.
+echo "==> Allowing ${APP_USER} to restart the Task Reminder services"
+cat > /etc/sudoers.d/task-reminder-deploy <<SFILE
+${APP_USER} ALL=(root) NOPASSWD: /usr/bin/systemctl restart task-reminder-octane.service
+${APP_USER} ALL=(root) NOPASSWD: /usr/bin/systemctl restart task-reminder-queue.service
+${APP_USER} ALL=(root) NOPASSWD: /usr/bin/systemctl restart task-reminder-scheduler.service
+SFILE
+chmod 0440 /etc/sudoers.d/task-reminder-deploy
+if ! visudo -c -f /etc/sudoers.d/task-reminder-deploy >/dev/null 2>&1; then
+    echo "ERROR: generated sudoers file is invalid; removing it." >&2
+    rm -f /etc/sudoers.d/task-reminder-deploy
+    exit 1
+fi
+
 cat <<EOF
 
 ============================================================
@@ -129,7 +146,7 @@ Langkah berikutnya (jalankan sebagai user ${APP_USER}):
 
   3. Install dependensi PHP + Python:
        composer install --no-dev --optimize-autoloader
-       cd siakang-sync && uv sync && cd ..
+       cd siakang-sync && uv sync --locked && cd ..
 
   4. Deploy aplikasi (build SPA, migrate, cache, restart service):
        bash deploy/deploy.sh

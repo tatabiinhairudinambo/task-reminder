@@ -88,11 +88,15 @@ class SiakangClient
     /**
      * Locate the uv binary, preferring an explicit path so a process running
      * under Octane/FrankenPHP with a restricted PATH still finds it.
+     *
+     * Read through config() rather than env(): once `config:cache` runs (the
+     * production deploy always does), Laravel stops loading .env, so a bare
+     * env('SIAKANG_UV') would silently become null.
      */
     private function findUv(): ?string
     {
         $candidates = array_filter([
-            env('SIAKANG_UV'),
+            config('services.siakang.uv'),
             $_SERVER['SIAKANG_UV'] ?? null,
             '/root/.local/bin/uv',
             '/usr/local/bin/uv',

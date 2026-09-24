@@ -74,8 +74,9 @@ Desktop.ini
 .Spotlight-V100
 .Trashes
 
-# Composer
-**/composer.lock
+# Composer / uv lock files are committed on purpose: the deploy relies on
+# `composer install` and `uv sync --locked` resolving to exactly the versions
+# that were tested. Do not add these patterns back.
 
 # Coverage reports
 **/coverage
@@ -110,6 +111,4 @@ graphify-out/
 
 # Siakang sync (Python bridge)
 **/siakang-sync/.venv
-**/siakang-sync/uv.lock
 **/siakang-sync/.siakang_session_*.json
-**/uv.lock

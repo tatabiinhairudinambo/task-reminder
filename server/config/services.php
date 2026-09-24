@@ -39,4 +39,12 @@ return [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
     ],
 
+    'siakang' => [
+        // Absolute path to the `uv` binary used by the Python bridge.
+        // Config, not a bare env() call: Octane runs with a restricted PATH
+        // and the production deploy caches the config, after which .env is
+        // no longer loaded.
+        'uv' => env('SIAKANG_UV'),
+    ],
+
 ];

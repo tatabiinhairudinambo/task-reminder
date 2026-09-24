@@ -76,7 +76,6 @@ try {
         --exclude='*.zip' `
         -czf $tempTar .
     if ($LASTEXITCODE -ne 0) { throw 'tar failed while packing the project.' }
-
     $sizeMb = [math]::Round((Get-Item $tempTar).Length / 1MB, 1)
     Write-Host "    archive: $sizeMb MB"
 
