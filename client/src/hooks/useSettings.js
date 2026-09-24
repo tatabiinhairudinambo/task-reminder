@@ -180,7 +180,7 @@ export const useSettings = () => {
                     errors: error.response?.data?.errors || {},
                     oldPasswordError:
                         error.response?.status === 401
-                            ? error.response.data.message
+                            ? error.response?.data?.message
                             : error.response?.data?.errors?.old_password || '',
                 };
             } finally {
