@@ -51,21 +51,61 @@ jadi port 80/443 tidak perlu dibuka.
 
 ## 1. Setup VM
 
-SSH ke VM, lalu:
+SSH ke VM, lalu pilih **salah satu** cara memindahkan project.
+
+> Repo GitHub-nya **private**, jadi `git clone` polos akan gagal dengan
+> `Repository not found` (GitHub menanyakan kredensial). Pilih cara di bawah.
+
+### Cara A - upload dari komputer Anda (paling sederhana)
+
+Jalankan dari komputer Anda (bukan di VM). Skrip ini mengirim project dan
+**hanya** yang dibutuhkan - `node_modules`, `vendor`, `.git`, log storage, dan
+`.env` tidak ikut:
 
 ```bash
-# Clone project (atau upload lewat scp/rsync)
-git clone <repo-url> ~/task-reminder
-cd ~/task-reminder
+# dari root project, ganti <vm-ip> dengan IP publik VM Anda
+bash server/deploy/upload-to-server.sh ubuntu@<vm-ip>
 ```
 
-Jalankan setup sekali saja:
+**Windows (PowerShell)** - tanpa perlu Git Bash:
+
+```powershell
+.\server\deploy\upload-to-server.ps1 -Target ubuntu@<vm-ip>
+```
+
+Lalu di VM:
 
 ```bash
+cd ~/task-reminder
 sudo bash server/deploy/setup-oracle.sh
 ```
 
-Script ini memasang: PHP 8.3 + ekstensi (pdo_pgsql, intl, gd, zip, mbstring),
+### Cara B - clone dengan token GitHub
+
+Buat token di GitHub -> **Settings** -> **Developer settings** ->
+**Personal access tokens** -> **Fine-grained tokens**, beri akses
+**Read** hanya untuk repo `task-reminder`. Lalu di VM:
+
+```bash
+git clone https://<TOKEN>@github.com/tatabiinhairudinambo/task-reminder.git ~/task-reminder
+cd ~/task-reminder
+sudo bash server/deploy/setup-oracle.sh
+```
+
+Cabut token itu setelah selesai (GitHub -> token -> **Revoke**).
+
+### Cara C - buat repo publik sementara
+
+Ubah repo jadi **Public** di GitHub -> Settings -> General -> Danger Zone.
+Clone seperti biasa, lalu kembalikan ke **Private**:
+
+```bash
+git clone https://github.com/tatabiinhairudinambo/task-reminder.git ~/task-reminder
+cd ~/task-reminder
+sudo bash server/deploy/setup-oracle.sh
+```
+
+Script setup memasang: PHP 8.3 + ekstensi (pdo_pgsql, intl, gd, zip, mbstring),
 Composer, Node.js 20, `uv` + Python (bridge Siakang), binary FrankenPHP, dan
 `cloudflared`.
 
