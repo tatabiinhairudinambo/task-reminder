@@ -37,7 +37,10 @@ const VerifiedEmail = () => {
         } catch (error) {
             console.error(error);
 
-            setMessage(error.response.data.message);
+            // Not every failure carries a response: a network error or the
+            // "token not found" guard below throws a plain Error, and reading
+            // error.response.data there would blank the page.
+            setMessage(error.response?.data?.message || 'Verifikasi email gagal');
             setDescription('Verifikasi email gagal. Silakan coba lagi.');
 
             localStorage.setItem('isEmailVerified', false);
