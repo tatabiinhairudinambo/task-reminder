@@ -111,7 +111,7 @@ export const GradeFormDialog = ({
     return (
         <>
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent persistent>
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{mode === 'create' ? 'Tambah Nilai Baru' : 'Ubah Nilai'}</DialogTitle>
                     <DialogDescription>Masukkan detail nilai.</DialogDescription>
