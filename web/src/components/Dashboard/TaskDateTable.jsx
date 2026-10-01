@@ -1,0 +1,158 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { ArrowUpDown, Ellipsis } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
+import { LoadingTable } from '@/components/shared/LoadingTable';
+import { cn } from '@/lib/utils';
+import { compareValues, getDeadlineBadgeClass } from '@/lib/tableUtils';
+
+const getSortValue = (task, key) => {
+    switch (key) {
+        case 'course_content':
+            return task.course_content || '';
+        case 'task':
+            return task.task || '';
+        case 'deadline':
+            return task.deadline || '';
+        case 'status':
+            return Number(task.status || 0);
+        case 'priority':
+            return Number(task.priority || 0);
+        default:
+            return '';
+    }
+};
+
+export const TaskDateTable = ({ tasks, onStatusChange, onEdit, onDelete, isMutating, isLoading = false }) => {
+    const [sortConfig, setSortConfig] = useState({ key: 'deadline', direction: 'asc' });
+
+    const sortedTasks = useMemo(() => {
+        const list = [...tasks];
+        list.sort((left, right) => {
+            const leftValue = getSortValue(left, sortConfig.key);
+            const rightValue = getSortValue(right, sortConfig.key);
+            const result = compareValues(leftValue, rightValue);
+            return sortConfig.direction === 'asc' ? result : -result;
+        });
+        return list;
+    }, [tasks, sortConfig]);
+
+    const handleSort = (key) => {
+        setSortConfig((current) => {
+            if (current.key === key) {
+                return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' };
+            }
+            return { key, direction: 'asc' };
+        });
+    };
+
+    return (
+        <Card className="my-4">
+            <CardContent className="overflow-x-auto p-0">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-center">No</TableHead>
+                            <TableHead>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('course_content')}>
+                                    Mata Kuliah <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                </Button>
+                            </TableHead>
+                            <TableHead>
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('task')}>
+                                    Tugas <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                </Button>
+                            </TableHead>
+                            <TableHead className="text-center">
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('deadline')}>
+                                    Tenggat <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                </Button>
+                            </TableHead>
+                            <TableHead className="text-center">
+                                <Button variant="ghost" className="h-auto px-2 py-1 font-medium" onClick={() => handleSort('status')}>
+                                    Status <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+                                </Button>
+                            </TableHead>
+                            <TableHead className="text-center">Aksi</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <LoadingTable rows={5} columns={6} />
+                        ) : sortedTasks.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center">
+                                    Tidak ada tugas pada tanggal ini
+                                </TableCell>
+                            </TableRow>
+                        ) : sortedTasks.map((task, index) => (
+                            <TableRow key={task.id}>
+                                <TableCell className="text-center font-bold">{index + 1}</TableCell>
+                                <TableCell>{task.course_content}</TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-2">
+                                        <span>{task.task}</span>
+                                        {task.priority ? (
+                                            <Badge className={cn(
+                                                task.status === 1
+                                                    ? 'bg-success text-success-foreground hover:bg-success/80'
+                                                    : 'bg-destructive text-destructive-foreground hover:bg-destructive/80'
+                                            )}>
+                                                Prioritas
+                                            </Badge>
+                                        ) : null}
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <Badge className={cn(getDeadlineBadgeClass(task.deadline_label, task.status))}>
+                                        {task.deadline_label}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <div className="flex justify-center">
+                                        <Checkbox
+                                            checked={task.status === 1}
+                                            disabled={isMutating}
+                                            onCheckedChange={(checked) => onStatusChange(task.id, checked === true)}
+                                        />
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon">
+                                                <Ellipsis className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem onClick={() => onEdit(task)}>Ubah</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => onDelete(task.id)}>Hapus</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
+};

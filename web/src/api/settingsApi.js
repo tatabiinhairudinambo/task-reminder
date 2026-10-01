@@ -1,0 +1,39 @@
+'use client';
+
+import axiosInstance from './axiosInstance';
+
+export const settingsApi = {
+    updateDeadlineNotification: (data) =>
+        axiosInstance.put('/settings/deadline-notification', data),
+
+    updateNotificationChannel: (data) =>
+        axiosInstance.put('/settings/notification-channel', data),
+
+    updateTelegramChatId: (data) =>
+        axiosInstance.put('/settings/telegram-chat-id', data),
+
+    testNotification: () =>
+        axiosInstance.post('/settings/test-notification'),
+
+    updateTaskCreatedNotification: (data) =>
+        axiosInstance.patch('/settings/task-created-notification', data),
+
+    updateTaskCompletedNotification: (data) =>
+        axiosInstance.patch('/settings/task-completed-notification', data),
+
+    saveSiakangCredentials: (data) =>
+        axiosInstance.put('/settings/siakang-credentials', data, {
+            skipAuthLogout: true,
+        }),
+
+    deleteSiakangCredentials: () =>
+        axiosInstance.delete('/settings/siakang-credentials', {
+            skipAuthLogout: true,
+        }),
+
+    testSiakangConnection: () =>
+        axiosInstance.post('/settings/siakang-credentials/test', null, {
+            skipAuthLogout: true,
+        }),
+
+};

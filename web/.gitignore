@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Prisma client (regenerate with `pnpm db:generate`)
+src/generated/
+
+# Environment files
+.env*
+!.env.example
+
+# Testing and coverage
+coverage/
+test-results/
+
+# Logs
+*.log

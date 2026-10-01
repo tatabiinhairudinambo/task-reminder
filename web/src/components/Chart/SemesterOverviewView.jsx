@@ -1,0 +1,82 @@
+'use client';
+
+import { StatCard } from '@/components/shared/StatCard';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useSemesterOverview } from '@/hooks/useSemesterOverview';
+import { GpaTrendChart } from '@/components/Chart/GpaTrendChart';
+import { TaskDistributionLineChart } from '@/components/Chart/TaskDistributionLineChart';
+import { GraduationCap, ListChecks, CheckCircle2, Clock } from 'lucide-react';
+
+export const SemesterOverviewView = () => {
+    const { semesters, overviewData, isLoading } = useSemesterOverview();
+
+    if (!semesters.length && !isLoading) {
+        return (
+            <Card className="mt-4">
+                <CardContent className="p-6 text-sm text-muted-foreground">
+                    Belum ada data semester untuk ditampilkan.
+                </CardContent>
+            </Card>
+        );
+    }
+
+    return (
+        <div className="mt-4 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    title="IPK Kumulatif"
+                    value={Number(overviewData?.cumulative_gpa ?? 0).toFixed(2)}
+                    subtitle="Semua semester"
+                    icon={GraduationCap}
+                    iconColor="text-primary"
+                    isLoading={isLoading}
+                />
+                <StatCard
+                    title="Total Tugas"
+                    value={overviewData?.total_task_all ?? 0}
+                    subtitle="Semua semester"
+                    icon={ListChecks}
+                    iconColor="text-primary"
+                    isLoading={isLoading}
+                />
+                <StatCard
+                    title="Tugas Selesai"
+                    value={overviewData?.completed_task_all ?? 0}
+                    subtitle="Semua semester"
+                    icon={CheckCircle2}
+                    iconColor="text-success"
+                    isLoading={isLoading}
+                />
+                <StatCard
+                    title="Tugas Belum Selesai"
+                    value={overviewData?.uncompleted_task_all ?? 0}
+                    subtitle="Semua semester"
+                    icon={Clock}
+                    iconColor="text-warning"
+                    isLoading={isLoading}
+                />
+            </div>
+
+            {isLoading ? (
+                <>
+                    <Card>
+                        <CardContent className="p-4">
+                            <Skeleton className="h-[300px] w-full" />
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="p-4">
+                            <Skeleton className="h-[300px] w-full" />
+                        </CardContent>
+                    </Card>
+                </>
+            ) : (
+                <>
+                    <GpaTrendChart semesters={semesters} />
+                    <TaskDistributionLineChart semesters={semesters} />
+                </>
+            )}
+        </div>
+    );
+};

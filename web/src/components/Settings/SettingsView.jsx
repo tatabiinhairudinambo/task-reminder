@@ -1,0 +1,97 @@
+'use client';
+
+import { useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSettings } from '@/hooks/useSettings';
+import { useAuth } from '@/hooks/useAuth';
+import { NotificationSettings } from '@/components/Settings/NotificationSettings';
+import { SiakangCredentialsForm } from '@/components/Settings/SiakangCredentialsForm';
+import { ProfileForm } from '@/components/Settings/ProfileForm';
+import { PasswordForm } from '@/components/Settings/PasswordForm';
+import { LogoutButton } from '@/components/Settings/LogoutButton';
+import { GradeView } from '@/components/Grade/GradeView';
+
+export const SettingsView = () => {
+    const {
+        userData,
+        settings,
+        isLoading,
+        isMutating,
+        updateDeadlineNotification,
+        updateNotificationChannel,
+        updateTelegramChatId,
+        testNotification,
+        toggleTaskCreatedNotification,
+        toggleTaskCompletedNotification,
+        updateProfile,
+        changePassword,
+        saveSiakangCredentials,
+        deleteSiakangCredentials,
+        testSiakangConnection,
+    } = useSettings();
+
+    const { logout } = useAuth();
+
+    useEffect(() => {
+        document.title = 'Pengaturan - Task Reminder';
+    }, []);
+
+    return (
+        <div className="space-y-6">
+            <Tabs defaultValue="notifications">
+                <TabsList>
+                    <TabsTrigger value="notifications">Notifikasi</TabsTrigger>
+                    <TabsTrigger value="siakang">Siakang</TabsTrigger>
+                    <TabsTrigger value="grades">Nilai</TabsTrigger>
+                    <TabsTrigger value="profile">Profil</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="notifications">
+                    <NotificationSettings
+                        isLoading={isLoading}
+                        isMutating={isMutating}
+                        notify={settings?.deadline_notification || '5 hari lagi'}
+                        notificationChannel={settings?.notification_channel || 'email'}
+                        telegramChatId={settings?.telegram_chat_id || ''}
+                        taskCreated={Number(settings?.task_created_notification || 0)}
+                        taskCompleted={Number(settings?.task_completed_notification || 0)}
+                        onNotifyChange={updateDeadlineNotification}
+                        onNotificationChannelChange={updateNotificationChannel}
+                        onTelegramChatIdSave={updateTelegramChatId}
+                        onTestNotification={testNotification}
+                        onTaskCreatedToggle={() =>
+                            toggleTaskCreatedNotification(Number(settings?.task_created_notification || 0) === 1 ? 0 : 1)
+                        }
+                        onTaskCompletedToggle={() =>
+                            toggleTaskCompletedNotification(Number(settings?.task_completed_notification || 0) === 1 ? 0 : 1)
+                        }
+                    />
+                </TabsContent>
+
+                <TabsContent value="siakang">
+                    <SiakangCredentialsForm
+                        isLoading={isLoading}
+                        isMutating={isMutating}
+                        hasCredentials={Boolean(settings?.has_siakang_credentials)}
+                        onSave={saveSiakangCredentials}
+                        onDelete={deleteSiakangCredentials}
+                        onTestConnection={testSiakangConnection}
+                    />
+                </TabsContent>
+
+                <TabsContent value="grades">
+                    <GradeView />
+                </TabsContent>
+
+                <TabsContent value="profile">
+                    <div className="my-4 flex flex-col gap-4 lg:flex-row">
+                        <ProfileForm userData={userData} isLoading={isLoading} onSubmit={updateProfile} />
+                        <PasswordForm onSubmit={changePassword} />
+                    </div>
+                </TabsContent>
+            </Tabs>
+
+            <LogoutButton isLoading={isMutating} onLogout={logout} />
+        </div>
+    );
+};

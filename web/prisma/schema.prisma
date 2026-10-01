@@ -1,0 +1,132 @@
+// Prisma schema mirroring the existing Laravel schema.
+//
+// The database is the SAME Supabase instance the Laravel API uses, so no data
+// migration is required: this file maps the tables that already exist. Keep
+// the names, types and indexes byte-compatible with the migrations in
+// server/database/migrations so both apps can run side by side during the
+// transition.
+//
+// Type mapping notes (Laravel -> Postgres -> Prisma):
+//   $table->id()          -> bigserial           -> BigInt @id @default(autoincrement())
+//   $table->string()      -> varchar(255)        -> String @db.VarChar(255)
+//   $table->text()        -> text                -> String @db.Text
+//   $table->decimal(x)    -> decimal(8,2)        -> Decimal @db.Decimal(8, 2)
+//   $table->date()        -> date                -> DateTime @db.Date
+//   $table->time()        -> time(0)             -> DateTime @db.Time(0)
+//   $table->boolean()     -> boolean (Postgres)  -> Boolean
+//
+// The Laravel models cast `tasks.status`, `tasks.priority`,
+// `settings.task_created_notification` and
+// `settings.task_completed_notification` to `integer` so the JSON API always
+// returns 0/1. Prisma has no such cast, so the serialization layer in
+// src/lib/serialize.ts does the same conversion - do not remove it, or the
+// SPA will receive `true`/`false` where it expects `1`/`0`.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                BigInt    @id @default(autoincrement())
+  name              String    @db.VarChar(255)
+  email             String    @unique @db.VarChar(255)
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String    @db.VarChar(255)
+  remember_token    String?   @db.VarChar(100)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+
+  courseContents CourseContent[]
+  tasks          Task[]
+  settings       Setting[]
+  grades         Grade[]
+
+  @@map("users")
+}
+
+model PasswordResetToken {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@map("password_reset_tokens")
+}
+
+model CourseContent {
+  id             BigInt   @id @default(autoincrement())
+  semester       String   @db.VarChar(255)
+  code           String   @db.VarChar(255)
+  course_content String   @db.VarChar(255)
+  credits        Int
+  score          Decimal? @db.Decimal(8, 2)
+  lecturer       String   @db.VarChar(255)
+  day            String   @db.VarChar(255)
+  hour_start     DateTime @db.Time(0)
+  hour_end       DateTime @db.Time(0)
+  user_id        BigInt
+
+  user  User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  // Laravel: public $timestamps = false;
+  @@index([user_id, semester], map: "idx_cc_user_semester")
+  @@map("course_contents")
+}
+
+model Task {
+  id                BigInt    @id @default(autoincrement())
+  task              String    @db.VarChar(255)
+  description       String?   @db.Text
+  deadline          DateTime  @db.Date
+  priority          Boolean   @default(false)
+  status            Boolean
+  user_id           BigInt
+  course_content_id BigInt
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+
+  user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  courseContent CourseContent @relation(fields: [course_content_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, status], map: "idx_tasks_user_status")
+  @@index([deadline], map: "idx_tasks_deadline")
+  @@index([course_content_id], map: "idx_tasks_course_content")
+  @@map("tasks")
+}
+
+model Setting {
+  id                          BigInt  @id @default(autoincrement())
+  deadline_notification       String  @db.VarChar(255)
+  task_created_notification   Boolean
+  task_completed_notification Boolean
+  notification_channel        String  @default("email") @db.VarChar(255)
+  telegram_chat_id            String? @db.VarChar(255)
+  siakang_email               String? @db.Text
+  siakang_password            String? @db.Text
+  user_id                     BigInt  @unique(map: "uq_settings_user")
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  // Laravel: public $timestamps = false;
+  @@map("settings")
+}
+
+model Grade {
+  id            BigInt  @id @default(autoincrement())
+  grade         String  @db.VarChar(255)
+  grade_point   Decimal @db.Decimal(8, 2)
+  minimal_score Decimal @db.Decimal(8, 2)
+  maximal_score Decimal @db.Decimal(8, 2)
+  user_id       BigInt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  // Laravel: public $timestamps = false;
+  @@unique([user_id, grade], map: "uq_grades_user_grade")
+  @@map("grades")
+}

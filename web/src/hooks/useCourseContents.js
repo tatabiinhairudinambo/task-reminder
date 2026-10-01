@@ -1,0 +1,177 @@
+'use client';
+
+import { useState, useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
+import { courseContentApi } from '@/api/courseContentApi';
+
+export const useCourseContents = (selectedSemester) => {
+    const [courseContents, setCourseContents] = useState([]);
+    const [totalCredits, setTotalCredits] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isMutating, setIsMutating] = useState(false);
+
+    const fetchCourseContents = useCallback(async (semester, showLoading = true) => {
+        try {
+            if (showLoading) {
+                setIsLoading(true);
+            }
+            const response = await courseContentApi.filter(semester);
+            setCourseContents(response.data.data.course_contents);
+            setTotalCredits(response.data.data.total_credits);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            if (showLoading) {
+                setIsLoading(false);
+            }
+        }
+    }, []);
+
+    const createCourseContent = useCallback(
+        async (formData) => {
+            try {
+                setIsMutating(true);
+                const response = await courseContentApi.create(formData);
+                toast.success(response.data.message);
+                await fetchCourseContents(selectedSemester, false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Gagal membuat mata kuliah.');
+                return { success: false, errors: error.response?.data?.errors || {} };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [selectedSemester, fetchCourseContents]
+    );
+
+    const updateCourseContent = useCallback(
+        async (id, data) => {
+            try {
+                setIsMutating(true);
+                const response = await courseContentApi.update(id, data);
+                toast.success(response.data.message);
+                await fetchCourseContents(selectedSemester, false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Gagal memperbarui mata kuliah.');
+                return { success: false, errors: error.response?.data?.errors || {} };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [selectedSemester, fetchCourseContents]
+    );
+
+    const deleteCourseContent = useCallback(
+        async (id) => {
+            try {
+                setIsMutating(true);
+                await courseContentApi.delete(id);
+                toast.success('Mata kuliah berhasil dihapus.');
+                await fetchCourseContents(selectedSemester, false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Gagal menghapus mata kuliah.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [selectedSemester, fetchCourseContents]
+    );
+
+    const downloadTemplate = useCallback(async () => {
+        try {
+            const response = await courseContentApi.downloadTemplate();
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'course_contents_template.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            toast.success('Template berhasil diunduh.');
+        } catch {
+            toast.error('Gagal mengunduh template.');
+        }
+    }, []);
+
+    const importFromExcel = useCallback(
+        async (file, onProgress) => {
+            try {
+                setIsMutating(true);
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await courseContentApi.importFromExcel(formData, onProgress);
+                toast.success(response.data.message || 'Impor berhasil.');
+                await fetchCourseContents(selectedSemester, false);
+                return { success: true };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Gagal mengimpor file.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [selectedSemester, fetchCourseContents]
+    );
+
+    const syncSchedule = useCallback(
+        async (sourceSemester) => {
+            // Siakang sync is only allowed into an empty semester (backend
+            // also enforces this with a 409) to protect tasks and scores.
+            if (courseContents.length > 0) {
+                toast.error('Semester sudah memiliki data mata kuliah. Bersihkan semester terlebih dahulu untuk sinkron ulang.');
+                return { success: false };
+            }
+            try {
+                setIsMutating(true);
+                const response = await courseContentApi.syncSchedule(selectedSemester, sourceSemester);
+                toast.success(response.data.message);
+                await fetchCourseContents(selectedSemester, false);
+                return { success: true, data: response.data.data };
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Gagal menyinkronkan jadwal.');
+                return { success: false };
+            } finally {
+                setIsMutating(false);
+            }
+        },
+        [selectedSemester, fetchCourseContents, courseContents.length]
+    );
+
+    const clearSemester = useCallback(async () => {
+        try {
+            setIsMutating(true);
+            const response = await courseContentApi.clearSemester(selectedSemester);
+            toast.success(response.data.message);
+            await fetchCourseContents(selectedSemester, false);
+            return { success: true, data: response.data.data };
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Gagal membersihkan semester.');
+            return { success: false };
+        } finally {
+            setIsMutating(false);
+        }
+    }, [selectedSemester, fetchCourseContents]);
+
+    useEffect(() => {
+        fetchCourseContents(selectedSemester);
+    }, [selectedSemester, fetchCourseContents]);
+
+    return {
+        courseContents,
+        totalCredits,
+        isLoading,
+        isMutating,
+        createCourseContent,
+        updateCourseContent,
+        deleteCourseContent,
+        downloadTemplate,
+        importFromExcel,
+        syncSchedule,
+        clearSemester,
+    };
+};
