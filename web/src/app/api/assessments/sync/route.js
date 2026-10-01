@@ -1,6 +1,6 @@
 import { requireVerifiedUser } from '@/lib/auth';
 import { syncScoresFromSiakang } from '@/lib/services/assessment-service';
-import { sendResponse, sendValidationError, route } from '@/lib/api-response';
+import { sendResponse, sendError, sendValidationError, route } from '@/lib/api-response';
 import { syncAssessmentSchema } from '@/lib/validation';
 
 // POST /api/assessments/sync - AssessmentController@sync
@@ -20,16 +20,25 @@ export const POST = route(async (request) => {
     parsed.data.source_semester ?? null
   );
 
-  if (result.updated === 0 && result.unchanged === 0) {
-    const suffix = result.no_match.length > 0 ? ` — ${result.no_match.length} mata kuliah tidak ditemukan` : '';
+  const updated = result.updated;
+  const unchanged = result.unchanged;
+  const noMatchCount = result.no_match.length;
 
-    return sendResponse(result, `Tidak ada skor yang cocok${suffix}`, 422);
+  const parts = [];
+
+  if (updated > 0) parts.push(`${updated} skor diperbarui`);
+  if (unchanged > 0) parts.push(`${unchanged} sudah terbaru`);
+
+  let message = parts.length === 0 ? 'Tidak ada skor yang cocok' : parts.join(', ');
+
+  if (noMatchCount > 0) {
+    message += ` — ${noMatchCount} mata kuliah tidak ditemukan di ${result.semester_label}`;
   }
 
-  let message = `${result.updated} skor diperbarui, ${result.unchanged} tidak berubah`;
-
-  if (result.no_match.length > 0 && result.semester_label) {
-    message += ` — ${result.no_match.length} mata kuliah tidak ditemukan di ${result.semester_label}`;
+  // Nothing updated and nothing was already current -> sendError (data: null),
+  // matching AssessmentController::sync.
+  if (updated === 0 && unchanged === 0) {
+    return sendError(message, 422);
   }
 
   return sendResponse(result, message);

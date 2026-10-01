@@ -74,7 +74,7 @@ export const ExcelImportDialog = ({
     return (
         <>
         <Dialog open={open} onOpenChange={closeDialog}>
-            <DialogContent persistent>
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Impor Data dari Excel</DialogTitle>
                     <DialogDescription>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Protected } from '../protected';
 import { WeeklySchedule } from '@/components/Schedule/WeeklySchedule';
 import { CourseDetailDialog } from '@/components/shared/CourseDetailDialog';
@@ -13,6 +13,10 @@ export default function SchedulePage() {
   const selectedSemester = useSemesterStore((state) => state.semester);
   const { courseContents, isLoading } = useCourseContents(selectedSemester);
   const [selectedCourse, setSelectedCourse] = useState(null);
+
+  useEffect(() => {
+    document.title = 'Jadwal - Task Reminder';
+  }, []);
 
   return (
     <Protected title="Jadwal">

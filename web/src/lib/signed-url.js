@@ -23,7 +23,13 @@ function sign(payload) {
 
 /** Build a signed absolute URL for a path, valid for `ttlSeconds`. */
 export function temporarySignedUrl(pathname, query = {}, ttlSeconds = 3600) {
-  const base = (process.env.APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+  // Laravel's VerifyEmailNotification rewrites the API URL to FRONTEND_URL, so
+  // the link the user clicks points at the SPA route, not the API.
+  const base = (
+    process.env.FRONTEND_URL ||
+    process.env.APP_URL ||
+    'http://localhost:3000'
+  ).replace(/\/$/, '');
   const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
 
   const params = new URLSearchParams({ ...query, expires: String(expires) });

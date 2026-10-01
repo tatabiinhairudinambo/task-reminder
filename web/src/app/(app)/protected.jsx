@@ -1,19 +1,21 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 
-// Client-side guard replacing <ProtectedRoute>.
+// Client-side guard mirroring client/src/components/ProtectedRoute: the
+// localStorage token mirror decides access, and redirects happen before the
+// protected shell paints (the old version always rendered the shell and
+// redirected afterwards, so unauthenticated visitors saw the app flash).
 //
-// The Laravel build decided purely from localStorage. Here the httpOnly cookie
-// is the real credential and cannot be read from JS, so the guard asks the API
-// (/api/auth/check/email, which returns 401 when the session is gone). The
-// localStorage mirror is still honoured first so the common case renders
-// without a round-trip.
+// The first render (SSR + hydration) must not decide - localStorage does not
+// exist on the server - so it renders nothing; the effect then redirects or
+// unlocks the shell. This avoids both a hydration mismatch and the flash.
 
 export function Protected({ title, children }) {
   const router = useRouter();
+  const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -26,8 +28,15 @@ export function Protected({ title, children }) {
 
     if (emailVerified === 'false') {
       router.replace('/auth/verify-email');
+      return;
     }
+
+    setUnlocked(true);
   }, [router]);
+
+  if (!unlocked) {
+    return null;
+  }
 
   return <AppLayout title={title}>{children}</AppLayout>;
 }

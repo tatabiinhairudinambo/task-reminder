@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { ApiError } from '@/lib/api-response';
-import { num, boolInt, dateOnly, deadlineLabel, serializeCourseContent } from '@/lib/serialize';
+import { num, boolInt, dateOnly, deadlineLabel, serializeCourseContentRaw } from '@/lib/serialize';
 import { siakangCredentialsOf } from '@/lib/services/settings-service';
 import { getSchedule } from '@/lib/services/siakang-client';
 
@@ -126,7 +126,7 @@ export async function create(userId, data) {
     },
   });
 
-  return serializeCourseContent(created);
+  return serializeCourseContentRaw(created);
 }
 
 export async function update(userId, id, data) {
@@ -180,7 +180,7 @@ export async function update(userId, id, data) {
     },
   });
 
-  return serializeCourseContent(updated);
+  return serializeCourseContentRaw(updated);
 }
 
 export async function remove(userId, id) {
@@ -285,6 +285,21 @@ export async function syncScheduleFromSiakang(userId, targetSemester, sourceSeme
     throw new ApiError('Kredensial Siakang belum diatur. Tambahkan di Pengaturan.', 422);
   }
 
+  // Laravel checks the target semester inside the transaction BEFORE calling
+  // Siakang, so a non-empty semester fails fast with 409 instead of paying for
+  // (and depending on) a bridge round-trip.
+  const alreadyExists = await prisma.courseContent.findFirst({
+    where: { user_id: userId, semester: semesterLabel },
+    select: { id: true },
+  });
+
+  if (alreadyExists) {
+    throw new ApiError(
+      'Semester sudah memiliki data mata kuliah. Bersihkan terlebih dahulu untuk sinkron ulang.',
+      409
+    );
+  }
+
   const response = await getSchedule(credentials.email, credentials.password, sourceSemester);
 
   if ((response.code ?? 0) !== 200) {
@@ -301,20 +316,6 @@ export async function syncScheduleFromSiakang(userId, targetSemester, sourceSeme
   }
 
   return prisma.$transaction(async (tx) => {
-    // Re-syncing into a non-empty semester would cascade-delete existing tasks
-    // and scores, so it is refused; the caller must clear it explicitly first.
-    const alreadyExists = await tx.courseContent.findFirst({
-      where: { user_id: userId, semester: semesterLabel },
-      select: { id: true },
-    });
-
-    if (alreadyExists) {
-      throw new ApiError(
-        'Semester sudah memiliki data mata kuliah. Bersihkan terlebih dahulu untuk sinkron ulang.',
-        409
-      );
-    }
-
     let inserted = 0;
     const skipped = [];
     const insertedCodes = new Set();

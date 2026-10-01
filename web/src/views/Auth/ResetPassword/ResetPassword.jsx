@@ -37,15 +37,14 @@ const ResetPassword = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('token', token || '');
-        formData.append('email', email || '');
-        formData.append('password', password);
-        formData.append('password_confirmation', confirmPassword);
-
         try {
             setLoading(true);
-            const response = await passwordApi.resetPassword(formData);
+            const response = await passwordApi.resetPassword({
+                token: token || '',
+                email: email || '',
+                password,
+                password_confirmation: confirmPassword,
+            });
             toast.success(response?.data?.message || 'Kata sandi berhasil direset');
 
             localStorage.removeItem('isPasswordReset');

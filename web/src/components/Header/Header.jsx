@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useSemesterStore from '@/store/useSemesterStore';
 import { SEMESTERS } from '@/lib/constants';
@@ -22,7 +22,15 @@ const Header = ({ title }) => {
     const semesterLabel = useSemesterStore((state) => state.semesterLabel);
     const setSemester = useSemesterStore((state) => state.setSemester);
     const userName = useSemesterStore((state) => state.userName);
-    const displayName = userName || localStorage.getItem('name') || 'Pengguna';
+    // localStorage is not available during SSR; the client SPA read it during
+    // render and this value must not differ on the first client render.
+    const [storedName, setStoredName] = useState('');
+
+    useEffect(() => {
+        setStoredName(localStorage.getItem('name') || '');
+    }, []);
+
+    const displayName = userName || storedName || 'Pengguna';
 
     useEffect(() => {
         localStorage.removeItem('isPasswordReset');

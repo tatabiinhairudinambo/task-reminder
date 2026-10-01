@@ -150,7 +150,9 @@ export async function siakangCredentialsOf(userId) {
     return null;
   }
 
-  return { email: email.trim(), password };
+  // Laravel trimmed the stored password at every call site before handing it
+  // to the bridge.
+  return { email: email.trim(), password: password.trim() };
 }
 
 export { toBoolean, serializeSetting };

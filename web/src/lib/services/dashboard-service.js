@@ -228,14 +228,18 @@ function round2(value) {
   return Math.round(value * 100) / 100;
 }
 
-/** `j F Y` in Indonesian, matching Carbon's translatedFormat. */
+/**
+ * `j F Y` with Carbon's `format()` - English month names, because
+ * DashboardService uses `format`, not `translatedFormat` (only the reminder
+ * mail and Telegram deadlines use the Indonesian locale).
+ */
 export function formatLongDate(value) {
   if (value === null || value === undefined) return null;
 
   const d = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return null;
 
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

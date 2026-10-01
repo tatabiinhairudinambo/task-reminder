@@ -44,6 +44,14 @@ export function timeOnly(value) {
   return d.toISOString().slice(11, 16);
 }
 
+/** Time column -> "HH:mm:ss", the way Laravel's raw model serialized it. */
+export function timeSeconds(value) {
+  if (value === null || value === undefined) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(11, 19);
+}
+
 /** Timestamp -> Laravel's ISO-8601 `toJSON()` form. */
 export function timestamp(value) {
   if (value === null || value === undefined) return null;
@@ -139,6 +147,28 @@ export function serializeCourseContent(content) {
   };
 }
 
+/**
+ * Serialize a raw CourseContent row the way Eloquent did for endpoints that
+ * returned the model directly (store/update, assessment score update). Those
+ * endpoints had no time cast, so Postgres serialized `time(0)` as "HH:mm:ss",
+ * NOT the "HH:mm" the `filter` endpoint formats.
+ */
+export function serializeCourseContentRaw(content) {
+  return {
+    id: num(content.id),
+    semester: content.semester,
+    code: content.code,
+    course_content: content.course_content,
+    credits: num(content.credits),
+    score: decimal2(content.score),
+    lecturer: content.lecturer,
+    day: content.day,
+    hour_start: timeSeconds(content.hour_start),
+    hour_end: timeSeconds(content.hour_end),
+    user_id: num(content.user_id),
+  };
+}
+
 /** Serialize a Grade row. Decimals become 2-dp strings. */
 export function serializeGrade(grade) {
   return {
@@ -147,6 +177,35 @@ export function serializeGrade(grade) {
     grade_point: decimal2(grade.grade_point),
     minimal_score: decimal2(grade.minimal_score),
     maximal_score: decimal2(grade.maximal_score),
+    user_id: num(grade.user_id),
+  };
+}
+
+/**
+ * `GET /settings/grades` shape: Laravel's index mapped four fields only and
+ * omitted user_id, with decimals as 2-dp strings.
+ */
+export function serializeGradeIndex(grade) {
+  return {
+    id: num(grade.id),
+    grade: grade.grade,
+    grade_point: decimal2(grade.grade_point),
+    minimal_score: decimal2(grade.minimal_score),
+    maximal_score: decimal2(grade.maximal_score),
+  };
+}
+
+/**
+ * Raw Eloquent model shape for store/update, where decimals were JSON numbers
+ * (`3.5`), not strings.
+ */
+export function serializeGradeRaw(grade) {
+  return {
+    id: num(grade.id),
+    grade: grade.grade,
+    grade_point: Number(grade.grade_point),
+    minimal_score: Number(grade.minimal_score),
+    maximal_score: Number(grade.maximal_score),
     user_id: num(grade.user_id),
   };
 }

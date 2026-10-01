@@ -7,10 +7,7 @@ export const authApi = {
     // via the global 401 redirect.
     login: (data) => axiosInstance.post('/auth/login', data, { skipAuthLogout: true }),
 
-    register: (data) =>
-        axiosInstance.post('/auth/register', data, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        }),
+    register: (data) => axiosInstance.post('/auth/register', data),
 
     logout: () => axiosInstance.post('/auth/logout'),
 

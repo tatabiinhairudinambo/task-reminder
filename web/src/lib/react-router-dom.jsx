@@ -1,3 +1,3 @@
 'use client';
 
-export { Link, NavLink, Navigate, useNavigate, useLocation, useParams, useSearchParams } from '@/lib/react-router-compat';
+export { Link, NavLink, Navigate, useNavigate, useLocation, useParams, useSearchParams, MemoryRouter } from '@/lib/react-router-compat';

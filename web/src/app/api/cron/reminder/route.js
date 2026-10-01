@@ -26,29 +26,28 @@ export async function GET(request) {
     }
   }
 
-  const users = await prisma.user.findMany({
-    where: { email_verified_at: { not: null } },
-    select: { id: true },
-  });
+  // Laravel iterated every Setting row (not only verified users): a user who
+  // never verified still has preferences and tasks.
+  const settings = await prisma.setting.findMany({ select: { user_id: true } });
 
   let delivered = 0;
   let skipped = 0;
   const failures = [];
 
-  for (const user of users) {
+  for (const setting of settings) {
     try {
-      const { count } = await sendReminderDigest(user.id);
+      const { count } = await sendReminderDigest(setting.user_id);
 
       if (count > 0) delivered += 1;
       else skipped += 1;
     } catch (error) {
-      failures.push({ user_id: Number(user.id), error: error.message });
+      failures.push({ user_id: Number(setting.user_id), error: error.message });
     }
   }
 
   return NextResponse.json({
     code: 200,
     message: 'Reminder dijalankan',
-    data: { users: users.length, delivered, skipped, failures },
+    data: { users: settings.length, delivered, skipped, failures },
   });
 }

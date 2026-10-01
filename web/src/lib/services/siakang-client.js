@@ -26,7 +26,13 @@ function localScriptPath() {
 }
 
 function venvPython() {
-  return path.resolve(process.cwd(), '..', 'server', 'siakang-sync', '.venv', 'bin', 'python');
+  // .venv/bin/python on POSIX, .venv/Scripts/python.exe on Windows - the same
+  // environment setup `uv sync` produces on both.
+  const base = path.resolve(process.cwd(), '..', 'server', 'siakang-sync', '.venv');
+
+  return process.platform === 'win32'
+    ? path.join(base, 'Scripts', 'python.exe')
+    : path.join(base, 'bin', 'python');
 }
 
 /**
@@ -72,7 +78,7 @@ function runLocally(payload, timeoutMs) {
 
     // turbopackIgnore: this spawn is a runtime concern (a local Python venv)
     // and must not make the bundler trace the whole repository.
-    const child = spawn(python, [script], {
+    const child = spawn(/* turbopackIgnore: true */ python, [script], {
       cwd: path.dirname(script),
       env: { ...process.env, PYTHONUNBUFFERED: '1' },
     });
@@ -150,7 +156,8 @@ export function getGrades(email, password, semester) {
 }
 
 export function getSchedule(email, password, semester) {
-  return run({ action: 'get_schedule', email, password, semester });
+  // Laravel gave the schedule bridge a 120s timeout instead of the default 60.
+  return run({ action: 'get_schedule', email, password, semester }, 120000);
 }
 
 /** True when Siakang features can work in the current environment. */

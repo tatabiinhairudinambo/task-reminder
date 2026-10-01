@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeProviderContext = createContext({
@@ -14,9 +13,13 @@ export function ThemeProvider({
     storageKey = 'task-reminder-theme',
     ...props
 }) {
-    const [theme, setTheme] = useState(
-        () => localStorage.getItem(storageKey) || defaultTheme
-    );
+    // localStorage is unavailable during SSR; read it lazily in the browser.
+    // The client SPA only ever mounted in the browser, so the stored value was
+    // always available at first render there.
+    const [theme, setTheme] = useState(() => {
+        if (typeof window === 'undefined') return defaultTheme;
+        return localStorage.getItem(storageKey) || defaultTheme;
+    });
 
     useEffect(() => {
         const root = window.document.documentElement;
@@ -44,7 +47,9 @@ export function ThemeProvider({
     const value = {
         theme,
         setTheme: (newTheme) => {
-            localStorage.setItem(storageKey, newTheme);
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(storageKey, newTheme);
+            }
             setTheme(newTheme);
         },
     };

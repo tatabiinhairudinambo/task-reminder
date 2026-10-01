@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import { ApiError } from '@/lib/api-response';
 import { num, decimal2 } from '@/lib/serialize';
-import { serializeCourseContent } from '@/lib/serialize';
+import { serializeCourseContentRaw } from '@/lib/serialize';
 import { siakangCredentialsOf } from '@/lib/services/settings-service';
 import { getGrades } from '@/lib/services/siakang-client';
 
@@ -107,7 +107,7 @@ export async function updateScore(userId, id, score) {
     data: { score: score === null || score === undefined ? null : score },
   });
 
-  return serializeCourseContent(updated);
+  return serializeCourseContentRaw(updated);
 }
 
 /**

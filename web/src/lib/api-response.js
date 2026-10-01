@@ -65,7 +65,8 @@ export function route(fn) {
 /**
  * Laravel's default 422 body for Form Request failures:
  *   { message: "<first error>", errors: { field: ["..."] } }
- * Zod issues are reshaped into that structure.
+ * Zod issues (or a synthetic { issues: [...] } object) are reshaped into that
+ * structure.
  */
 export function sendValidationError(zodError) {
   const fieldErrors = {};

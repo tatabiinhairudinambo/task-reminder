@@ -58,11 +58,126 @@ export async function sendEmail({ to, subject, html, text }) {
   return { sent: true, provider: 'resend' };
 }
 
-function emailLayout(title, bodyHtml) {
-  return `<!doctype html><html><body style="font-family:Poppins,Arial,sans-serif;color:#0f172a">
-<h2 style="color:#2563eb">${title}</h2>${bodyHtml}
-<p style="color:#64748b;font-size:12px">Task Reminder</p>
-</body></html>`;
+
+/**
+ * HTML port of resources/views/emails/layouts/base.blade.php plus
+ * components/task-card + component/button + component/footer. Rendered inline
+ * here because Vercel has no Blade; the markup is kept identical.
+ */
+export function emailDocument({ subject, bodyHtml }) {
+  const year = new Date().getFullYear();
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${subject}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#fafafa;color:#0a0f1a;font-family:Poppins,'Segoe UI',Tahoma,sans-serif;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#fafafa;padding:24px 12px;">
+<tr><td align="center">
+<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+<tr><td style="background-color:#3b82f6;padding:18px 24px;">
+<h1 style="margin:0;font-size:20px;font-weight:600;line-height:1.3;color:#ffffff;">Reminder</h1>
+</td></tr>
+<tr><td style="padding:24px;">${bodyHtml}</td></tr>
+<tr><td style="padding:0 24px 24px;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #e2e8f0;padding-top:16px;">
+<tr><td style="font-size:12px;line-height:1.6;color:#64748b;text-align:center;">Ac ${year} Reminder. All rights reserved.</td></tr>
+</table>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
+/** resources/views/emails/components/button.blade.php */
+export function emailButtonHtml(url, label) {
+  return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:20px 0;">
+<tr><td align="center" bgcolor="#3b82f6" style="border-radius:8px;">
+<a href="${url}" target="_blank" style="display:inline-block;padding:12px 20px;font-size:14px;font-weight:600;line-height:1.2;color:#ffffff;text-decoration:none;">${label}</a>
+</td></tr>
+</table>`;
+}
+
+/** resources/views/emails/layouts/base.blade.php + footer + button */
+function emailDocumentFooter(dashboardUrl) {
+  return emailButtonHtml(dashboardUrl, 'Open Dashboard');
+}
+
+/** resources/views/emails/components/task-card.blade.php */
+function taskCard({ courseContent, task, deadline, deadlineLabel, deadlineLabelColor, priority, status }) {
+  const priorityPill = priority
+    ? '<span style="display:inline-block;padding:2px 10px;border-radius:999px;background-color:#dc2626;color:#ffffff;font-size:12px;font-weight:600;margin-left:8px;vertical-align:middle;">Priority</span>'
+    : '';
+
+  const deadlineBlock =
+    deadline !== undefined && deadline !== null && deadline !== ''
+      ? `<p style="margin:0 0 8px;font-size:12px;color:#64748b;">Deadline</p>
+<p style="margin:0;font-size:14px;font-weight:600;color:#0a0f1a;">${deadline}${
+          deadlineLabel
+            ? `<span style="display:inline-block;padding:2px 10px;border-radius:999px;background-color:${
+                deadlineLabelColor || '#64748b'
+              };color:#ffffff;font-size:12px;font-weight:600;margin-left:8px;vertical-align:middle;">${deadlineLabel}</span>`
+            : ''
+        }</p>`
+      : '';
+
+  const statusBlock = status
+    ? `<p style="margin:10px 0 0;"><span style="display:inline-block;padding:4px 10px;border-radius:999px;background-color:${
+        status === 'Completed' ? '#16a34a' : '#ef4444'
+      };color:#ffffff;font-size:12px;font-weight:600;">${status}</span></p>`
+    : '';
+
+  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e2e8f0;background-color:#ffffff;border-radius:10px;margin:12px 0;">
+<tr><td style="padding:14px 16px;">
+<p style="margin:0 0 8px;font-size:12px;color:#64748b;">Course Content</p>
+<p style="margin:0 0 10px;font-size:15px;font-weight:600;color:#0a0f1a;">${courseContent}</p>
+<p style="margin:0 0 8px;font-size:12px;color:#64748b;">Task</p>
+<p style="margin:0 0 10px;font-size:15px;font-weight:600;color:#0a0f1a;">${task}${priorityPill}</p>
+${deadlineBlock}
+${statusBlock}
+</td></tr>
+</table>`;
+}
+
+const DASHBOARD_HINT_EMAIL =
+  'Lihat detail lengkap tugas di dashboard Anda.';
+
+/** resources/views/emails/task-reminder.blade.php */
+function taskReminderEmail(userName, items, taskWord) {
+  const cards = items
+    .map((item) =>
+      taskCard({
+        courseContent: item.course_content,
+        task: item.task,
+        deadline: item.deadline,
+        deadlineLabel: item.deadline_label,
+        deadlineLabelColor: item.deadline_color,
+        priority: item.priority,
+      })
+    )
+    .join('');
+
+  const dashboardUrl = `${frontendBase()}/dashboard`;
+
+  const body = `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">Hi ${userName},</p>
+<p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#0a0f1a;">You have <strong>${items.length}</strong> ${taskWord} to complete.</p>
+${cards}
+${emailDocumentFooter(dashboardUrl)}
+<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">${DASHBOARD_HINT_EMAIL}</p>`;
+
+  return emailDocument({ subject: 'Task Reminder Notification', bodyHtml: body });
+}
+
+/** FRONTEND_URL (or APP_URL) with no trailing slash. */
+function frontendBase() {
+  const base = (process.env.FRONTEND_URL || process.env.APP_URL || '').trim();
+
+  return base === '' ? '' : base.replace(/\/$/, '');
 }
 
 /** Notify that a task was created, honouring the user's channel setting. */
@@ -76,14 +191,15 @@ export async function notifyTaskCreated(userId, { courseContent, task, deadline,
     const user = await prisma.user.findUnique({ where: { id: userId } });
     await sendEmail({
       to: user.email,
-      subject: `Tugas baru: ${task}`,
-      html: emailLayout(
-        'Notifikasi Tugas Dibuat',
-        `<p><strong>Mata Kuliah:</strong> ${courseContent}</p>
-         <p><strong>Tugas:</strong> ${task}</p>
-         <p><strong>Tenggat:</strong> ${deadline}</p>
-         ${description ? `<p><strong>Deskripsi:</strong> ${description}</p>` : ''}`
-      ),
+      subject: 'Task Created Notification',
+      html: emailDocument({
+        subject: 'Task Created Notification',
+        bodyHtml: `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">Hi ${user.name},</p>
+<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">You just created a new task. Here are the details:</p>
+${taskCard({ courseContent, task, deadline: longDateId(deadline) })}
+${emailDocumentFooter(`${frontendBase()}/dashboard`)}
+<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">${DASHBOARD_HINT_EMAIL}</p>`,
+      }),
       text: `Tugas baru: ${task} (${courseContent}), tenggat ${deadline}`,
     });
     channels.push('email');
@@ -112,12 +228,15 @@ export async function notifyTaskCompleted(userId, { courseContent, task, descrip
     const user = await prisma.user.findUnique({ where: { id: userId } });
     await sendEmail({
       to: user.email,
-      subject: `Tugas selesai: ${task}`,
-      html: emailLayout(
-        'Notifikasi Tugas Selesai',
-        `<p><strong>Mata Kuliah:</strong> ${courseContent}</p>
-         <p><strong>Tugas:</strong> ${task}</p>`
-      ),
+      subject: 'Notifikasi Tugas Selesai',
+      html: emailDocument({
+        subject: 'Notifikasi Tugas Selesai',
+        bodyHtml: `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">Hi ${user.name},</p>
+<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">Great job! You completed a task:</p>
+${taskCard({ courseContent, task, status: 'Completed' })}
+${emailDocumentFooter(`${frontendBase()}/dashboard`)}
+<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">${DASHBOARD_HINT_EMAIL}</p>`,
+      }),
       text: `Tugas selesai: ${task} (${courseContent})`,
     });
     channels.push('email');
@@ -138,19 +257,30 @@ export async function notifyTaskCompleted(userId, { courseContent, task, descrip
 /**
  * Send the daily reminder digest for one user.
  * Returns the channels that actually accepted the message.
+ *
+ * Selection mirrors SendReminderEmailNotifications: a task is reminded when
+ * `deadline` equals the setting's reminder date, today, tomorrow, OR it has
+ * priority - and is still open. Overdue tasks are NOT included unless they
+ * are priority flagged, exactly like the Laravel command.
  */
-export async function sendReminderDigest(userId) {
+export async function sendReminderDigest(userId, referenceDate = new Date()) {
   const setting = await prisma.setting.findUnique({ where: { user_id: userId } });
   if (!setting) return { channels: [], count: 0 };
 
-  const today = new Date();
-  const horizon = new Date(today.getTime() + 7 * 86400000);
+  const today = dateInZone(referenceDate);
+  const tomorrow = shiftDays(today, 1);
+  const reminderDay = shiftDays(today, Number.parseInt(setting.deadline_notification, 10) || 0);
 
   const tasks = await prisma.task.findMany({
     where: {
       user_id: userId,
       status: false,
-      deadline: { lte: horizon },
+      OR: [
+        { deadline: dateValue(reminderDay) },
+        { deadline: dateValue(today) },
+        { deadline: dateValue(tomorrow) },
+        { priority: true },
+      ],
     },
     orderBy: { deadline: 'asc' },
     include: { courseContent: { select: { course_content: true } } },
@@ -158,15 +288,23 @@ export async function sendReminderDigest(userId) {
 
   if (tasks.length === 0) return { channels: [], count: 0 };
 
-  const notifications = tasks.map((task) => ({
-    task: task.task,
-    description: task.description,
-    course_content: task.courseContent?.course_content ?? '-',
-    // ISO date keeps the payload parseable; the label is rendered at send time.
-    deadline: task.deadline.toISOString().slice(0, 10),
-    deadline_label: deadlineLabelFor(task),
-    priority: task.priority,
-  }));
+  // ReminderNotification sorts priority first, then nearest deadline, and the
+  // email renders `j F Y` in the app locale (id, because .env sets APP_LOCALE).
+  const notifications = tasks
+    .map((task) => ({
+      task: task.task,
+      description: task.description,
+      course_content: task.courseContent?.course_content ?? '-',
+      // ISO date keeps the payload parseable; the label is rendered at send time.
+      deadline: task.deadline.toISOString().slice(0, 10),
+      deadline_label: deadlineLabelFor(task),
+      priority: task.priority,
+    }))
+    .sort((a, b) => {
+      const byPriority = Number(Boolean(b.priority)) - Number(Boolean(a.priority));
+      if (byPriority !== 0) return byPriority;
+      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+    });
 
   const channels = [];
 
@@ -185,21 +323,22 @@ export async function sendReminderDigest(userId) {
 
   if (wantsEmail(setting)) {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const rows = notifications
-      .map(
-        (n) =>
-          `<li><strong>${n.task}</strong> — ${n.course_content} (${n.deadline} · ${n.deadline_label})</li>`
-      )
-      .join('');
+    const formatted = notifications.map((n) => ({
+      course_content: n.course_content,
+      task: n.task,
+      // Laravel's mail view rendered the translated date itself.
+      deadline: longDateId(n.deadline),
+      deadline_label: n.deadline_label ?? null,
+      deadline_color: deadlineBadgeColor(n.deadline_label),
+      priority: Boolean(n.priority),
+    }));
+    const taskWord = formatted.length === 1 ? 'task' : 'tasks';
 
     await sendEmail({
       to: user.email,
-      subject: 'Pengingat tugas',
-      html: emailLayout(
-        'Notifikasi Pengingat Tugas',
-        `<p>Anda memiliki <strong>${notifications.length}</strong> tugas tertunda:</p><ul>${rows}</ul>`
-      ),
-      text: notifications.map((n) => `${n.task} (${n.course_content}) — ${n.deadline}`).join('\n'),
+      subject: 'Task Reminder Notification',
+      html: taskReminderEmail(user.name, formatted, taskWord),
+      text: formatted.map((n) => `${n.task} (${n.course_content}) — ${n.deadline}`).join('\n'),
     });
     channels.push('email');
   }
@@ -223,11 +362,15 @@ export async function sendTestNotification(userId) {
   if (wantsEmail(setting)) {
     await sendEmail({
       to: user.email,
-      subject: 'Notifikasi Uji',
-      html: emailLayout(
-        'Notifikasi Uji',
-        '<p>Ini adalah notifikasi uji dari Task Reminder</p><p><strong>Channel:</strong> Email</p>'
-      ),
+      subject: 'Test Notification',
+      html: emailDocument({
+        subject: 'Test Notification',
+        bodyHtml: `<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">Hi ${user.name},</p>
+<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">This is a test notification from Task Reminder.</p>
+<p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#0a0f1a;">If you receive this email, your notification setup is working correctly.</p>
+${emailDocumentFooter(`${frontendBase()}/dashboard`)}
+<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#64748b;">You can safely ignore this message.</p>`,
+      }),
       text: 'Ini adalah notifikasi uji dari Task Reminder',
     });
     channels.push('email');
@@ -240,7 +383,12 @@ export async function sendTestNotification(userId) {
       throw error;
     }
 
-    const ok = await sendMessage(setting.telegram_chat_id, buildTestMessage('Telegram'));
+    // Laravel passed the stored channel (email/telegram/both) into the test
+    // message so "*Channel:*" reflects the actual setting.
+    const ok = await sendMessage(
+      setting.telegram_chat_id,
+      buildTestMessage(setting.notification_channel)
+    );
 
     if (!ok) {
       const error = new Error('Gagal mengirim notifikasi uji Telegram');
@@ -262,6 +410,78 @@ export async function sendTestNotification(userId) {
 
 function userEmail() {
   return true;
+}
+
+/** "YYYY-MM-DD" for a Date, in the app timezone (not the server's). */
+function dateInZone(value) {
+  const timeZone = process.env.APP_TIMEZONE || 'Asia/Jakarta';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(value instanceof Date ? value : new Date(value));
+
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}
+
+/** Shift a "YYYY-MM-DD" string by N days (UTC-based, date-only). */
+function shiftDays(isoDay, days) {
+  const [y, m, d] = isoDay.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}
+
+/** "YYYY-MM-DD" -> Date at UTC midnight, the value Prisma compares for @db.Date. */
+function dateValue(isoDay) {
+  const [y, m, d] = isoDay.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
+}
+
+/** `j F Y` in Indonesian, matching Carbon's translatedFormat under APP_LOCALE=id. */
+function longDateId(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value ?? '');
+
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: process.env.APP_TIMEZONE || 'Asia/Jakarta',
+  }).format(d);
+}
+
+/**
+ * Badge color for a deadline label, mirroring Task::deadlineBadgeColor
+ * (green selesai, red terlambat/hari ini/d<=1, amber d<=5, otherwise slate).
+ */
+function deadlineBadgeColor(label) {
+  const normalized = String(label ?? '').toLowerCase().trim();
+
+  if (normalized.includes('selesai') || normalized.includes('completed')) {
+    return '#16a34a';
+  }
+
+  if (
+    normalized.includes('terlambat') ||
+    normalized.includes('overdue') ||
+    normalized.includes('hari ini') ||
+    normalized.includes('today')
+  ) {
+    return '#dc2626';
+  }
+
+  const match = normalized.match(/^(\d+)\s*hari/);
+
+  if (match) {
+    const days = Number(match[1]);
+    if (days <= 1) return '#dc2626';
+    if (days <= 5) return '#d97706';
+    return '#64748b';
+  }
+
+  return '#64748b';
 }
 
 function deadlineLabelFor(task) {

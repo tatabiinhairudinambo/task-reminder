@@ -24,9 +24,9 @@ const DEFAULT_GRADES = [
   ['B', 3.0, 70, 74.99],
   ['B-', 2.75, 65, 69.99],
   ['C+', 2.5, 60, 64.99],
-  ['C', 2.0, 55, 59.99],
-  ['D', 1.0, 40, 54.99],
-  ['E', 0.0, 0, 39.99],
+  ['C', 2.0, 56, 59.99],
+  ['D', 1.0, 50, 55.99],
+  ['E', 0.0, 0, 49.99],
 ];
 
 function marker() {
@@ -57,8 +57,10 @@ export async function register({ name, email, password }) {
   const existing = await prisma.user.findUnique({ where: { email } });
 
   if (existing) {
-    throw new ApiError('Kolom email sudah digunakan.', 422, {
-      email: ['Kolom email sudah digunakan.'],
+    // RegisterRequest uses Rule::unique('users','email'), whose default message
+    // is English (no lang/id translation files ship with the app).
+    throw new ApiError('The email has already been taken.', 422, {
+      email: ['The email has already been taken.'],
     });
   }
 
@@ -122,10 +124,23 @@ export async function buildVerificationUrl(user) {
   if (user.email_verified_at) return null;
 
   const { temporarySignedUrl } = await import('@/lib/signed-url');
+  const { createHash } = await import('node:crypto');
 
-  // The path is the API route that performs the verification; its signature
-  // is validated by that handler with the same helper.
-  return temporarySignedUrl(`/api/email/verify/${user.id}`, {}, 3600);
+  // Mirrors VerifyEmailNotification: Laravel builds the signed API URL and
+  // rewrites `/api` to FRONTEND_URL `/auth`, so the emailed link points at the
+  // SPA route and carries the same expires+signature query. `hash` is
+  // sha1(email), exactly like Laravel's VerifyEmail notification.
+  const frontend = (
+    process.env.FRONTEND_URL ||
+    process.env.APP_URL ||
+    'http://localhost:3000'
+  ).replace(/\/$/, '');
+  const hash = createHash('sha1').update(user.email).digest('hex');
+  const apiPath = `/api/email/verify/${user.id}/${hash}`;
+  const signed = temporarySignedUrl(apiPath, {}, 3600);
+  const query = signed.slice(signed.indexOf('?'));
+
+  return `${frontend}/auth/email/verify/${user.id}/${hash}${query}`;
 }
 
 export async function verifyEmail(userId) {

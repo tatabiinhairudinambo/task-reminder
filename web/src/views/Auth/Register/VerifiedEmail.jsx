@@ -5,6 +5,9 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { authApi } from '@/api/authApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
+// Port of pages/Auth/Register/VerifiedEmail.jsx: the SPA reads [id]/[hash] and
+// the signed-URL query, calls the API and renders the outcome.
+
 const VerifiedEmail = () => {
     const navigate = useNavigate();
     const { id, hash } = useParams();
@@ -50,14 +53,13 @@ const VerifiedEmail = () => {
             setTimeout(() => {
                 navigate('/dashboard');
             }, 3000);
-
         } finally {
             setLoading(false);
         }
     }, [id, hash, navigate, searchParams]);
 
     useEffect(() => {
-        localStorage.removeItem('isPasswordReset')
+        localStorage.removeItem('isPasswordReset');
 
         const storedToken = localStorage.getItem('token');
         const storedEmail = localStorage.getItem('email');

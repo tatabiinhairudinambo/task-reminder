@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { ApiError } from '@/lib/api-response';
-import { serializeGrade, num } from '@/lib/serialize';
+import { serializeGradeIndex, serializeGradeRaw, num } from '@/lib/serialize';
 
 // Port of App\Services\GradeService.
 //
@@ -8,7 +8,9 @@ import { serializeGrade, num } from '@/lib/serialize';
 // labels land last. That ordering is encoded here in JS instead of raw SQL,
 // keeping it portable and identical on Postgres.
 
-const GRADE_ORDER = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'E', 'F'];
+const GRADE_ORDER = [
+  'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'E', 'F',
+];
 
 function gradeRank(grade) {
   const index = GRADE_ORDER.indexOf(String(grade).trim().toUpperCase());
@@ -18,9 +20,11 @@ function gradeRank(grade) {
 export async function getAll(userId) {
   const grades = await prisma.grade.findMany({ where: { user_id: userId } });
 
+  // Laravel's index mapped only id/grade/grade_point/minimal_score/
+  // maximal_score - no user_id, decimals as 2-dp strings.
   return grades
     .sort((a, b) => gradeRank(a.grade) - gradeRank(b.grade))
-    .map(serializeGrade);
+    .map(serializeGradeIndex);
 }
 
 export async function create(userId, data) {
@@ -29,8 +33,10 @@ export async function create(userId, data) {
   });
 
   if (existing) {
-    throw new ApiError('Kolom grade sudah digunakan.', 422, {
-      grade: ['Kolom grade sudah digunakan.'],
+    // Laravel enforced this with Rule::unique('grades')->where(user_id), so
+    // the Form Request emitted the standard English unique message.
+    throw new ApiError('The grade has already been taken.', 422, {
+      grade: ['The grade has already been taken.'],
     });
   }
 
@@ -44,7 +50,7 @@ export async function create(userId, data) {
     },
   });
 
-  return serializeGrade(grade);
+  return serializeGradeRaw(grade);
 }
 
 export async function update(userId, id, data) {
@@ -61,8 +67,8 @@ export async function update(userId, id, data) {
   });
 
   if (duplicate) {
-    throw new ApiError('Kolom grade sudah digunakan.', 422, {
-      grade: ['Kolom grade sudah digunakan.'],
+    throw new ApiError('The grade has already been taken.', 422, {
+      grade: ['The grade has already been taken.'],
     });
   }
 
@@ -76,7 +82,7 @@ export async function update(userId, id, data) {
     },
   });
 
-  return serializeGrade(grade);
+  return serializeGradeRaw(grade);
 }
 
 export async function remove(userId, id) {

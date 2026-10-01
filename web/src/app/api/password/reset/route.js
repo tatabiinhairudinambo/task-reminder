@@ -28,7 +28,9 @@ export const POST = route(async (request) => {
     );
   };
 
-  if (!record || record.token !== token) {
+  // Laravel hashes the stored token (DatabaseTokenRepository), so verification
+  // is a bcrypt compare against the plaintext from the emailed link.
+  if (!record || !(await bcrypt.compare(token, record.token))) {
     return invalid();
   }
 

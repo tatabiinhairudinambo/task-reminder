@@ -35,6 +35,21 @@ export const POST = route(async (request) => {
     return sendError('The file field is required.', 422, { file: ['The file field is required.'] });
   }
 
+  // Laravel: file|mimes:xlsx,xls,csv|max:5120 (5 MB, kilobytes in Laravel).
+  if (file.size > 5120 * 1024) {
+    return sendError('The file field must not be greater than 5120 kilobytes.', 422, {
+      file: ['The file field must not be greater than 5120 kilobytes.'],
+    });
+  }
+
+  const extension = String(file.name ?? '').split('.').pop()?.toLowerCase();
+
+  if (!['xlsx', 'xls', 'csv'].includes(extension)) {
+    return sendError('The file field must be a file of type: xlsx, xls, csv.', 422, {
+      file: ['The file field must be a file of type: xlsx, xls, csv.'],
+    });
+  }
+
   let rows;
 
   try {
@@ -47,8 +62,9 @@ export const POST = route(async (request) => {
     return sendError('File yang diunggah kosong.', 422);
   }
 
-  // Normalize legacy credit aliases before checking headings, so a template
-  // using SCU is accepted.
+  // Laravel normalised SCU/SKS -> credits BEFORE computing the heading diff and
+  // treated an scu/sks column as satisfying `credits` (CourseContentService
+  // lines 403-427). Mirror both behaviours.
   const normalized = rows.map((row) => {
     if (!row.credits && (row.scu || row.sks)) {
       return { ...row, credits: row.scu || row.sks };
@@ -56,7 +72,13 @@ export const POST = route(async (request) => {
     return row;
   });
 
-  const keysForCheck = Object.keys(rows[0]);
+  const firstRowKeys = Object.keys(rows[0]);
+  const keysForCheck = [...firstRowKeys];
+
+  if (firstRowKeys.includes('scu') || firstRowKeys.includes('sks')) {
+    keysForCheck.push('credits');
+  }
+
   const missing = EXPECTED.filter((h) => !keysForCheck.includes(h));
 
   if (missing.length > 0) {
@@ -88,8 +110,9 @@ export const POST = route(async (request) => {
   const validRows = [];
 
   normalized.forEach((row, index) => {
-    // Skip fully blank rows.
-    const hasValue = EXPECTED.some((h) => String(row[h] ?? '').trim() !== '');
+    // Laravel skipped a row only when EVERY column was empty, not just the
+    // eight expected ones (CourseContentService line 460).
+    const hasValue = Object.values(row).some((value) => String(value ?? '').trim() !== '');
     if (!hasValue) return;
 
     const lineNumber = index + 2;
@@ -174,9 +197,12 @@ async function readSheet(file) {
   const sheet = workbook.worksheets[0];
   if (!sheet) return [];
 
+  // Laravel's WithHeadingRow + slug formatter maps "Course Content" ->
+  // course_content, "Hour Start" -> hour_start, so headings are slugged, not
+  // merely lowercased.
   const headings = [];
   sheet.getRow(1).eachCell((cell, colNumber) => {
-    headings[colNumber] = String(cell.value ?? '').trim().toLowerCase();
+    headings[colNumber] = slugHeading(cell.value);
   });
 
   const rows = [];
@@ -222,6 +248,19 @@ function validateRow(row) {
   }
 
   return errors;
+}
+
+/**
+ * Laravel's HeadingRowFormatter slug formatter: `Str::slug($value, '_')` -
+ * lowercases, trims, and collapses everything non-alphanumeric to underscores.
+ */
+function slugHeading(value) {
+  return String(value ?? '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
 }
 
 function timeToDate(value) {

@@ -1,39 +1,49 @@
 ## Project
 
-Monorepo with two separate dev servers:
+Monorepo:
+- `web/` — **active app**: Next.js 16 App Router (UI + API route handlers) + Prisma 7 + Vitest
+- `client/` — legacy React 19 + Vite SPA (pnpm) + Vitest
+- `server/` — legacy Laravel 13 API + Octane (FrankenPHP) + Pest tests
 
-- `client/` — React 19 + Vite SPA (pnpm) + Vitest
-- `server/` — Laravel 13 API + Octane (FrankenPHP) + Pest tests
+`web/` replaces both `client/` (UI) and `server/` (API) against the **same Supabase database**; during the transition `server/` can still read rows `web/` wrote (crypto, password-reset token hashes, time formats and validation messages are byte-compatible).
 
 ## Commands
 
 ```bash
-# Both must run concurrently for full-stack dev
-cd server && composer run dev    # API :8000 + queue + pail logs + Laravel Vite
-cd client && pnpm dev            # React SPA :5173
+# Active app
+cd web && pnpm dev              # http://localhost:3000 (UI + /api/*)
+cd web && pnpm build            # prisma generate + next build
+cd web && pnpm lint
+cd web && pnpm test             # Vitest + jsdom
+
+# Manual reminder trigger (same endpoint Vercel Cron hits)
+cd web && pnpm cron:reminder
+
+# Legacy (still runnable)
+cd server && composer run dev   # API :8000 + queue + pail logs
+cd client && pnpm dev           # React SPA :5173
 ```
 
 ```bash
-# Single test / test suite
-cd server
-php artisan test --filter=MyTest
-php artisan test --testsuite=Feature
-php artisan test --testsuite=Unit
-
-# Lint (client only)
-cd client && pnpm lint
-
-# Format (server)
-cd server && ./vendor/bin/pint
-
-# Manual reminder trigger (bypasses schedule)
-cd server && php artisan notifications:reminder
-
-# Queue worker only
-cd server && php artisan queue:listen --tries=1
+# Legacy tests
+cd server && php artisan test --filter=MyTest
+cd server && php artisan test --testsuite=Feature
+cd client && pnpm test
 ```
 
-## Architecture
+## Architecture (web/)
+
+- **Route handlers**: `web/src/app/api/**/route.js` mirror every Laravel endpoint 1:1 (same verbs, status codes, `{code,message,data}` envelope via `src/lib/api-response.js`).
+- **Services**: `web/src/lib/services/*.js` are ports of `server/app/Services/*`; Prisma is the data layer (`src/lib/db.js`).
+- **Validation**: `web/src/lib/validation.js` (Zod) ports the 20 Form Requests. Messages are the English Laravel defaults (the app ships no `lang/id` files), including `exists:course_contents` as a 422 in the task routes.
+- **Auth**: httpOnly JWT cookie (`src/lib/auth.js`) replaces Sanctum tokens; `requireVerifiedUser()` replaces `auth:sanctum` + `verified`. Rate limits from `server/routes/api.php` are enforced in `web/middleware.js` (10/min auth, 5/min password, 6/min resend).
+- **Reminders**: `/api/cron/reminder` + `vercel.json` (07:00 WIB) select tasks by `setting.deadline_notification` date OR today OR tomorrow OR priority, then sort priority-first — same as `SendReminderEmailNotifications`.
+- **Crypto**: `src/lib/crypto.js` implements Laravel's encrypter (AES-256-CBC + HMAC with the raw APP_KEY, `encrypt($v, false)` = no PHP serialize). Requires `LARAVEL_APP_KEY` = `server/.env APP_KEY`.
+- **Password reset tokens**: stored bcrypt-hashed like Laravel's broker; 60-minute expiry and 60-second resend throttle.
+- **Email/Telegram**: inline sends (no queue on Vercel). Email templates are HTML ports of `server/resources/views/emails/*`; Telegram MarkdownV2 chunking is unchanged.
+- **react-router shim**: `react-router-dom` aliases to `src/lib/react-router-dom.jsx` (Next App Router), so the ported components keep their imports.
+
+## Architecture (legacy server/)
 
 - **Controller → Service**: Controllers in `app/Http/Controllers/` delegate to services in `app/Services/`. All controllers use the `ApiResponse` trait for JSON responses.
 - **Validation**: All request validation lives in `app/Http/Requests/` Form Requests (20 classes), controllers use `$request->validated()` only. See `StoreTaskRequest`, `UpdateGradeRequest` etc for `authorize` and `rules`.

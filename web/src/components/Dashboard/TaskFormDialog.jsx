@@ -149,7 +149,7 @@ export const TaskFormDialog = ({
     return (
         <>
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-xl" persistent>
+            <DialogContent className="sm:max-w-xl">
                 <DialogHeader>
                     <DialogTitle>{mode === 'create' ? 'Tambah Tugas Baru' : 'Ubah Tugas'}</DialogTitle>
                     <DialogDescription>Masukkan detail tugas yang ingin dikerjakan.</DialogDescription>

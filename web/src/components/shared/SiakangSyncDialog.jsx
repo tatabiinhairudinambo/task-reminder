@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { assessmentApi } from '@/api/assessmentApi';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DiscardConfirmDialog } from '@/components/shared/DiscardConfirmDialog';
 
 export const SiakangSyncDialog = ({
     open,
@@ -26,6 +27,9 @@ export const SiakangSyncDialog = ({
     const [selectedSource, setSelectedSource] = useState('');
     const [isLoadingSemesters, setIsLoadingSemesters] = useState(false);
     const [fetchError, setFetchError] = useState('');
+    const [showDiscard, setShowDiscard] = useState(false);
+
+    const isDirty = selectedSource !== '';
 
     useEffect(() => {
         if (!open) return;
@@ -60,9 +64,28 @@ export const SiakangSyncDialog = ({
         }
     };
 
+    const requestClose = () => {
+        if (isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(false);
+    };
+
+    const handleOpenChange = (nextOpen) => {
+        if (!nextOpen && isDirty) {
+            setShowDiscard(true);
+            return;
+        }
+
+        onOpenChange(nextOpen);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent persistent>
+        <>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>{description}</DialogDescription>
@@ -91,7 +114,7 @@ export const SiakangSyncDialog = ({
                     )}
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={requestClose}>
                             Batal
                         </Button>
                         <Button type="submit" disabled={isLoading || !selectedSource}>
@@ -101,5 +124,14 @@ export const SiakangSyncDialog = ({
                 </form>
             </DialogContent>
         </Dialog>
+            <DiscardConfirmDialog
+                open={showDiscard}
+                onOpenChange={setShowDiscard}
+                onConfirm={() => {
+                    setShowDiscard(false);
+                    onOpenChange(false);
+                }}
+            />
+        </>
     );
 };

@@ -134,4 +134,12 @@ export function useSearchParams() {
   }, [params]);
 }
 
-export default { Link, NavLink, Navigate, useNavigate, useLocation, useParams, useSearchParams };
+/**
+ * MemoryRouter - only used by tests (the App Router supplies real routing in
+ * the app). Renders children unchanged.
+ */
+export function MemoryRouter({ children }) {
+  return children ?? null;
+}
+
+export default { Link, NavLink, Navigate, useNavigate, useLocation, useParams, useSearchParams, MemoryRouter };

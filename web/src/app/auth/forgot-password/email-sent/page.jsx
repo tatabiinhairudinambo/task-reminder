@@ -1,6 +1,6 @@
 'use client';
 
-import PasswordEmailSent from '@/pages/Auth/ResetPassword/PasswordEmailSent';
+import PasswordEmailSent from '@/views/Auth/ResetPassword/PasswordEmailSent';
 
 export default function Page() {
   return <PasswordEmailSent />;

@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 // Replicates Laravel's `encrypted` cast for settings.siakang_email and
 // settings.siakang_password.
@@ -30,9 +30,17 @@ function appKey() {
   return key;
 }
 
-function keyHash() {
-  // Laravel derives the MAC key from the first 16 bytes of the key.
-  return createHash('sha256').update(appKey().slice(0, 16)).digest();
+function macKey() {
+  // Illuminate\Encryption\Encrypter::hash() HMACs with the RAW APP_KEY bytes.
+  // (An earlier port derived sha256(key[0:16]); that never matched Laravel.)
+  return appKey();
+}
+
+function macFor(ivB64, valueB64) {
+  return createHmac('sha256', macKey())
+    .update(ivB64)
+    .update(valueB64)
+    .digest('hex');
 }
 
 /** Encrypt a value the way Laravel's encrypter does. */
@@ -45,14 +53,9 @@ export function encrypt(value) {
 
   const ivB64 = iv.toString('base64');
   const valueB64 = encrypted.toString('base64');
-  const mac = createHash('sha256')
-    .update(ivB64)
-    .update(valueB64)
-    .update(keyHash())
-    .digest('hex');
 
   return Buffer.from(
-    JSON.stringify({ iv: ivB64, value: valueB64, mac, tag: '' }),
+    JSON.stringify({ iv: ivB64, value: valueB64, mac: macFor(ivB64, valueB64), tag: '' }),
     'utf8'
   ).toString('base64');
 }
@@ -71,13 +74,10 @@ export function decrypt(payload) {
 
   if (!parsed?.iv || !parsed?.value || !parsed?.mac) return null;
 
-  const expected = createHash('sha256')
-    .update(parsed.iv)
-    .update(parsed.value)
-    .update(keyHash())
-    .digest('hex');
+  const expected = Buffer.from(macFor(parsed.iv, parsed.value), 'utf8');
+  const actual = Buffer.from(String(parsed.mac), 'utf8');
 
-  if (expected !== parsed.mac) {
+  if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
     // The MAC failed: the ciphertext was written with a different APP_KEY or
     // has been tampered with. Treat as "no credentials" rather than throwing,
     // so a settings page still renders.

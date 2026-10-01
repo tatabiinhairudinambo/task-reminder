@@ -45,15 +45,14 @@ const Register = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('email', email);
-        formData.append('password', password);
-        formData.append('password_confirmation', confirmPassword);
-
         try {
             setLoading(true);
-            const response = await authApi.register(formData);
+            const response = await authApi.register({
+                name,
+                email,
+                password,
+                password_confirmation: confirmPassword,
+            });
 
             localStorage.setItem('token', response.data.data.token);
             localStorage.setItem('email', response.data.data.user.email);

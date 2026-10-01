@@ -6,7 +6,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Keep native/server-only packages out of the bundler's module graph.
-  serverExternalPackages: ['@prisma/client', 'bcryptjs', 'exceljs'],
+  serverExternalPackages: [
+    '@prisma/client',
+    '@prisma/adapter-pg',
+    'pg',
+    'bcryptjs',
+    'exceljs',
+  ],
 
   // `react-router-dom` resolves to a thin shim over the Next App Router, so the
   // ~18 ported components keep their existing imports (Link, useNavigate,
@@ -23,12 +29,6 @@ const nextConfig = {
       'src/lib/react-router-dom.jsx'
     );
     return config;
-  },
-
-  eslint: {
-    // Lint runs explicitly via `pnpm lint`; a lint error should not fail the
-    // production build on Vercel.
-    ignoreDuringBuilds: true,
   },
 };
 
