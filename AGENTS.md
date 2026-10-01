@@ -102,7 +102,18 @@ The app runs on both MySQL and PostgreSQL (Supabase). Keep these patterns when e
 - **Sanctum tokens:** resolve with `PersonalAccessToken::findToken($plainTextToken)`, never by querying `id` with the raw `id|secret` string.
 - Tests default to Supabase/Postgres: `php artisan test` (uses `task_reminder_pg_test`). MySQL still works: `DB_CONNECTION=mysql DB_DATABASE=task_reminder_test php artisan test`. Setup guide: `PANDUAN-SUPABASE.md`.
 
-## Deployment (single domain)
+## Deployment (web/ on Vercel)
+
+`web/` deploys to Vercel from this repo with **Root Directory = `web`** (Project → Settings → General). `web/vercel.json` pins `regions: ["icn1"]` (Seoul, next to the Supabase `ap-northeast-2` pooler) and declares the daily cron.
+
+1. Import the GitHub repo at vercel.com → set Root Directory to `web` → Framework preset: Next.js. `pnpm install` runs automatically (lockfile v9, pnpm 11 via `packageManager`); `allowBuilds` in `web/pnpm-workspace.yaml` lets Prisma's engines postinstall run.
+2. Add the env vars from `web/.env.example` in Project → Settings → Environment Variables. Required: `DATABASE_URL` (Supabase **transaction pooler**, port 6543, `sslmode=require`), `DIRECT_URL` (port 5432, for the Prisma CLI), `JWT_SECRET`, `LARAVEL_APP_KEY` (exact `server/.env APP_KEY`), `APP_URL` + `FRONTEND_URL` (the production domain), `CRON_SECRET`. Optional: `TELEGRAM_BOT_TOKEN`, `RESEND_API_KEY` + `MAIL_PROVIDER=resend` + `MAIL_FROM_ADDRESS`, `SIAKANG_BRIDGE_URL`, `APP_TIMEZONE`.
+3. Deploy. Without `CRON_SECRET` the cron route answers 503 in production (fail closed); with it, Vercel Cron sends `Authorization: Bearer $CRON_SECRET` daily at `0 0 * * *` UTC = 07:00 WIB.
+4. **Siakang features need a separate bridge host**: a serverless function cannot run the Python venv. Point `SIAKANG_BRIDGE_URL` at an HTTP service exposing `server/siakang-sync`'s JSON contract (`POST /run`), or leave it empty and those four routes answer with an actionable error.
+5. `LARAVEL_APP_KEY` is load-bearing for parity: it must equal `server/.env APP_KEY` so rows encrypted by (or for) the Laravel app decrypt correctly, otherwise `siakangCredentialsOf()` returns null and users must re-enter credentials.
+6. Hobby plan cron may be delayed up to an hour; Pro/Enterprise run it on time. Hobby function max duration is 300s — the Siakang routes request 120s (`maxDuration`), well within it.
+
+## Deployment (legacy single domain, server/ + client/)
 
 Production runs on **one domain** (`task.attaambo.dev`) from a single Oracle Cloud VM: Octane/FrankenPHP serves `/api/*` via Laravel and everything else from the pre-built SPA in `server/public/`. No CORS setup, no separate frontend host. Cloudflare Tunnel exposes it (TLS terminated by Cloudflare), so `trustProxies` is enabled when `APP_ENV=production` (`server/bootstrap/app.php`).
 

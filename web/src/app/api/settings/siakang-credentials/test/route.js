@@ -6,7 +6,9 @@ import { sendResponse, sendError, route } from '@/lib/api-response';
 // POST /api/settings/siakang-credentials/test
 //
 // Read-only re-verification of the stored credentials. The password is never
-// echoed back; only the email is returned.
+// echoed back; only the email is returned. The bridge can take up to 60s,
+// hence the raised function timeout.
+export const maxDuration = 120;
 
 export const POST = route(async () => {
   const user = await requireVerifiedUser();

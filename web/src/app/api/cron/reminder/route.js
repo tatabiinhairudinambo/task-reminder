@@ -14,11 +14,18 @@ import { sendReminderDigest } from '@/lib/services/notification-service';
 // Note: on the Hobby plan Vercel may delay a cron by up to an hour.
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export async function GET(request) {
   const secret = process.env.CRON_SECRET;
 
-  if (secret) {
+  // Fail closed in production: without the secret, anyone could trigger a
+  // reminder blast. Locally (no Vercel) an unset secret keeps it runnable.
+  if (!secret) {
+    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ message: 'Cron is not configured.' }, { status: 503 });
+    }
+  } else {
     const authorization = request.headers.get('authorization');
 
     if (authorization !== `Bearer ${secret}`) {

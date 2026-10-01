@@ -1,9 +1,6 @@
-// Vercel Cron configuration, replacing the systemd `schedule:work` service
-// that ran `notifications:reminder` daily at 07:00 Asia/Jakarta (UTC+7).
-//
-// "0 0 * * *" UTC = 07:00 WIB. Vercel sends `Authorization: Bearer $CRON_SECRET`
-// to the endpoint, which verifies it.
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["icn1"],
   "crons": [
     {
       "path": "/api/cron/reminder",

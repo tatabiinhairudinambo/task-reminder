@@ -4,6 +4,9 @@ import { sendResponse, sendError, sendValidationError, route } from '@/lib/api-r
 import { syncAssessmentSchema } from '@/lib/validation';
 
 // POST /api/assessments/sync - AssessmentController@sync
+//
+// The Siakang bridge can take up to 60s; raise the function timeout.
+export const maxDuration = 120;
 
 export const POST = route(async (request) => {
   const user = await requireVerifiedUser();

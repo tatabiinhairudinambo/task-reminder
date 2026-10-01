@@ -4,6 +4,9 @@ import { listSemesters } from '@/lib/services/siakang-client';
 import { sendResponse, sendError, route } from '@/lib/api-response';
 
 // GET /api/assessments/semesters - AssessmentController@semesters
+//
+// The Siakang bridge can take up to 60s; raise the function timeout.
+export const maxDuration = 120;
 
 export const GET = route(async () => {
   const user = await requireVerifiedUser();

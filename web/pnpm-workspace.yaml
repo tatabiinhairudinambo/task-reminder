@@ -1,4 +1,7 @@
+# pnpm 11 reads allowBuilds in pnpm-workspace.yaml (package.json's pnpm field
+# is ignored). These are the packages with postinstall scripts that must run:
+# Prisma's engines download and the wasm resolver used by Next.
 allowBuilds:
-  '@prisma/engines': set this to true or false
-  prisma: set this to true or false
-  unrs-resolver: set this to true or false
+  '@prisma/engines': true
+  prisma: true
+  unrs-resolver: true

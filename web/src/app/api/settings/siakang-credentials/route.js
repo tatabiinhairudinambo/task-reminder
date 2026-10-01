@@ -11,7 +11,9 @@ import { storeSiakangCredentialsSchema } from '@/lib/validation';
 // DELETE /api/settings/siakang-credentials
 //
 // The credentials are verified against Siakang BEFORE they are persisted, so
-// a wrong password is rejected instead of stored.
+// a wrong password is rejected instead of stored. The bridge can take up to
+// 60s, hence the raised function timeout.
+export const maxDuration = 120;
 
 export const PUT = route(async (request) => {
   const user = await requireVerifiedUser();

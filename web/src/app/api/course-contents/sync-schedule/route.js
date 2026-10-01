@@ -7,6 +7,11 @@ import { syncScheduleSchema } from '@/lib/validation';
 //
 // Requires the Python bridge. On Vercel this answers with an actionable error
 // unless SIAKANG_BRIDGE_URL points at a host running server/siakang-sync.
+//
+// The bridge allows 120s for a schedule scrape; Vercel's default function
+// timeout is shorter, so it is raised here (Pro allows 300s; on Hobby the plan
+// cap still applies and the request would be cut at 60s).
+export const maxDuration = 300;
 
 export const POST = route(async (request) => {
   const user = await requireVerifiedUser();
